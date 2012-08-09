@@ -1,0 +1,5 @@
+C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\bin\Release\SentryClient.dll
+C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\bin\Release\SentryClient.pdb
+C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\obj\Release\SentryClient.dll
+C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\obj\Release\SentryClient.pdb
