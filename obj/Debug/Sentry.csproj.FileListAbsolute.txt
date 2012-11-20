@@ -1,5 +1,0 @@
-C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\bin\Debug\SentryClient.dll
-C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\bin\Debug\SentryClient.pdb
-C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\obj\Debug\ResolveAssemblyReference.cache
-C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\obj\Debug\SentryClient.dll
-C:\Users\Reiv3r\Documents\GitHub\anywhere-applet-windows\SentryClient\obj\Debug\SentryClient.pdb

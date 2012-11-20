@@ -1,0 +1,8 @@
+C:\Users\Muse\Documents\GitHub\raven-csharp\SharpRaven.CaptureTest\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Muse\Documents\GitHub\raven-csharp\SharpRaven.CaptureTest\bin\Debug\SharpRaven.CaptureTest.exe
+C:\Users\Muse\Documents\GitHub\raven-csharp\SharpRaven.CaptureTest\bin\Debug\SharpRaven.CaptureTest.pdb
+C:\Users\Muse\Documents\GitHub\raven-csharp\SharpRaven.CaptureTest\bin\Debug\SharpRaven.dll
+C:\Users\Muse\Documents\GitHub\raven-csharp\SharpRaven.CaptureTest\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Muse\Documents\GitHub\raven-csharp\SharpRaven.CaptureTest\bin\Debug\SharpRaven.pdb
+C:\Users\Muse\Documents\GitHub\raven-csharp\SharpRaven.CaptureTest\obj\x86\Debug\SharpRaven.CaptureTest.exe
+C:\Users\Muse\Documents\GitHub\raven-csharp\SharpRaven.CaptureTest\obj\x86\Debug\SharpRaven.CaptureTest.pdb
