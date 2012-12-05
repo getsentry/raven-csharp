@@ -43,7 +43,12 @@
     <Compile Include="Data\SentryStacktrace.cs" />
     <Compile Include="DSN.cs" />
     <Compile Include="Data\JsonPacket.cs" />
+    <Compile Include="Logging\Filters\CreditCardFilter.cs" />
+    <Compile Include="Logging\Filters\PhoneNumberFilter.cs" />
+    <Compile Include="Logging\Filters\SocialSecurityFilter.cs" />
+    <Compile Include="Logging\IFilter.cs" />
     <Compile Include="Logging\IScrubber.cs" />
+    <Compile Include="Logging\LogScrubber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenClient.cs" />
     <Compile Include="Utilities\GzipUtil.cs" />

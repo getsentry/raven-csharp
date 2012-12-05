@@ -11,6 +11,6 @@ namespace SharpRaven.Logging {
         /// </summary>
         /// <param name="input">The serialized JSON packet is given here.</param>
         /// <returns>Scrubbed JSON packet.</returns>
-        public string Scrub(string input);
+        string Scrub(string input);
     }
 }
