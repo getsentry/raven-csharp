@@ -3,12 +3,21 @@ using SharpRaven.Data;
 using System.Net;
 using System.IO;
 using SharpRaven.Utilities;
-using System.Web;
+using SharpRaven.Logging;
 
 namespace SharpRaven {
     public class RavenClient {
 
+        /// <summary>
+        /// The DSN currently being used to log exceptions.
+        /// </summary>
         public DSN CurrentDSN { get; set; }
+
+        /// <summary>
+        /// Interface for providing a 'log scrubber' that removes 
+        /// sensitive information from exceptions sent to sentry.
+        /// </summary>
+        public IScrubber LogScrubber { get; set; }
 
         /// <summary>
         /// Enable Gzip Compression?

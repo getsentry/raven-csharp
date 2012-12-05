@@ -41,6 +41,7 @@
     <Compile Include="Data\SentryException.cs" />
     <Compile Include="DSN.cs" />
     <Compile Include="Data\JsonPacket.cs" />
+    <Compile Include="Logging\IScrubber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenClient.cs" />
     <Compile Include="Utilities\GzipUtil.cs" />
