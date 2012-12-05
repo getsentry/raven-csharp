@@ -5,7 +5,6 @@ using System.Text;
 
 namespace SharpRaven {
     public class DSN {
-
         /// <summary>
         /// Absolute DSN Uri
         /// </summary>
