@@ -17,8 +17,7 @@ namespace SharpRaven.CaptureTest {
 
             Console.WriteLine("Causing division by zero exception.");
             try {
-                int i2 = 0;
-                int i = 10 / i2;
+                Program.PerformDivideByZero();
                 Console.WriteLine("Failed.");
             } catch (Exception e) {
                 Console.WriteLine("Captured: " + e.Message);
@@ -27,6 +26,11 @@ namespace SharpRaven.CaptureTest {
             }
 
             Console.ReadLine();
+        }
+
+        static void PerformDivideByZero() {
+            int i2 = 0;
+ 	        int i = 10 / i2;
         }
 
         static void PrintInfo(string info) {

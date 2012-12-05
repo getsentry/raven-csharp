@@ -18,5 +18,11 @@ namespace SharpRaven.Data {
         /// </summary>
         [JsonProperty(PropertyName = "module")]
         public string Module;
+
+        public SentryException(Exception e) {
+            this.Module = e.Source;
+            this.Type = e.Message;
+            this.Value = e.Message;
+        }
     }
 }

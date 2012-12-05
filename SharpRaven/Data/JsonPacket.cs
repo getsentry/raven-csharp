@@ -72,6 +72,9 @@ namespace SharpRaven.Data {
         [JsonProperty(PropertyName="sentry.interfaces.Exception", NullValueHandling=NullValueHandling.Ignore)]
         public SentryException Exception { get; set; }
 
+        [JsonProperty(PropertyName = "sentry.interfaces.Stacktrace", NullValueHandling = NullValueHandling.Ignore)]
+        public SentryStacktrace StackTrace { get; set; }
+
         public JsonPacket(string project) {
             Initialize();
             Project = project;
@@ -82,9 +85,13 @@ namespace SharpRaven.Data {
             Message = e.Message;
             Culprit = e.TargetSite.Name;
             Project = project;
-            /*Exception.Module = e.Source;
-            Exception.Type = e.Message;
-            Exception.Value = e.Message;*/
+            ServerName = System.Environment.MachineName;
+
+            Exception = new SentryException(e);
+            Exception.Module = e.Source;
+            Exception.Value = e.Message;
+
+            StackTrace = new SentryStacktrace(e);
         }
 
         private void Initialize() {
