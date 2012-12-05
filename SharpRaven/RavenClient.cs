@@ -65,7 +65,11 @@ namespace SharpRaven {
                         //string data = Utilities.GzipUtil.CompressEncode(jp.Serialize());
                         //Console.WriteLine("Writing: " + data);
                         // Write to the JSON script when ready.
-                        sw.Write(jp.Serialize());
+                        string data = jp.Serialize();
+                        if (LogScrubber != null)
+                            data = LogScrubber.Scrub(data);
+
+                        sw.Write(data);
                         // Close streams.
                         sw.Flush();
                         sw.Close();
