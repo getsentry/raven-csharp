@@ -1,0 +1,15 @@
+*.pdb
+
+*.dll
+
+*.user
+
+*.cache
+
+SharpRaven/obj/Release/SharpRaven.csproj.FileListAbsolute.txt
+
+*.exe
+
+SharpRaven.CaptureTest/obj/x86/Release/SharpRaven.CaptureTest.csproj.FileListAbsolute.txt
+
+*.manifest
