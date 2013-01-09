@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,6 +29,10 @@ namespace SharpRaven {
         /// The sentry server port.
         /// </summary>
         public int Port { get; set; }
+        /// <summary>
+        /// Project identification.
+        /// </summary>
+        public string Path { get; set; }
 
         public DSN(string dsn) {
             bool useSSl = dsn.StartsWith("https", StringComparison.InvariantCultureIgnoreCase);
@@ -39,11 +43,13 @@ namespace SharpRaven {
             PublicKey = GetPublicKey(URI);
             Port = GetPort(URI);
             ProjectID = GetProjectID(URI);
+            Path = GetPath(URI);
 
-            SentryURI = String.Format(@"{0}://{1}:{2}/api/{3}/store/", 
+            SentryURI = String.Format(@"{0}://{1}:{2}{3}/api/{4}/store/", 
                 useSSl ? "https" : "http",
                 URI.DnsSafeHost,
                 Port,
+                Path,
                 ProjectID);
         }
 
@@ -54,6 +60,17 @@ namespace SharpRaven {
         /// <returns></returns>
         public int GetPort(Uri uri) {
             return uri.Port;
+        }
+
+        /// <summary>
+        /// Get a path from a DSN uri
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public string GetPath(Uri uri)
+        {
+            int lastSlash = uri.AbsolutePath.LastIndexOf("/");
+            return uri.AbsolutePath.Substring(0, lastSlash);
         }
 
         /// <summary>
