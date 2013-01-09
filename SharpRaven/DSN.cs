@@ -30,7 +30,7 @@ namespace SharpRaven {
         /// </summary>
         public int Port { get; set; }
         /// <summary>
-        /// Project identification.
+        /// Sentry path.
         /// </summary>
         public string Path { get; set; }
 
