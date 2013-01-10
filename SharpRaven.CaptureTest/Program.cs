@@ -8,6 +8,7 @@ namespace SharpRaven.CaptureTest {
         static void Main(string[] args) {
             Console.WriteLine("Initializing RavenClient.");
             RavenClient rc = new RavenClient("https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739");
+            rc.Logger = "C#";
             rc.LogScrubber = new SharpRaven.Logging.LogScrubber();
 
             PrintInfo("Sentry Uri: " + rc.CurrentDSN.SentryURI);
