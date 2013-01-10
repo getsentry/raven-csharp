@@ -25,18 +25,26 @@ namespace SharpRaven {
         /// </summary>
         public bool Compression { get; set; }
 
+        /// <summary>
+        /// Logger. Default is "root"
+        /// </summary>
+        public string Logger { get; set; }
+
         public RavenClient(string dsn) {
             CurrentDSN = new DSN(dsn);
             Compression = true;
+            Logger = "root";
         }
 
         public RavenClient(DSN dsn) {
             CurrentDSN = dsn;
             Compression = true;
+            Logger = "root";
         }
 
         public int CaptureEvent(Exception e) {
             JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID, e);
+            packet.Logger = Logger;
             Send(packet, CurrentDSN);
             return 0;
         }
