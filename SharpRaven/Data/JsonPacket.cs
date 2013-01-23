@@ -83,7 +83,12 @@ namespace SharpRaven.Data {
         public JsonPacket(string project, Exception e) {
             Initialize();
             Message = e.Message;
-            Culprit = e.TargetSite.Name;
+
+			if (e.TargetSite != null)
+			{
+				Culprit = e.TargetSite.Name;
+			}
+
             Project = project;
             ServerName = System.Environment.MachineName;
 
