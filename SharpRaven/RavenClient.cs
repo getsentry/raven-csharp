@@ -42,14 +42,27 @@ namespace SharpRaven {
             Logger = "root";
         }
 
-        public int CaptureEvent(Exception e) {
+        public int CaptureException(Exception e)
+        {
             JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID, e);
             packet.Logger = Logger;
             Send(packet, CurrentDSN);
             return 0;
         }
 
-        public int CaptureEvent(Exception e, string[] tags) {
+        public int CaptureException(Exception e, string[] tags)
+        {
+            return 0;
+        }
+
+        public int CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, string[] tags = null)
+        {
+            JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID);
+            packet.Message = message;
+            packet.Level = level;
+
+            Send(packet, CurrentDSN);
+
             return 0;
         }
 
@@ -104,5 +117,27 @@ namespace SharpRaven {
 
             return true;
         }
+
+        #region Deprecated methods
+
+        /**
+         *  These methods have been deprectaed in favour of the ones
+         *  that have the same names as the other sentry clients, this
+         *  is purely for the sake of consistency
+         */
+         
+        [Obsolete("The more common CaptureException method should be used")]
+        public int CaptureEvent(Exception e)
+        {
+            return this.CaptureException(e);
+        }
+
+        [Obsolete("The more common CaptureException method should be used")]
+        public int CaptureEvent(Exception e, string[] tags)
+        {
+            return this.CaptureException(e, tags);
+        }
+
+        #endregion
     }
 }
