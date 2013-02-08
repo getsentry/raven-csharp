@@ -6,3 +6,5 @@
 *.manifest
 SharpRaven/obj/
 SharpRaven.CaptureTest/obj/
+SharpRaven/bin/
+SharpRaven.CaptureTest/bin/
