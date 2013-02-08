@@ -142,6 +142,8 @@ namespace SharpRaven.Data {
             EventID = Guid.NewGuid().ToString().Replace("-", String.Empty);
             // Project
             Project = "default";
+            // Platform
+            Platform = "csharp";
         }
 
         /// <summary>
