@@ -2,6 +2,7 @@
 using SharpRaven.Data;
 using System.Net;
 using System.IO;
+using System.Collections.Generic;
 using SharpRaven.Utilities;
 using SharpRaven.Logging;
 
@@ -47,12 +48,12 @@ namespace SharpRaven {
             return CaptureException(e, null, null);
         }
 
-        public int CaptureException(Exception e, string[][] tags = null)
+        public int CaptureException(Exception e, Dictionary<string, string> tags = null)
         {
             return CaptureException(e, tags, null);
         }
 
-        public int CaptureException(Exception e, string[][] tags = null, object extra = null)
+        public int CaptureException(Exception e, Dictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID, e);
             packet.Level = ErrorLevel.error;
@@ -74,12 +75,12 @@ namespace SharpRaven {
             return CaptureMessage(message, level, null, null);
         }
 
-        public int CaptureMessage(string message, ErrorLevel level, string[][] tags)
+        public int CaptureMessage(string message, ErrorLevel level, Dictionary<string, string> tags)
         {
             return CaptureMessage(message, level, tags, null);
         }
 
-        public int CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, string[][] tags = null, object extra = null)
+        public int CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, Dictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID);
             packet.Message = message;
@@ -161,7 +162,7 @@ namespace SharpRaven {
         }
 
         [Obsolete("The more common CaptureException method should be used")]
-        public int CaptureEvent(Exception e, string[][] tags)
+        public int CaptureEvent(Exception e, Dictionary<string, string> tags)
         {
             return this.CaptureException(e, tags);
         }

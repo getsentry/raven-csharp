@@ -64,7 +64,7 @@ namespace SharpRaven.Data {
         /// A map or list of tags for this event.
         /// </summary>
         [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
-        public string[][] Tags;
+        public Dictionary<string, string> Tags;
 
         /// <summary>
         /// An arbitrary mapping of additional metadata to store with the event.
