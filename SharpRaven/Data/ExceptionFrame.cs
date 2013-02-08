@@ -10,6 +10,9 @@ namespace SharpRaven.Data {
         [JsonProperty(PropertyName = "filename")]
         public string Filename;
 
+        [JsonProperty(PropertyName = "module")]
+        public string Module;
+
         [JsonProperty(PropertyName = "function")]
         public string Function;
 

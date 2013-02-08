@@ -29,10 +29,10 @@ namespace SharpRaven.Data {
                 {
                     lineNo = frame.GetFileLineNumber();
                 }
-
                 Frames.Add(new ExceptionFrame() {
-                    Filename = frame.GetMethod().Name,
-                    Function = frame.GetMethod().DeclaringType.FullName,
+                    Filename = frame.GetFileName(),
+                    Module = frame.GetMethod().DeclaringType.FullName,
+                    Function = frame.GetMethod().Name,
                     Source = frame.GetMethod().ToString(),
                     LineNumber = lineNo
                 });
