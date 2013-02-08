@@ -4,6 +4,7 @@
 *.user
 *.cache
 *.manifest
+.DS_Store
 SharpRaven/obj/
 SharpRaven.CaptureTest/obj/
 SharpRaven/bin/
