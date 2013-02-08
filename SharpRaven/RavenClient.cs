@@ -2,6 +2,7 @@
 using SharpRaven.Data;
 using System.Net;
 using System.IO;
+using System.Collections.Generic;
 using SharpRaven.Utilities;
 using SharpRaven.Logging;
 
@@ -44,29 +45,57 @@ namespace SharpRaven {
 
         public int CaptureException(Exception e)
         {
-            JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID, e);
-            packet.Logger = Logger;
-            Send(packet, CurrentDSN);
-            return 0;
+            return CaptureException(e, null, null);
         }
 
-        public int CaptureException(Exception e, string[] tags)
+        public int CaptureException(Exception e, Dictionary<string, string> tags = null)
         {
+            return CaptureException(e, tags, null);
+        }
+
+        public int CaptureException(Exception e, Dictionary<string, string> tags = null, object extra = null)
+        {
+            JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID, e);
+            packet.Level = ErrorLevel.error;
+            packet.Tags = tags;
+            packet.Extra = extra;
+
+            Send(packet, CurrentDSN);
+
             return 0;
         }
 
-        public int CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, string[] tags = null)
+        public int CaptureMessage(string message)
+        {
+            return CaptureMessage(message, ErrorLevel.info, null, null);
+        }
+
+        public int CaptureMessage(string message, ErrorLevel level)
+        {
+            return CaptureMessage(message, level, null, null);
+        }
+
+        public int CaptureMessage(string message, ErrorLevel level, Dictionary<string, string> tags)
+        {
+            return CaptureMessage(message, level, tags, null);
+        }
+
+        public int CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, Dictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID);
             packet.Message = message;
             packet.Level = level;
+            packet.Tags = tags;
+            packet.Extra = extra;
 
             Send(packet, CurrentDSN);
 
             return 0;
         }
 
-        public bool Send(JsonPacket jp, DSN dsn) {
+        public bool Send(JsonPacket packet, DSN dsn) {
+            packet.Logger = Logger;
+
             try {
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(dsn.SentryURI);
                 request.Method = "POST";
@@ -77,16 +106,16 @@ namespace SharpRaven {
                 request.UserAgent = "RavenSharp/1.0";
 
                 Console.WriteLine("Header: " + PacketBuilder.CreateAuthenticationHeader(dsn));
-                Console.WriteLine("Packet: " + jp.Serialize());
+                Console.WriteLine("Packet: " + packet.Serialize());
 
                 // Write the messagebody.
                 using (Stream s = request.GetRequestStream()) {
                     using (StreamWriter sw = new StreamWriter(s)) {
                         // Compress and encode.
-                        //string data = Utilities.GzipUtil.CompressEncode(jp.Serialize());
+                        //string data = Utilities.GzipUtil.CompressEncode(packet.Serialize());
                         //Console.WriteLine("Writing: " + data);
                         // Write to the JSON script when ready.
-                        string data = jp.Serialize();
+                        string data = packet.Serialize();
                         if (LogScrubber != null)
                             data = LogScrubber.Scrub(data);
 
@@ -133,7 +162,7 @@ namespace SharpRaven {
         }
 
         [Obsolete("The more common CaptureException method should be used")]
-        public int CaptureEvent(Exception e, string[] tags)
+        public int CaptureEvent(Exception e, Dictionary<string, string> tags)
         {
             return this.CaptureException(e, tags);
         }

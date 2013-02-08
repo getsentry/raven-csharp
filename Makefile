@@ -1,0 +1,2 @@
+test:
+	xbuild SharpRaven.sln
