@@ -116,6 +116,9 @@ namespace SharpRaven.Data {
             Exception.Value = e.Message;
 
             StackTrace = new SentryStacktrace(e);
+            if (StackTrace.Frames.Count == 0) {
+                StackTrace = null;
+            }
         }
 
         private void Initialize() {
