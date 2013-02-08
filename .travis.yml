@@ -2,4 +2,4 @@ language: c
 install:
  - sudo apt-get install -qq mono-devel
 script:
- - xbuild SharpRaven.sln
+ - make test
