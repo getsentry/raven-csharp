@@ -12,29 +12,24 @@ namespace SharpRaven.Data {
             StackTrace trace = new StackTrace(e);
             this.Frames = new List<ExceptionFrame>();
 
-            string[] formattedStackTrace = e.ToString().Split('\n');
-
             for (int i = 0; i < trace.FrameCount; i++) {
                 StackFrame frame = trace.GetFrame(i);
 
-                string source = "";
-                int lineNo = 0;
+                int lineNo = frame.GetFileLineNumber();
 
-                if (frame.GetFileLineNumber() == 0)
+                if (lineNo == 0)
                 {
                     //The pdb files aren't currently available
                     lineNo = frame.GetILOffset();
                 }
-                else
-                {
-                    lineNo = frame.GetFileLineNumber();
-                }
+
                 Frames.Add(new ExceptionFrame() {
                     Filename = frame.GetFileName(),
                     Module = frame.GetMethod().DeclaringType.FullName,
                     Function = frame.GetMethod().Name,
                     Source = frame.GetMethod().ToString(),
-                    LineNumber = lineNo
+                    LineNumber = lineNo,
+                    ColumnNumber = frame.GetFileColumnNumber()
                 });
 
             }

@@ -28,6 +28,9 @@ namespace SharpRaven.Data {
         [JsonProperty(PropertyName = "lineno")]
         public int LineNumber;
 
+        [JsonProperty(PropertyName = "colno")]
+        public int ColumnNumber;
+
         [JsonProperty(PropertyName = "in_app")]
         public bool InApp;
 
