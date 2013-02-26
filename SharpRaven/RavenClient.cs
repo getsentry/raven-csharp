@@ -128,7 +128,10 @@ namespace SharpRaven {
                     s.Close();
                 }
 
-                HttpWebResponse wr = (HttpWebResponse)request.GetResponse();
+                using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
+                {
+                    wr.Close();
+                }
             } catch (WebException e) {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("[ERROR] ");
