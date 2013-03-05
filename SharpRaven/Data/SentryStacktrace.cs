@@ -10,11 +10,9 @@ namespace SharpRaven.Data {
     public class SentryStacktrace {
         public SentryStacktrace(Exception e) {
             StackTrace trace = new StackTrace(e);
-            this.Frames = new List<ExceptionFrame>();
 
-            for (int i = 0; i < trace.FrameCount; i++) {
-                StackFrame frame = trace.GetFrame(i);
-
+            this.Frames = trace.GetFrames().Reverse().Select(frame =>
+            {
                 int lineNo = frame.GetFileLineNumber();
 
                 if (lineNo == 0)
@@ -23,16 +21,16 @@ namespace SharpRaven.Data {
                     lineNo = frame.GetILOffset();
                 }
 
-                Frames.Add(new ExceptionFrame() {
+                return new ExceptionFrame()
+                {
                     Filename = frame.GetFileName(),
                     Module = frame.GetMethod().DeclaringType.FullName,
                     Function = frame.GetMethod().Name,
                     Source = frame.GetMethod().ToString(),
                     LineNumber = lineNo,
                     ColumnNumber = frame.GetFileColumnNumber()
-                });
-
-            }
+                };
+            }).ToList();
         }
 
         [JsonProperty(PropertyName = "frames")]
