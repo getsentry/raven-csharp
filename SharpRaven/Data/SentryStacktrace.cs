@@ -22,11 +22,11 @@ namespace SharpRaven.Data {
                     lineNo = frame.GetILOffset();
                 }
 
-                MethodBase method = frame.GetMethod();
+                var method = frame.GetMethod();
                 return new ExceptionFrame()
                 {
                     Filename = frame.GetFileName(),
-                    Module = method.DeclaringType == null ? "" : method.DeclaringType.FullName,
+                    Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null,
                     Function = method.Name,
                     Source = method.ToString(),
                     LineNumber = lineNo,
