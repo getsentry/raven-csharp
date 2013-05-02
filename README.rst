@@ -49,3 +49,12 @@ The full argument specs are:
     CaptureException(Exception e, Dictionary<string, string> tags = null, object extra = null)
     
     CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, Dictionary<string, string> tags = null, object extra = null)
+
+
+Resources
+---------
+
+* `Build Status <http://teamcity.codebetter.com/project.html?projectId=project344&tab=projectOverview>`_ (requires registration)
+* `Code <http://github.com/getsentry/raven-csharp>`_
+* `Mailing List <https://groups.google.com/group/getsentry>`_
+* `IRC <irc://irc.freenode.net/sentry>`_  (irc.freenode.net, #sentry)
