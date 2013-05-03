@@ -103,7 +103,9 @@ namespace SharpRaven.Data {
 
 			if (e.TargetSite != null)
 			{
-                Culprit = String.Format("{0} in {1}", e.TargetSite.ReflectedType.FullName, e.TargetSite.Name);
+// ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
+                Culprit = String.Format("{0} in {1}", ((e.TargetSite.ReflectedType == null) ? "<dynamic type>" : e.TargetSite.ReflectedType.FullName), e.TargetSite.Name);
+// ReSharper restore ConditionIsAlwaysTrueOrFalse
 			}
 
             Project = project;
