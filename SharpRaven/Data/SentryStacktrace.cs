@@ -12,7 +12,7 @@ namespace SharpRaven.Data {
         public SentryStacktrace(Exception e) {
             StackTrace trace = new StackTrace(e, true);
 
-            Frames = trace.GetFrames().Reverse().Select(frame =>
+            Frames = (trace.GetFrames() ?? new StackFrame[0]).Reverse().Select(frame =>
             {
                 int lineNo = frame.GetFileLineNumber();
 
