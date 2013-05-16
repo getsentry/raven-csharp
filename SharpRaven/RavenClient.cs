@@ -139,10 +139,14 @@ namespace SharpRaven {
                 Console.WriteLine(e.Message);
 
                 string messageBody = String.Empty;
-                using (StreamReader sw = new StreamReader(e.Response.GetResponseStream())) {
-                    messageBody = sw.ReadToEnd();
+                if (e.Response != null)
+                {
+                    using (StreamReader sw = new StreamReader(e.Response.GetResponseStream()))
+                    {
+                        messageBody = sw.ReadToEnd();
+                    }
+                    Console.WriteLine("[MESSAGE BODY] " + messageBody);
                 }
-                Console.WriteLine("[MESSAGE BODY] " + messageBody);
                 
                 return false;
             }
