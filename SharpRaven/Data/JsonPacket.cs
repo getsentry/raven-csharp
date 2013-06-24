@@ -64,7 +64,7 @@ namespace SharpRaven.Data {
         /// A map or list of tags for this event.
         /// </summary>
         [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, string> Tags;
+        public IDictionary<string, string> Tags;
 
         /// <summary>
         /// An arbitrary mapping of additional metadata to store with the event.
@@ -86,11 +86,8 @@ namespace SharpRaven.Data {
         [JsonProperty(PropertyName = "modules", NullValueHandling = NullValueHandling.Ignore)]
         public List<Module> Modules { get; set; }
 
-        [JsonProperty(PropertyName="sentry.interfaces.Exception", NullValueHandling=NullValueHandling.Ignore)]
-        public SentryException Exception { get; set; }
-
-        [JsonProperty(PropertyName = "sentry.interfaces.Stacktrace", NullValueHandling = NullValueHandling.Ignore)]
-        public SentryStacktrace StackTrace { get; set; }
+        [JsonProperty(PropertyName = "exception", NullValueHandling = NullValueHandling.Ignore)]
+        public List<SentryException> Exceptions { get; set; }
 
         public JsonPacket(string project) {
             Initialize();
@@ -112,14 +109,15 @@ namespace SharpRaven.Data {
             ServerName = System.Environment.MachineName;
             Level = ErrorLevel.error;
 
-            Exception = new SentryException(e);
-            Exception.Module = e.Source;
-            Exception.Type = e.GetType().Name;
-            Exception.Value = e.Message;
+            Exceptions = new List<SentryException>();
 
-            StackTrace = new SentryStacktrace(e);
-            if (StackTrace.Frames.Count == 0) {
-                StackTrace = null;
+            for (Exception currentException = e; currentException != null; currentException = currentException.InnerException)
+            {
+                SentryException sentryException = new SentryException(currentException);
+                sentryException.Module = currentException.Source;
+                sentryException.Type = currentException.GetType().Name;
+                sentryException.Value = currentException.Message;
+                Exceptions.Add(sentryException);
             }
         }
 

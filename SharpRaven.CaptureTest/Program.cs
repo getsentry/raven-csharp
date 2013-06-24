@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SharpRaven.CaptureTest
 {
@@ -42,13 +43,40 @@ namespace SharpRaven.CaptureTest
             Console.WriteLine("Causing division by zero exception.");
             try
             {
-                PerformDivideByZero();
+                FirstLevelException();
             }
             catch (Exception e)
             {
                 Console.WriteLine("Captured: " + e.Message);
-                var id = ravenClient.CaptureException(e);
+                Dictionary<string, string> tags = new Dictionary<string, string>();
+                Dictionary<string, string> extras = new Dictionary<string, string>();
+
+                tags["TAG"] = "TAG1";
+                extras["extra"] = "EXTRA1";
+
+                var id = ravenClient.CaptureException(e, tags, extras);
                 Console.WriteLine("Sent packet: " + id);
+            }
+        }
+
+        static void SecondLevelException() {
+            try {
+                PerformDivideByZero();
+            } catch (Exception e) {
+                throw new InvalidOperationException("Second Level Exception", e);
+            }
+        }
+
+
+        static void FirstLevelException()
+        {
+            try
+            {
+                SecondLevelException();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("First Level Exception", e);
             }
         }
 

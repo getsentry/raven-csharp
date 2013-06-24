@@ -1,3 +1,5 @@
+bin/
+obj/
 *.pdb
 *.exe
 *.dll
@@ -5,7 +7,4 @@
 *.cache
 *.manifest
 .DS_Store
-SharpRaven/obj/
-SharpRaven.CaptureTest/obj/
-SharpRaven/bin/
-SharpRaven.CaptureTest/bin/
+*.suo
