@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -11,28 +10,32 @@ namespace SharpRaven.Data {
     public class SentryStacktrace {
         public SentryStacktrace(Exception e) {
             StackTrace trace = new StackTrace(e, true);
+            List<ExceptionFrame> frames = new List<ExceptionFrame>();
 
-            Frames = (trace.GetFrames() ?? new StackFrame[0]).Reverse().Select(frame =>
+            if (trace.GetFrames() != null)
             {
-                int lineNo = frame.GetFileLineNumber();
+                foreach (StackFrame frame in trace.GetFrames()) {
+                    int lineNo = frame.GetFileLineNumber();
 
-                if (lineNo == 0)
-                {
-                    //The pdb files aren't currently available
-                    lineNo = frame.GetILOffset();
+                    if (lineNo == 0)
+                    {
+                        //The pdb files aren't currently available
+                        lineNo = frame.GetILOffset();
+                    }
+
+                    var method = frame.GetMethod();
+                    frames.Insert(0, new ExceptionFrame()
+                    {
+                        Filename = frame.GetFileName(),
+                        Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null,
+                        Function = method.Name,
+                        Source = method.ToString(),
+                        LineNumber = lineNo,
+                        ColumnNumber = frame.GetFileColumnNumber()
+                    });
                 }
-
-                var method = frame.GetMethod();
-                return new ExceptionFrame()
-                {
-                    Filename = frame.GetFileName(),
-                    Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null,
-                    Function = method.Name,
-                    Source = method.ToString(),
-                    LineNumber = lineNo,
-                    ColumnNumber = frame.GetFileColumnNumber()
-                };
-            }).ToList();
+            }
+            this.Frames = frames;
         }
 
         [JsonProperty(PropertyName = "frames")]
