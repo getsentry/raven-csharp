@@ -48,12 +48,12 @@ namespace SharpRaven {
             return CaptureException(e, null, null);
         }
 
-        public int CaptureException(Exception e, Dictionary<string, string> tags = null)
+        public int CaptureException(Exception e, IDictionary<string, string> tags = null)
         {
             return CaptureException(e, tags, null);
         }
 
-        public int CaptureException(Exception e, Dictionary<string, string> tags = null, object extra = null)
+        public int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID, e);
             packet.Level = ErrorLevel.error;
