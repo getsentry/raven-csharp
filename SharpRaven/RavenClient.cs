@@ -105,9 +105,6 @@ namespace SharpRaven {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
                 request.UserAgent = "RavenSharp/1.0";
 
-                Console.WriteLine("Header: " + PacketBuilder.CreateAuthenticationHeader(dsn));
-                Console.WriteLine("Packet: " + packet.Serialize());
-
                 // Write the messagebody.
                 using (Stream s = request.GetRequestStream()) {
                     using (StreamWriter sw = new StreamWriter(s)) {
