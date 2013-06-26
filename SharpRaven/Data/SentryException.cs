@@ -29,9 +29,10 @@ namespace SharpRaven.Data {
         public SentryException(Exception e) {
             this.Module = e.Source;
             this.Type = e.Message;
-            this.Value = e.Message;           
+            this.Value = e.Message;
+
             this.Stacktrace = new SentryStacktrace(e);
-            if (this.Stacktrace.Frames.Count == 0)
+            if (this.Stacktrace.Frames == null || this.Stacktrace.Frames.Length == 0)
             {
                 this.Stacktrace = null;
             }

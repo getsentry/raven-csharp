@@ -10,36 +10,42 @@ namespace SharpRaven.Data {
     public class SentryStacktrace {
         public SentryStacktrace(Exception e) {
             StackTrace trace = new StackTrace(e, true);
-            List<ExceptionFrame> frames = new List<ExceptionFrame>();
 
             if (trace.GetFrames() != null)
             {
-                foreach (StackFrame frame in trace.GetFrames()) {
-                    int lineNo = frame.GetFileLineNumber();
-
-                    if (lineNo == 0)
-                    {
-                        //The pdb files aren't currently available
-                        lineNo = frame.GetILOffset();
-                    }
-
-                    var method = frame.GetMethod();
-                    frames.Insert(0, new ExceptionFrame()
-                    {
-                        Filename = frame.GetFileName(),
-                        Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null,
-                        Function = method.Name,
-                        Source = method.ToString(),
-                        LineNumber = lineNo,
-                        ColumnNumber = frame.GetFileColumnNumber()
-                    });
+                int length = trace.GetFrames().Length;
+                this.Frames = new ExceptionFrame[length];
+                for (int i=0; i<length; i++) {
+                    StackFrame frame = trace.GetFrame(length - i - 1);
+                    this.Frames[i] = BuildExceptionFrame(frame);
                 }
             }
-            this.Frames = frames;
+        }
+
+        private static ExceptionFrame BuildExceptionFrame(StackFrame frame)
+        {
+            int lineNo = frame.GetFileLineNumber();
+
+            if (lineNo == 0)
+            {
+                //The pdb files aren't currently available
+                lineNo = frame.GetILOffset();
+            }
+
+            var method = frame.GetMethod();
+            return new ExceptionFrame()
+            {
+                Filename = frame.GetFileName(),
+                Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null,
+                Function = method.Name,
+                Source = method.ToString(),
+                LineNumber = lineNo,
+                ColumnNumber = frame.GetFileColumnNumber()
+            };
         }
 
         [JsonProperty(PropertyName = "frames")]
-        public List<ExceptionFrame> Frames;
+        public ExceptionFrame[] Frames;
 
     }
 }
