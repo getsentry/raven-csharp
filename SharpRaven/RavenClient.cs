@@ -22,7 +22,7 @@ namespace SharpRaven {
 
         /// <summary>
         /// Enable Gzip Compression?
-        /// Defaults to true.
+        /// Defaults to <c>true</c>.
         /// </summary>
         public bool Compression { get; set; }
 
