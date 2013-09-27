@@ -35,18 +35,18 @@ namespace SharpRaven {
 
         public Dsn(string dsn) {
             bool useSSl = dsn.StartsWith("https", StringComparison.InvariantCultureIgnoreCase);
-            Uri URI = new Uri(dsn);
+            Uri uri = new Uri(dsn);
 
             // Set all info
-            PrivateKey = GetPrivateKey(URI);
-            PublicKey = GetPublicKey(URI);
-            Port = GetPort(URI);
-            ProjectID = GetProjectID(URI);
-            Path = GetPath(URI);
+            PrivateKey = GetPrivateKey(uri);
+            PublicKey = GetPublicKey(uri);
+            Port = GetPort(uri);
+            ProjectID = GetProjectID(uri);
+            Path = GetPath(uri);
 
             this.SentryUri = String.Format(@"{0}://{1}:{2}{3}/api/{4}/store/", 
                 useSSl ? "https" : "http",
-                URI.DnsSafeHost,
+                uri.DnsSafeHost,
                 Port,
                 Path,
                 ProjectID);
