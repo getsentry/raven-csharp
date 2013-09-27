@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SharpRaven.Utilities {
     public static class PacketBuilder {
-        public static string CreateAuthenticationHeader(DSN dsn) {
+        public static string CreateAuthenticationHeader(Dsn dsn) {
             string header = String.Empty;
             header += "Sentry sentry_version=4";
             header += ", sentry_client=SharpRaven/1.0";

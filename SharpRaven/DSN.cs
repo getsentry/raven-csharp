@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SharpRaven {
-    public class DSN {
+    public class Dsn {
         /// <summary>
-        /// Absolute DSN Uri
+        /// Absolute Dsn Uri
         /// </summary>
         public Uri URI { get; set; }
         /// <summary>
@@ -33,7 +33,7 @@ namespace SharpRaven {
         /// </summary>
         public string Path { get; set; }
 
-        public DSN(string dsn) {
+        public Dsn(string dsn) {
             bool useSSl = dsn.StartsWith("https", StringComparison.InvariantCultureIgnoreCase);
             Uri URI = new Uri(dsn);
 
@@ -62,7 +62,7 @@ namespace SharpRaven {
         }
 
         /// <summary>
-        /// Get a path from a DSN uri
+        /// Get a path from a Dsn uri
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
@@ -73,7 +73,7 @@ namespace SharpRaven {
         }
 
         /// <summary>
-        /// Get a public key from a DSN uri.
+        /// Get a public key from a Dsn uri.
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
@@ -82,7 +82,7 @@ namespace SharpRaven {
         }
 
         /// <summary>
-        /// Get a private key from a DSN uri.
+        /// Get a private key from a Dsn uri.
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
@@ -91,7 +91,7 @@ namespace SharpRaven {
         }
 
         /// <summary>
-        /// Get a project ID from a DSN uri.
+        /// Get a project ID from a Dsn uri.
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>

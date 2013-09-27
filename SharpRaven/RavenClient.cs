@@ -10,9 +10,9 @@ namespace SharpRaven {
     public class RavenClient {
 
         /// <summary>
-        /// The DSN currently being used to log exceptions.
+        /// The Dsn currently being used to log exceptions.
         /// </summary>
-        public DSN CurrentDSN { get; set; }
+        public Dsn CurrentDSN { get; set; }
 
         /// <summary>
         /// Interface for providing a 'log scrubber' that removes 
@@ -32,12 +32,12 @@ namespace SharpRaven {
         public string Logger { get; set; }
 
         public RavenClient(string dsn) {
-            CurrentDSN = new DSN(dsn);
+            CurrentDSN = new Dsn(dsn);
             Compression = true;
             Logger = "root";
         }
 
-        public RavenClient(DSN dsn) {
+        public RavenClient(Dsn dsn) {
             CurrentDSN = dsn;
             Compression = true;
             Logger = "root";
@@ -93,7 +93,7 @@ namespace SharpRaven {
             return 0;
         }
 
-        public bool Send(JsonPacket packet, DSN dsn) {
+        public bool Send(JsonPacket packet, Dsn dsn) {
             packet.Logger = Logger;
 
             try {
