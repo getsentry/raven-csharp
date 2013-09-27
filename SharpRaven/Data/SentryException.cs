@@ -7,7 +7,8 @@ namespace SharpRaven.Data {
         /// The type of exception.
         /// </summary>
         [JsonProperty(PropertyName = "type")]
-        public string Type;
+        public string Type { get; set; }
+
         /// <summary>
         /// The message of the exception.
         /// </summary>
