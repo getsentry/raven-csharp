@@ -12,7 +12,7 @@ namespace SharpRaven {
         /// <summary>
         /// The Dsn currently being used to log exceptions.
         /// </summary>
-        public Dsn CurrentDSN { get; set; }
+        public Dsn CurrentDsn { get; set; }
 
         /// <summary>
         /// Interface for providing a 'log scrubber' that removes 
@@ -32,13 +32,13 @@ namespace SharpRaven {
         public string Logger { get; set; }
 
         public RavenClient(string dsn) {
-            CurrentDSN = new Dsn(dsn);
+            this.CurrentDsn = new Dsn(dsn);
             Compression = true;
             Logger = "root";
         }
 
         public RavenClient(Dsn dsn) {
-            CurrentDSN = dsn;
+            this.CurrentDsn = dsn;
             Compression = true;
             Logger = "root";
         }
@@ -55,12 +55,12 @@ namespace SharpRaven {
 
         public int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
         {
-            JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID, e);
+            JsonPacket packet = new JsonPacket(this.CurrentDsn.ProjectID, e);
             packet.Level = ErrorLevel.Error;
             packet.Tags = tags;
             packet.Extra = extra;
 
-            Send(packet, CurrentDSN);
+            Send(packet, this.CurrentDsn);
 
             return 0;
         }
@@ -82,13 +82,13 @@ namespace SharpRaven {
 
         public int CaptureMessage(string message, ErrorLevel level = ErrorLevel.Info, Dictionary<string, string> tags = null, object extra = null)
         {
-            JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID);
+            JsonPacket packet = new JsonPacket(this.CurrentDsn.ProjectID);
             packet.Message = message;
             packet.Level = level;
             packet.Tags = tags;
             packet.Extra = extra;
 
-            Send(packet, CurrentDSN);
+            Send(packet, this.CurrentDsn);
 
             return 0;
         }
