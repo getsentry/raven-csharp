@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SharpRaven {
+    /// <summary>
+    /// The Data Source Name of a given project in Sentry.
+    /// </summary>
     public class Dsn {
         /// <summary>
         /// Absolute Dsn Uri
@@ -33,6 +36,10 @@ namespace SharpRaven {
         /// </summary>
         public string Path { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Dsn"/> class.
+        /// </summary>
+        /// <param name="dsn">The Data Source Name.</param>
         public Dsn(string dsn) {
             bool useSSl = dsn.StartsWith("https", StringComparison.InvariantCultureIgnoreCase);
             Uri uri = new Uri(dsn);
