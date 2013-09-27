@@ -97,7 +97,7 @@ namespace SharpRaven {
             packet.Logger = Logger;
 
             try {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(dsn.SentryURI);
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(dsn.SentryUri);
                 request.Method = "POST";
                 request.Accept = "application/json";
                 request.ContentType = "application/json; charset=utf-8";

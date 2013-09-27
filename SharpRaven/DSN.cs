@@ -11,7 +11,7 @@ namespace SharpRaven {
         /// <summary>
         /// Sentry URI for sending reports.
         /// </summary>
-        public string SentryURI { get; set; }
+        public string SentryUri { get; set; }
         /// <summary>
         /// Project public key.
         /// </summary>
@@ -44,7 +44,7 @@ namespace SharpRaven {
             ProjectID = GetProjectID(URI);
             Path = GetPath(URI);
 
-            SentryURI = String.Format(@"{0}://{1}:{2}{3}/api/{4}/store/", 
+            this.SentryUri = String.Format(@"{0}://{1}:{2}{3}/api/{4}/store/", 
                 useSSl ? "https" : "http",
                 URI.DnsSafeHost,
                 Port,

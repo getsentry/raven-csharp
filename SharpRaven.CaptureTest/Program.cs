@@ -24,7 +24,7 @@ namespace SharpRaven.CaptureTest
             ravenClient.Logger = "C#";
             ravenClient.LogScrubber = new Logging.LogScrubber();
 
-            PrintInfo("Sentry Uri: " + ravenClient.CurrentDSN.SentryURI);
+            PrintInfo("Sentry Uri: " + ravenClient.CurrentDSN.SentryUri);
             PrintInfo("Port: " + ravenClient.CurrentDSN.Port);
             PrintInfo("Public Key: " + ravenClient.CurrentDSN.PublicKey);
             PrintInfo("Private Key: " + ravenClient.CurrentDSN.PrivateKey);
