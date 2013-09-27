@@ -25,7 +25,7 @@ namespace SharpRaven.Data {
         /// The stacktrace of the exception.
         /// </summary>
         [JsonProperty(PropertyName = "stacktrace")]
-        public SentryStacktrace Stacktrace;
+        public SentryStacktrace Stacktrace { get; set; }
 
 
         public SentryException(Exception e) {
