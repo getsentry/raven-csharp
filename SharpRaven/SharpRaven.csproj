@@ -43,7 +43,7 @@
     <Compile Include="Data\ExceptionFrame.cs" />
     <Compile Include="Data\SentryException.cs" />
     <Compile Include="Data\SentryStacktrace.cs" />
-    <Compile Include="_Dsn.cs" />
+    <Compile Include="Dsn.cs" />
     <Compile Include="Data\JsonPacket.cs" />
     <Compile Include="Logging\Filters\CreditCardFilter.cs" />
     <Compile Include="Logging\Filters\PhoneNumberFilter.cs" />
