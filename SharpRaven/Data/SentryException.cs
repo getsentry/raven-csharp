@@ -19,7 +19,7 @@ namespace SharpRaven.Data {
         /// The module where the exception happened.
         /// </summary>
         [JsonProperty(PropertyName = "module")]
-        public string Module;
+        public string Module { get; set; }
 
         /// <summary>
         /// The stacktrace of the exception.
