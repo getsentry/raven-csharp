@@ -7,9 +7,9 @@ namespace SharpRaven {
         /// <summary>
         /// Absolute Dsn Uri
         /// </summary>
-        public Uri URI { get; set; }
+        public Uri Uri { get; set; }
         /// <summary>
-        /// Sentry URI for sending reports.
+        /// Sentry Uri for sending reports.
         /// </summary>
         public string SentryUri { get; set; }
         /// <summary>
