@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SharpRaven.Data {
+﻿namespace SharpRaven.Data {
     /// <summary>
     /// Indicates the severity of the error.
     /// </summary>
