@@ -56,7 +56,7 @@ namespace SharpRaven {
         public int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID, e);
-            packet.Level = ErrorLevel.error;
+            packet.Level = ErrorLevel.Error;
             packet.Tags = tags;
             packet.Extra = extra;
 
@@ -67,7 +67,7 @@ namespace SharpRaven {
 
         public int CaptureMessage(string message)
         {
-            return CaptureMessage(message, ErrorLevel.info, null, null);
+            return CaptureMessage(message, ErrorLevel.Info, null, null);
         }
 
         public int CaptureMessage(string message, ErrorLevel level)
@@ -80,7 +80,7 @@ namespace SharpRaven {
             return CaptureMessage(message, level, tags, null);
         }
 
-        public int CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, Dictionary<string, string> tags = null, object extra = null)
+        public int CaptureMessage(string message, ErrorLevel level = ErrorLevel.Info, Dictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDSN.ProjectID);
             packet.Message = message;

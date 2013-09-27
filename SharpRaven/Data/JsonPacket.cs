@@ -107,7 +107,7 @@ namespace SharpRaven.Data {
 
             Project = project;
             ServerName = System.Environment.MachineName;
-            Level = ErrorLevel.error;
+            Level = ErrorLevel.Error;
 
             Exceptions = new List<SentryException>();
 
@@ -137,7 +137,7 @@ namespace SharpRaven.Data {
             // Default logger.
             Logger = "root";
             // Default error level.
-            Level = ErrorLevel.error;
+            Level = ErrorLevel.Error;
             // Create a guid.
             EventID = Guid.NewGuid().ToString().Replace("-", String.Empty);
             // Project
