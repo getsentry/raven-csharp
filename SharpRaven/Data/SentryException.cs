@@ -13,7 +13,8 @@ namespace SharpRaven.Data {
         /// The message of the exception.
         /// </summary>
         [JsonProperty(PropertyName = "value")]
-        public string Value;
+        public string Value { get; set; }
+
         /// <summary>
         /// The module where the exception happened.
         /// </summary>
