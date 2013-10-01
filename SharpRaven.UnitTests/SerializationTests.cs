@@ -40,17 +40,16 @@ namespace SharpRaven.UnitTests
 
         private static Exception GetException()
         {
-            Exception exception = null;
-
             try
             {
                 PerformDivideByZero();
             }
             catch (Exception e)
             {
-                exception = e;
+                return e;
             }
-            return exception;
+
+            return null;
         }
 
 
