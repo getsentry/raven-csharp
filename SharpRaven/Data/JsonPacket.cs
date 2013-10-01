@@ -6,8 +6,15 @@ using Newtonsoft.Json.Converters;
 
 namespace SharpRaven.Data
 {
+    /// <summary>
+    /// The JSON packet sent to Sentry.
+    /// </summary>
     public class JsonPacket
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonPacket"/> class.
+        /// </summary>
+        /// <param name="project">The project.</param>
         public JsonPacket(string project)
         {
             // Get assemblies.
@@ -36,6 +43,11 @@ namespace SharpRaven.Data
         }
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonPacket"/> class.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="e">The <see cref="Exception"/>.</param>
         public JsonPacket(string project, Exception e)
             : this(project)
         {
