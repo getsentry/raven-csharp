@@ -19,10 +19,8 @@ namespace SharpRaven
         /// </summary>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
         public RavenClient(string dsn)
+            : this(new Dsn(dsn))
         {
-            CurrentDsn = new Dsn(dsn);
-            Compression = true;
-            Logger = "root";
         }
 
 
