@@ -93,10 +93,12 @@ namespace SharpRaven
         /// <returns></returns>
         public int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
         {
-            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, e);
-            packet.Level = ErrorLevel.Error;
-            packet.Tags = tags;
-            packet.Extra = extra;
+            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, e)
+            {
+                Level = ErrorLevel.Error,
+                Tags = tags,
+                Extra = extra
+            };
 
             Send(packet, CurrentDsn);
 
@@ -153,11 +155,13 @@ namespace SharpRaven
                                   Dictionary<string, string> tags = null,
                                   object extra = null)
         {
-            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID);
-            packet.Message = message;
-            packet.Level = level;
-            packet.Tags = tags;
-            packet.Extra = extra;
+            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID)
+            {
+                Message = message,
+                Level = level,
+                Tags = tags,
+                Extra = extra
+            };
 
             Send(packet, CurrentDsn);
 
