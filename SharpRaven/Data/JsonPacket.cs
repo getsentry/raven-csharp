@@ -18,7 +18,7 @@ namespace SharpRaven.Data
         /// A map or list of tags for this event.
         /// </summary>
         [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, string> Tags;
+        public IDictionary<string, string> Tags { get; set; }
 
 
         public JsonPacket(string project)
