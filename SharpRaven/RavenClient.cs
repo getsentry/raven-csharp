@@ -102,6 +102,7 @@ namespace SharpRaven
 
             Send(packet, CurrentDsn);
 
+            // TODO: This should return something intelligible, like an ID, no? [asbjornu]
             return 0;
         }
 
@@ -165,6 +166,7 @@ namespace SharpRaven
 
             Send(packet, CurrentDsn);
 
+            // TODO: This should return something intelligible, like an ID, no? [asbjornu]
             return 0;
         }
 
@@ -215,6 +217,7 @@ namespace SharpRaven
 
                 using (HttpWebResponse wr = (HttpWebResponse) request.GetResponse())
                 {
+                    // TODO: Shouldn't something be fetched from the response, like an ID? [asbjornu]
                     wr.Close();
                 }
             }
