@@ -98,12 +98,12 @@ namespace SharpRaven.Data {
             Initialize();
             Message = e.Message;
 
-			if (e.TargetSite != null)
-			{
+            if (e.TargetSite != null)
+            {
 // ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
                 Culprit = String.Format("{0} in {1}", ((e.TargetSite.ReflectedType == null) ? "<dynamic type>" : e.TargetSite.ReflectedType.FullName), e.TargetSite.Name);
 // ReSharper restore ConditionIsAlwaysTrueOrFalse
-			}
+            }
 
             Project = project;
             ServerName = System.Environment.MachineName;
