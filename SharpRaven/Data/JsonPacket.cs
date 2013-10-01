@@ -23,14 +23,35 @@ namespace SharpRaven.Data
 
         public JsonPacket(string project)
         {
-            Initialize();
+            // Get assemblies.
+            /*Modules = new List<Module>();
+            foreach (System.Reflection.Module m in Utilities.SystemUtil.GetModules()) {
+                Modules.Add(new Module() {
+                    Name = m.ScopeName,
+                    Version = m.ModuleVersionId.ToString()
+                });
+            }*/
+            // The current hostname
+            ServerName = Environment.MachineName;
+            // Create timestamp
+            TimeStamp = DateTime.UtcNow;
+            // Default logger.
+            Logger = "root";
+            // Default error level.
+            Level = ErrorLevel.Error;
+            // Create a guid.
+            EventID = Guid.NewGuid().ToString().Replace("-", String.Empty);
+            // Project
+            Project = "default";
+            // Platform
+            Platform = "csharp";
             Project = project;
         }
 
 
         public JsonPacket(string project, Exception e)
+            : this(project)
         {
-            Initialize();
             Message = e.Message;
 
             if (e.TargetSite != null)
@@ -135,33 +156,6 @@ namespace SharpRaven.Data
 
         [JsonProperty(PropertyName = "exception", NullValueHandling = NullValueHandling.Ignore)]
         public List<SentryException> Exceptions { get; set; }
-
-
-        private void Initialize()
-        {
-            // Get assemblies.
-            /*Modules = new List<Module>();
-            foreach (System.Reflection.Module m in Utilities.SystemUtil.GetModules()) {
-                Modules.Add(new Module() {
-                    Name = m.ScopeName,
-                    Version = m.ModuleVersionId.ToString()
-                });
-            }*/
-            // The current hostname
-            ServerName = Environment.MachineName;
-            // Create timestamp
-            TimeStamp = DateTime.UtcNow;
-            // Default logger.
-            Logger = "root";
-            // Default error level.
-            Level = ErrorLevel.Error;
-            // Create a guid.
-            EventID = Guid.NewGuid().ToString().Replace("-", String.Empty);
-            // Project
-            Project = "default";
-            // Platform
-            Platform = "csharp";
-        }
 
 
         /// <summary>
