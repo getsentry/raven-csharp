@@ -103,15 +103,6 @@ namespace SharpRaven
 
 
         /// <summary>
-        /// Sends the specified packet to Sentry.
-        /// </summary>
-        /// <param name="packet">The packet.</param>
-        /// <param name="dsn">The Data Source Name in Sentry.</param>
-        /// <returns></returns>
-        bool Send(JsonPacket packet, Dsn dsn);
-
-
-        /// <summary>
         /// Captures the event.
         /// </summary>
         /// <param name="e">The <see cref="Exception"/> to capture.</param>

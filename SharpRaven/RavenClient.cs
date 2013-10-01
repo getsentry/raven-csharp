@@ -165,7 +165,15 @@ namespace SharpRaven
         }
 
 
-        public bool Send(JsonPacket packet, Dsn dsn)
+        /// <summary>
+        /// Sends the specified packet to Sentry.
+        /// </summary>
+        /// <param name="packet">The packet to send.</param>
+        /// <param name="dsn">The Data Source Name in Sentry.</param>
+        /// <returns>
+        /// <c>true</c> if the <see cref="Send"/> succeeds, <c>false</c> if it fails.
+        /// </returns>
+        private bool Send(JsonPacket packet, Dsn dsn)
         {
             packet.Logger = Logger;
 
