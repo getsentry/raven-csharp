@@ -75,10 +75,12 @@ namespace SharpRaven.Data
                  currentException != null;
                  currentException = currentException.InnerException)
             {
-                SentryException sentryException = new SentryException(currentException);
-                sentryException.Module = currentException.Source;
-                sentryException.Type = currentException.GetType().Name;
-                sentryException.Value = currentException.Message;
+                SentryException sentryException = new SentryException(currentException)
+                {
+                    Module = currentException.Source,
+                    Type = currentException.GetType().Name,
+                    Value = currentException.Message
+                };
                 Exceptions.Add(sentryException);
             }
         }
