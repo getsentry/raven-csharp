@@ -38,54 +38,10 @@ namespace SharpRaven
         /// Captures the exception.
         /// </summary>
         /// <param name="e">The <see cref="Exception"/> to capture.</param>
-        /// <returns></returns>
-        int CaptureException(Exception e);
-
-
-        /// <summary>
-        /// Captures the exception.
-        /// </summary>
-        /// <param name="e">The <see cref="Exception"/> to capture.</param>
-        /// <param name="tags">The tags to annotate the captured exception with.</param>
-        /// <returns></returns>
-        int CaptureException(Exception e, IDictionary<string, string> tags = null);
-
-
-        /// <summary>
-        /// Captures the exception.
-        /// </summary>
-        /// <param name="e">The <see cref="Exception"/> to capture.</param>
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns></returns>
         int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null);
-
-
-        /// <summary>
-        /// Captures the message.
-        /// </summary>
-        /// <param name="message">The message to capture.</param>
-        /// <returns></returns>
-        int CaptureMessage(string message);
-
-
-        /// <summary>
-        /// Captures the message.
-        /// </summary>
-        /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel"/> of the captured message.</param>
-        /// <returns></returns>
-        int CaptureMessage(string message, ErrorLevel level);
-
-
-        /// <summary>
-        /// Captures the message.
-        /// </summary>
-        /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel"/> of the captured message.</param>
-        /// <param name="tags">The tags to annotate the captured exception with.</param>
-        /// <returns></returns>
-        int CaptureMessage(string message, ErrorLevel level, Dictionary<string, string> tags);
 
 
         /// <summary>

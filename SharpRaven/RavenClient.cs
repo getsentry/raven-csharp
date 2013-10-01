@@ -65,29 +65,6 @@ namespace SharpRaven
         /// Captures the exception.
         /// </summary>
         /// <param name="e">The <see cref="Exception" /> to capture.</param>
-        /// <returns></returns>
-        public int CaptureException(Exception e)
-        {
-            return CaptureException(e, null, null);
-        }
-
-
-        /// <summary>
-        /// Captures the exception.
-        /// </summary>
-        /// <param name="e">The <see cref="Exception" /> to capture.</param>
-        /// <param name="tags">The tags to annotate the captured exception with.</param>
-        /// <returns></returns>
-        public int CaptureException(Exception e, IDictionary<string, string> tags = null)
-        {
-            return CaptureException(e, tags, null);
-        }
-
-
-        /// <summary>
-        /// Captures the exception.
-        /// </summary>
-        /// <param name="e">The <see cref="Exception" /> to capture.</param>
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns></returns>
@@ -104,42 +81,6 @@ namespace SharpRaven
 
             // TODO: This should return something intelligible, like an ID, no? [asbjornu]
             return 0;
-        }
-
-
-        /// <summary>
-        /// Captures the message.
-        /// </summary>
-        /// <param name="message">The message to capture.</param>
-        /// <returns></returns>
-        public int CaptureMessage(string message)
-        {
-            return CaptureMessage(message, ErrorLevel.Info, null, null);
-        }
-
-
-        /// <summary>
-        /// Captures the message.
-        /// </summary>
-        /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
-        /// <returns></returns>
-        public int CaptureMessage(string message, ErrorLevel level)
-        {
-            return CaptureMessage(message, level, null, null);
-        }
-
-
-        /// <summary>
-        /// Captures the message.
-        /// </summary>
-        /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
-        /// <param name="tags">The tags to annotate the captured exception with.</param>
-        /// <returns></returns>
-        public int CaptureMessage(string message, ErrorLevel level, Dictionary<string, string> tags)
-        {
-            return CaptureMessage(message, level, tags, null);
         }
 
 
