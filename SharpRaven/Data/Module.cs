@@ -2,7 +2,7 @@
 {
     public class Module
     {
-        public string Name;
+        public string Name { get; set; }
         public string Version;
     }
 }
