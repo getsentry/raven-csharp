@@ -37,7 +37,7 @@ namespace SharpRaven
         /// <summary>
         /// Captures the exception.
         /// </summary>
-        /// <param name="e">The decimal.</param>
+        /// <param name="e">The <see cref="Exception"/> to capture.</param>
         /// <returns></returns>
         int CaptureException(Exception e);
 
@@ -45,8 +45,8 @@ namespace SharpRaven
         /// <summary>
         /// Captures the exception.
         /// </summary>
-        /// <param name="e">The decimal.</param>
-        /// <param name="tags">The tags.</param>
+        /// <param name="e">The <see cref="Exception"/> to capture.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <returns></returns>
         int CaptureException(Exception e, IDictionary<string, string> tags = null);
 
@@ -54,9 +54,9 @@ namespace SharpRaven
         /// <summary>
         /// Captures the exception.
         /// </summary>
-        /// <param name="e">The decimal.</param>
-        /// <param name="tags">The tags.</param>
-        /// <param name="extra">The extra.</param>
+        /// <param name="e">The <see cref="Exception"/> to capture.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns></returns>
         int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null);
 
@@ -64,7 +64,7 @@ namespace SharpRaven
         /// <summary>
         /// Captures the message.
         /// </summary>
-        /// <param name="message">The message.</param>
+        /// <param name="message">The message to capture.</param>
         /// <returns></returns>
         int CaptureMessage(string message);
 
@@ -72,8 +72,8 @@ namespace SharpRaven
         /// <summary>
         /// Captures the message.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="level">The level.</param>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel"/> of the captured message.</param>
         /// <returns></returns>
         int CaptureMessage(string message, ErrorLevel level);
 
@@ -81,9 +81,9 @@ namespace SharpRaven
         /// <summary>
         /// Captures the message.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="level">The level.</param>
-        /// <param name="tags">The tags.</param>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel"/> of the captured message.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <returns></returns>
         int CaptureMessage(string message, ErrorLevel level, Dictionary<string, string> tags);
 
@@ -91,10 +91,10 @@ namespace SharpRaven
         /// <summary>
         /// Captures the message.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="level">The level.</param>
-        /// <param name="tags">The tags.</param>
-        /// <param name="extra">The extra.</param>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel"/> of the captured message.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns></returns>
         int CaptureMessage(string message,
                            ErrorLevel level = ErrorLevel.Info,
@@ -103,10 +103,10 @@ namespace SharpRaven
 
 
         /// <summary>
-        /// Sends the specified packet.
+        /// Sends the specified packet to Sentry.
         /// </summary>
         /// <param name="packet">The packet.</param>
-        /// <param name="dsn">The DSN.</param>
+        /// <param name="dsn">The Data Source Name in Sentry.</param>
         /// <returns></returns>
         bool Send(JsonPacket packet, Dsn dsn);
 
@@ -114,7 +114,7 @@ namespace SharpRaven
         /// <summary>
         /// Captures the event.
         /// </summary>
-        /// <param name="e">The decimal.</param>
+        /// <param name="e">The <see cref="Exception"/> to capture.</param>
         /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
         int CaptureEvent(Exception e);
@@ -123,8 +123,8 @@ namespace SharpRaven
         /// <summary>
         /// Captures the event.
         /// </summary>
-        /// <param name="e">The decimal.</param>
-        /// <param name="tags">The tags.</param>
+        /// <param name="e">The <see cref="Exception"/> to capture.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
         int CaptureEvent(Exception e, Dictionary<string, string> tags);

@@ -9,8 +9,15 @@ using SharpRaven.Utilities;
 
 namespace SharpRaven
 {
+    /// <summary>
+    /// The Raven Client, responsible for capturing exceptions and sending them to Sentry.
+    /// </summary>
     public class RavenClient : IRavenClient
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RavenClient"/> class.
+        /// </summary>
+        /// <param name="dsn">The Data Source Name in Sentry.</param>
         public RavenClient(string dsn)
         {
             CurrentDsn = new Dsn(dsn);
@@ -19,6 +26,10 @@ namespace SharpRaven
         }
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RavenClient"/> class.
+        /// </summary>
+        /// <param name="dsn">The Data Source Name in Sentry.</param>
         public RavenClient(Dsn dsn)
         {
             CurrentDsn = dsn;
@@ -50,18 +61,36 @@ namespace SharpRaven
         public string Logger { get; set; }
 
 
+        /// <summary>
+        /// Captures the exception.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception" /> to capture.</param>
+        /// <returns></returns>
         public int CaptureException(Exception e)
         {
             return CaptureException(e, null, null);
         }
 
 
+        /// <summary>
+        /// Captures the exception.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception" /> to capture.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <returns></returns>
         public int CaptureException(Exception e, IDictionary<string, string> tags = null)
         {
             return CaptureException(e, tags, null);
         }
 
 
+        /// <summary>
+        /// Captures the exception.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception" /> to capture.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <param name="extra">The extra metadata to send with the captured exception.</param>
+        /// <returns></returns>
         public int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, e);
@@ -75,24 +104,50 @@ namespace SharpRaven
         }
 
 
+        /// <summary>
+        /// Captures the message.
+        /// </summary>
+        /// <param name="message">The message to capture.</param>
+        /// <returns></returns>
         public int CaptureMessage(string message)
         {
             return CaptureMessage(message, ErrorLevel.Info, null, null);
         }
 
 
+        /// <summary>
+        /// Captures the message.
+        /// </summary>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
+        /// <returns></returns>
         public int CaptureMessage(string message, ErrorLevel level)
         {
             return CaptureMessage(message, level, null, null);
         }
 
 
+        /// <summary>
+        /// Captures the message.
+        /// </summary>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <returns></returns>
         public int CaptureMessage(string message, ErrorLevel level, Dictionary<string, string> tags)
         {
             return CaptureMessage(message, level, tags, null);
         }
 
 
+        /// <summary>
+        /// Captures the message.
+        /// </summary>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <param name="extra">The extra metadata to send with the captured exception.</param>
+        /// <returns></returns>
         public int CaptureMessage(string message,
                                   ErrorLevel level = ErrorLevel.Info,
                                   Dictionary<string, string> tags = null,
