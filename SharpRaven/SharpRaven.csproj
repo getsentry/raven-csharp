@@ -45,6 +45,7 @@
     <Compile Include="Data\SentryStacktrace.cs" />
     <Compile Include="Dsn.cs" />
     <Compile Include="Data\JsonPacket.cs" />
+    <Compile Include="IRavenClient.cs" />
     <Compile Include="Logging\Filters\CreditCardFilter.cs" />
     <Compile Include="Logging\Filters\PhoneNumberFilter.cs" />
     <Compile Include="Logging\Filters\SocialSecurityFilter.cs" />

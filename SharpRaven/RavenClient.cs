@@ -7,7 +7,8 @@ using SharpRaven.Utilities;
 using SharpRaven.Logging;
 
 namespace SharpRaven {
-    public class RavenClient {
+    public class RavenClient : IRavenClient
+    {
 
         /// <summary>
         /// The Dsn currently being used to log exceptions.
