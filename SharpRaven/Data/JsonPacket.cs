@@ -8,19 +8,6 @@ namespace SharpRaven.Data
 {
     public class JsonPacket
     {
-        /// <summary>
-        /// An arbitrary mapping of additional metadata to store with the event.
-        /// </summary>
-        [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
-        public object Extra { get; set; }
-
-        /// <summary>
-        /// A map or list of tags for this event.
-        /// </summary>
-        [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, string> Tags { get; set; }
-
-
         public JsonPacket(string project)
         {
             // Get assemblies.
@@ -84,6 +71,19 @@ namespace SharpRaven.Data
                 Exceptions.Add(sentryException);
             }
         }
+
+
+        /// <summary>
+        /// An arbitrary mapping of additional metadata to store with the event.
+        /// </summary>
+        [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
+        public object Extra { get; set; }
+
+        /// <summary>
+        /// A map or list of tags for this event.
+        /// </summary>
+        [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
+        public IDictionary<string, string> Tags { get; set; }
 
 
         /// <summary>
