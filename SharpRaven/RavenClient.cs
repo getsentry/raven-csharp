@@ -1,14 +1,31 @@
 ﻿using System;
-using SharpRaven.Data;
-using System.Net;
-using System.IO;
 using System.Collections.Generic;
-using SharpRaven.Utilities;
-using SharpRaven.Logging;
+using System.IO;
+using System.Net;
 
-namespace SharpRaven {
+using SharpRaven.Data;
+using SharpRaven.Logging;
+using SharpRaven.Utilities;
+
+namespace SharpRaven
+{
     public class RavenClient : IRavenClient
     {
+        public RavenClient(string dsn)
+        {
+            CurrentDsn = new Dsn(dsn);
+            Compression = true;
+            Logger = "root";
+        }
+
+
+        public RavenClient(Dsn dsn)
+        {
+            CurrentDsn = dsn;
+            Compression = true;
+            Logger = "root";
+        }
+
 
         /// <summary>
         /// The Dsn currently being used to log exceptions.
@@ -32,73 +49,74 @@ namespace SharpRaven {
         /// </summary>
         public string Logger { get; set; }
 
-        public RavenClient(string dsn) {
-            this.CurrentDsn = new Dsn(dsn);
-            Compression = true;
-            Logger = "root";
-        }
-
-        public RavenClient(Dsn dsn) {
-            this.CurrentDsn = dsn;
-            Compression = true;
-            Logger = "root";
-        }
 
         public int CaptureException(Exception e)
         {
             return CaptureException(e, null, null);
         }
 
+
         public int CaptureException(Exception e, IDictionary<string, string> tags = null)
         {
             return CaptureException(e, tags, null);
         }
 
+
         public int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
         {
-            JsonPacket packet = new JsonPacket(this.CurrentDsn.ProjectID, e);
+            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, e);
             packet.Level = ErrorLevel.Error;
             packet.Tags = tags;
             packet.Extra = extra;
 
-            Send(packet, this.CurrentDsn);
+            Send(packet, CurrentDsn);
 
             return 0;
         }
+
 
         public int CaptureMessage(string message)
         {
             return CaptureMessage(message, ErrorLevel.Info, null, null);
         }
 
+
         public int CaptureMessage(string message, ErrorLevel level)
         {
             return CaptureMessage(message, level, null, null);
         }
+
 
         public int CaptureMessage(string message, ErrorLevel level, Dictionary<string, string> tags)
         {
             return CaptureMessage(message, level, tags, null);
         }
 
-        public int CaptureMessage(string message, ErrorLevel level = ErrorLevel.Info, Dictionary<string, string> tags = null, object extra = null)
+
+        public int CaptureMessage(string message,
+                                  ErrorLevel level = ErrorLevel.Info,
+                                  Dictionary<string, string> tags = null,
+                                  object extra = null)
         {
-            JsonPacket packet = new JsonPacket(this.CurrentDsn.ProjectID);
+            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID);
             packet.Message = message;
             packet.Level = level;
             packet.Tags = tags;
             packet.Extra = extra;
 
-            Send(packet, this.CurrentDsn);
+            Send(packet, CurrentDsn);
 
             return 0;
         }
 
-        public bool Send(JsonPacket packet, Dsn dsn) {
+
+        public bool Send(JsonPacket packet, Dsn dsn)
+        {
             packet.Logger = Logger;
 
-            try {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(dsn.SentryUri);
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
                 request.Method = "POST";
                 request.Accept = "application/json";
                 request.ContentType = "application/json; charset=utf-8";
@@ -107,8 +125,10 @@ namespace SharpRaven {
                 request.UserAgent = "RavenSharp/1.0";
 
                 // Write the messagebody.
-                using (Stream s = request.GetRequestStream()) {
-                    using (StreamWriter sw = new StreamWriter(s)) {
+                using (Stream s = request.GetRequestStream())
+                {
+                    using (StreamWriter sw = new StreamWriter(s))
+                    {
                         // Compress and encode.
                         //string data = Utilities.GzipUtil.CompressEncode(packet.Serialize());
                         //Console.WriteLine("Writing: " + data);
@@ -126,11 +146,13 @@ namespace SharpRaven {
                     s.Close();
                 }
 
-                using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
+                using (HttpWebResponse wr = (HttpWebResponse) request.GetResponse())
                 {
                     wr.Close();
                 }
-            } catch (WebException e) {
+            }
+            catch (WebException e)
+            {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("[ERROR] ");
                 Console.ForegroundColor = ConsoleColor.Gray;
@@ -145,7 +167,7 @@ namespace SharpRaven {
                     }
                     Console.WriteLine("[MESSAGE BODY] " + messageBody);
                 }
-                
+
                 return false;
             }
 
@@ -159,17 +181,19 @@ namespace SharpRaven {
          *  that have the same names as the other sentry clients, this
          *  is purely for the sake of consistency
          */
-         
+
+
         [Obsolete("The more common CaptureException method should be used")]
         public int CaptureEvent(Exception e)
         {
-            return this.CaptureException(e);
+            return CaptureException(e);
         }
+
 
         [Obsolete("The more common CaptureException method should be used")]
         public int CaptureEvent(Exception e, Dictionary<string, string> tags)
         {
-            return this.CaptureException(e, tags);
+            return CaptureException(e, tags);
         }
 
         #endregion
