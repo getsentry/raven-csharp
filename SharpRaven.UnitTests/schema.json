@@ -1,10 +1,10 @@
 ﻿{
     "description": "An exception packet for Sentry",
     "type": "object",
+    "required": ["level"],
     "properties": {
         "level": {
             "enum": ["fatal", "error", "warning", "info", "debug"]
         }
-    },
-    "required": ["level"],
+    }
 }
