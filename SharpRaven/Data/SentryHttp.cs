@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 
@@ -22,6 +23,7 @@ namespace SharpRaven.Data
 
             Url = this.httpContext.Request.RawUrl;
             Method = this.httpContext.Request.HttpMethod;
+            Environment = Convert(x => x.Request.ServerVariables);
         }
 
 
@@ -52,6 +54,37 @@ namespace SharpRaven.Data
 
         [JsonProperty(PropertyName = "env", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Environment { get; set; }
+
+
+        private IDictionary<string, string> Convert(Func<dynamic, NameValueCollection> collectionGetter)
+        {
+            if (this.httpContext == null)
+                return null;
+
+            IDictionary<string, string> dictionary = new Dictionary<string, string>();
+
+            try
+            {
+                NameValueCollection collection = collectionGetter.Invoke(this.httpContext);
+                var keys = collection.AllKeys.ToArray();
+
+                foreach (var key in keys)
+                {
+                    // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
+                    if (key == "ALL_HTTP" || key == "ALL_RAW")
+                        continue;
+
+                    var value = collection[key];
+                    dictionary.Add(key, value);
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return dictionary;
+        }
 
 
         private static dynamic GetHttpContext()
