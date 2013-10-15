@@ -168,9 +168,8 @@ namespace SharpRaven.Data
             // Platform
             Platform = "csharp";
 
-            // Initialize the HTTP context
-            var request = new SentryRequest();
-            Request = request.HasHttpContext ? request : null;
+            // Get data from the HTTP request
+            Request = SentryRequest.GetRequest();
         }
         
         /// <summary>

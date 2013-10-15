@@ -13,7 +13,7 @@ namespace SharpRaven.Data
         private readonly dynamic httpContext;
 
 
-        public SentryRequest()
+        private SentryRequest()
         {
             // NOTE: We're using dynamic to not require a reference to System.Web.
             this.httpContext = GetHttpContext();
@@ -30,9 +30,14 @@ namespace SharpRaven.Data
             QueryString = this.httpContext.Request.QueryString.ToString();
         }
 
+        public static SentryRequest GetRequest()
+        {
+            var request = new SentryRequest();
+            return request.HasHttpContext ? request : null;
+        }
 
         [JsonIgnore]
-        public bool HasHttpContext
+        private bool HasHttpContext
         {
             get { return this.httpContext != null; }
         }
