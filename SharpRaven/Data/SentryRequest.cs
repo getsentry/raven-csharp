@@ -8,6 +8,9 @@ using Newtonsoft.Json;
 
 namespace SharpRaven.Data
 {
+    /// <summary>
+    /// The Request information is stored in the Http interface. Two arguments are required: url and method.
+    /// </summary>
     public class SentryRequest
     {
         private readonly dynamic httpContext;
@@ -44,6 +47,12 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "method", NullValueHandling = NullValueHandling.Ignore)]
         public string Method { get; set; }
 
+        /// <summary>
+        /// The data variable should only contain the request body (not the query string). It can either be a dictionary (for standard HTTP requests) or a raw request body.
+        /// </summary>
+        /// <value>
+        /// The data.
+        /// </value>
         [JsonProperty(PropertyName = "data", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Data { get; set; }
 
@@ -56,6 +65,13 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "headers", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Headers { get; set; }
 
+        /// <summary>
+        /// The env variable is a compounded dictionary of HTTP headers as well as environment information passed from the webserver.
+        /// Sentry will explicitly look for REMOTE_ADDR in env for things which require an IP address.
+        /// </summary>
+        /// <value>
+        /// The environment.
+        /// </value>
         [JsonProperty(PropertyName = "env", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Environment { get; set; }
 
