@@ -180,7 +180,7 @@ namespace SharpRaven.Data
         /// <returns>json string</returns>
         public string Serialize()
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
 
             //return @"{""project"": ""SharpRaven"",""event_id"": ""fc6d8c0c43fc4630ad850ee518f1b9d0"",""culprit"": ""my.module.function_name"",""timestamp"": ""2012-11-11T17:41:36"",""message"": ""SyntaxError: Wattttt!"",""sentry.interfaces.Exception"": {""type"": ""SyntaxError"",""value"": ""Wattttt!"",""module"": ""__builtins__""}""}";
         }
