@@ -8,12 +8,12 @@ using Newtonsoft.Json;
 
 namespace SharpRaven.Data
 {
-    public class SentryHttp
+    public class SentryRequest
     {
         private readonly dynamic httpContext;
 
 
-        public SentryHttp()
+        public SentryRequest()
         {
             // NOTE: We're using dynamic to not require a reference to System.Web.
             this.httpContext = GetHttpContext();

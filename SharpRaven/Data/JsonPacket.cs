@@ -136,8 +136,8 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "exception", NullValueHandling = NullValueHandling.Ignore)]
         public List<SentryException> Exceptions { get; set; }
 
-        [JsonProperty(PropertyName = "http", NullValueHandling = NullValueHandling.Ignore)]
-        public SentryHttp Http { get; set; }
+        [JsonProperty(PropertyName = "request", NullValueHandling = NullValueHandling.Ignore)]
+        public SentryRequest SentryRequest { get; set; }
 
 
         private void Initialize()
@@ -166,12 +166,8 @@ namespace SharpRaven.Data
             Platform = "csharp";
 
             // Initialize the HTTP context
-            var http = new SentryHttp();
-
-            if (!http.HasHttpContext)
-                return;
-
-            Http = http;
+            var request = new SentryRequest();
+            SentryRequest = request.HasHttpContext ? request : null;
         }
         
         /// <summary>

@@ -43,7 +43,7 @@
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
     <Compile Include="Data\SentryException.cs" />
-    <Compile Include="Data\SentryHttp.cs" />
+    <Compile Include="Data\SentryRequest.cs" />
     <Compile Include="Data\SentryStacktrace.cs" />
     <Compile Include="DSN.cs" />
     <Compile Include="Data\JsonPacket.cs" />
