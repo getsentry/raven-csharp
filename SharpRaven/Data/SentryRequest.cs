@@ -30,11 +30,6 @@ namespace SharpRaven.Data
             QueryString = this.httpContext.Request.QueryString.ToString();
         }
 
-        public static SentryRequest GetRequest()
-        {
-            var request = new SentryRequest();
-            return request.HasHttpContext ? request : null;
-        }
 
         [JsonIgnore]
         private bool HasHttpContext
@@ -63,6 +58,25 @@ namespace SharpRaven.Data
 
         [JsonProperty(PropertyName = "env", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Environment { get; set; }
+
+
+        public static SentryRequest GetRequest()
+        {
+            var request = new SentryRequest();
+            return request.HasHttpContext ? request : null;
+        }
+
+
+        public SentryUser GetUser()
+        {
+            if (!HasHttpContext)
+                return null;
+
+            return new SentryUser
+            {
+                IpAddress = this.httpContext.Request.UserHostAddress
+            };
+        }
 
 
         private IDictionary<string, string> Convert(Func<dynamic, NameValueCollection> collectionGetter)
