@@ -139,6 +139,9 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "request", NullValueHandling = NullValueHandling.Ignore)]
         public SentryRequest Request { get; set; }
 
+        [JsonProperty(PropertyName = "user", NullValueHandling = NullValueHandling.Ignore)]
+        public SentryUser User { get; set; }
+
 
         private void Initialize()
         {
