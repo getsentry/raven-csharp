@@ -27,6 +27,7 @@ namespace SharpRaven.Data
             Headers = Convert(x => x.Request.Headers);
             Cookies = Convert(x => x.Request.Cookies);
             Data = Convert(x => x.Request.Form);
+            QueryString = this.httpContext.Request.QueryString.ToString();
         }
 
 
