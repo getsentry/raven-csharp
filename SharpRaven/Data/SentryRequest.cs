@@ -54,7 +54,7 @@ namespace SharpRaven.Data
         /// The data.
         /// </value>
         [JsonProperty(PropertyName = "data", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, string> Data { get; set; }
+        public object Data { get; set; }
 
         [JsonProperty(PropertyName = "query_string", NullValueHandling = NullValueHandling.Ignore)]
         public string QueryString { get; set; }
