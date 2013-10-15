@@ -26,6 +26,7 @@ namespace SharpRaven.Data
             Environment = Convert(x => x.Request.ServerVariables);
             Headers = Convert(x => x.Request.Headers);
             Cookies = Convert(x => x.Request.Cookies);
+            Data = Convert(x => x.Request.Form);
         }
 
 
