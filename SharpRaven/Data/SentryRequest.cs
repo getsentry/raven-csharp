@@ -25,6 +25,7 @@ namespace SharpRaven.Data
             Method = this.httpContext.Request.HttpMethod;
             Environment = Convert(x => x.Request.ServerVariables);
             Headers = Convert(x => x.Request.Headers);
+            Cookies = Convert(x => x.Request.Cookies);
         }
 
 
