@@ -71,7 +71,7 @@ namespace SharpRaven.Data
                 foreach (var key in keys)
                 {
                     // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
-                    if (key == "ALL_HTTP" || key == "ALL_RAW")
+                    if (key.StartsWith("ALL_") || key.StartsWith("HTTP_"))
                         continue;
 
                     var value = collection[key];
