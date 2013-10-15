@@ -21,7 +21,7 @@ namespace SharpRaven.Data
             if (!HasHttpContext)
                 return;
 
-            Url = this.httpContext.Request.RawUrl;
+            Url = this.httpContext.Request.Url.ToString();
             Method = this.httpContext.Request.HttpMethod;
             Environment = Convert(x => x.Request.ServerVariables);
             Headers = Convert(x => x.Request.Headers);
