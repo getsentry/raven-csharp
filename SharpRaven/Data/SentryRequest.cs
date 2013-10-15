@@ -24,6 +24,7 @@ namespace SharpRaven.Data
             Url = this.httpContext.Request.RawUrl;
             Method = this.httpContext.Request.HttpMethod;
             Environment = Convert(x => x.Request.ServerVariables);
+            Headers = Convert(x => x.Request.Headers);
         }
 
 
