@@ -71,8 +71,8 @@ namespace SharpRaven.Data
         {
             if (!HasHttpContext)
                 return null;
-
-            return new SentryUser
+            
+            return new SentryUser(this.httpContext.User)
             {
                 IpAddress = this.httpContext.Request.UserHostAddress
             };

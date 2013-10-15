@@ -1,9 +1,21 @@
-﻿using Newtonsoft.Json;
+﻿using System.Security.Principal;
+
+using Newtonsoft.Json;
 
 namespace SharpRaven.Data
 {
     public class SentryUser
     {
+        public SentryUser(IPrincipal principal)
+        {
+            if (principal == null)
+                return;
+
+            var identity = principal.Identity;
+            Username = identity.Name;
+        }
+
+
         [JsonProperty(PropertyName = "id", NullValueHandling = NullValueHandling.Ignore)]
         public string Id { get; set; }
 
