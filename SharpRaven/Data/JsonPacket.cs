@@ -170,6 +170,8 @@ namespace SharpRaven.Data
 
             // Get data from the HTTP request
             Request = SentryRequest.GetRequest();
+            // Get the user data from the HTTP request
+            User = Request.GetUser();
         }
         
         /// <summary>
