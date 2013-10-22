@@ -33,6 +33,7 @@
     <DocumentationFile>bin\Release\SharpRaven.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -42,7 +43,9 @@
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
     <Compile Include="Data\SentryException.cs" />
+    <Compile Include="Data\SentryRequest.cs" />
     <Compile Include="Data\SentryStacktrace.cs" />
+    <Compile Include="Data\SentryUser.cs" />
     <Compile Include="DSN.cs" />
     <Compile Include="Data\JsonPacket.cs" />
     <Compile Include="Logging\Filters\CreditCardFilter.cs" />

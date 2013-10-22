@@ -1,9 +1,68 @@
 ﻿using System;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace SharpRaven.Data {
-    public class JsonPacket {
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace SharpRaven.Data
+{
+    public class JsonPacket
+    {
+        /// <summary>
+        /// An arbitrary mapping of additional metadata to store with the event.
+        /// </summary>
+        [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
+        public object Extra;
+
+        /// <summary>
+        /// A map or list of tags for this event.
+        /// </summary>
+        [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
+        public IDictionary<string, string> Tags;
+
+
+        public JsonPacket(string project)
+        {
+            Initialize();
+            Project = project;
+        }
+
+
+        public JsonPacket(string project, Exception e)
+        {
+            Initialize();
+            Message = e.Message;
+
+            if (e.TargetSite != null)
+            {
+// ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
+                Culprit = String.Format("{0} in {1}",
+                                        ((e.TargetSite.ReflectedType == null)
+                                             ? "<dynamic type>"
+                                             : e.TargetSite.ReflectedType.FullName),
+                                        e.TargetSite.Name);
+// ReSharper restore ConditionIsAlwaysTrueOrFalse
+            }
+
+            Project = project;
+            ServerName = Environment.MachineName;
+            Level = ErrorLevel.error;
+
+            Exceptions = new List<SentryException>();
+
+            for (Exception currentException = e;
+                 currentException != null;
+                 currentException = currentException.InnerException)
+            {
+                SentryException sentryException = new SentryException(currentException);
+                sentryException.Module = currentException.Source;
+                sentryException.Type = currentException.GetType().Name;
+                sentryException.Value = currentException.Message;
+                Exceptions.Add(sentryException);
+            }
+        }
+
+
         /// <summary>
         /// Hexadecimal string representing a uuid4 value.
         /// </summary>
@@ -28,7 +87,7 @@ namespace SharpRaven.Data {
         /// Defaults to error.
         /// </summary>
         [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore)]
-        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        [JsonConverter(typeof (StringEnumConverter))]
         public ErrorLevel Level { get; set; }
 
         /// <summary>
@@ -61,18 +120,6 @@ namespace SharpRaven.Data {
         public string Message { get; set; }
 
         /// <summary>
-        /// A map or list of tags for this event.
-        /// </summary>
-        [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, string> Tags;
-
-        /// <summary>
-        /// An arbitrary mapping of additional metadata to store with the event.
-        /// </summary>
-        [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
-        public object Extra;
-
-        /// <summary>
         /// Identifies the host client from which the event was recorded.
         /// </summary>
         [JsonProperty(PropertyName = "server_name", NullValueHandling = NullValueHandling.Ignore)]
@@ -89,39 +136,15 @@ namespace SharpRaven.Data {
         [JsonProperty(PropertyName = "exception", NullValueHandling = NullValueHandling.Ignore)]
         public List<SentryException> Exceptions { get; set; }
 
-        public JsonPacket(string project) {
-            Initialize();
-            Project = project;
-        }
+        [JsonProperty(PropertyName = "request", NullValueHandling = NullValueHandling.Ignore)]
+        public SentryRequest Request { get; set; }
 
-        public JsonPacket(string project, Exception e) {
-            Initialize();
-            Message = e.Message;
+        [JsonProperty(PropertyName = "user", NullValueHandling = NullValueHandling.Ignore)]
+        public SentryUser User { get; set; }
 
-			if (e.TargetSite != null)
-			{
-// ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
-                Culprit = String.Format("{0} in {1}", ((e.TargetSite.ReflectedType == null) ? "<dynamic type>" : e.TargetSite.ReflectedType.FullName), e.TargetSite.Name);
-// ReSharper restore ConditionIsAlwaysTrueOrFalse
-			}
 
-            Project = project;
-            ServerName = System.Environment.MachineName;
-            Level = ErrorLevel.error;
-
-            Exceptions = new List<SentryException>();
-
-            for (Exception currentException = e; currentException != null; currentException = currentException.InnerException)
-            {
-                SentryException sentryException = new SentryException(currentException);
-                sentryException.Module = currentException.Source;
-                sentryException.Type = currentException.GetType().Name;
-                sentryException.Value = currentException.Message;
-                Exceptions.Add(sentryException);
-            }
-        }
-
-        private void Initialize() {
+        private void Initialize()
+        {
             // Get assemblies.
             /*Modules = new List<Module>();
             foreach (System.Reflection.Module m in Utilities.SystemUtil.GetModules()) {
@@ -131,7 +154,7 @@ namespace SharpRaven.Data {
                 });
             }*/
             // The current hostname
-            ServerName = System.Environment.MachineName;
+            ServerName = Environment.MachineName;
             // Create timestamp
             TimeStamp = DateTime.UtcNow;
             // Default logger.
@@ -144,21 +167,27 @@ namespace SharpRaven.Data {
             Project = "default";
             // Platform
             Platform = "csharp";
-        }
 
+            // Get data from the HTTP request
+            Request = SentryRequest.GetRequest();
+            // Get the user data from the HTTP request
+            User = Request.GetUser();
+        }
+        
         /// <summary>
         /// Turn into a JSON string.
         /// </summary>
         /// <returns>json string</returns>
-        public string Serialize() {
+        public string Serialize()
+        {
             return JsonConvert.SerializeObject(this);
 
             //return @"{""project"": ""SharpRaven"",""event_id"": ""fc6d8c0c43fc4630ad850ee518f1b9d0"",""culprit"": ""my.module.function_name"",""timestamp"": ""2012-11-11T17:41:36"",""message"": ""SyntaxError: Wattttt!"",""sentry.interfaces.Exception"": {""type"": ""SyntaxError"",""value"": ""Wattttt!"",""module"": ""__builtins__""}""}";
         }
-
     }
 
-    public class Module {
+    public class Module
+    {
         public string Name;
         public string Version;
     }
