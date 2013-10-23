@@ -60,9 +60,9 @@ namespace SharpRaven {
             packet.Tags = tags;
             packet.Extra = extra;
 
-            Send(packet, CurrentDSN);
+            bool success = Send(packet, CurrentDSN);
 
-            return 0;
+            return (success) ? 0 : 1;
         }
 
         public int CaptureMessage(string message)
@@ -88,9 +88,9 @@ namespace SharpRaven {
             packet.Tags = tags;
             packet.Extra = extra;
 
-            Send(packet, CurrentDSN);
+            bool success = Send(packet, CurrentDSN);
 
-            return 0;
+            return (success) ? 0 : 1;
         }
 
         public bool Send(JsonPacket packet, DSN dsn) {
