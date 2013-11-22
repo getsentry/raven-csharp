@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>raven-csharp</id>
+    <version>1.0.2</version>
+    <authors>jsk</authors>
+    <owners>jsk</owners>
+    <licenseUrl>https://github.com/getsentry/raven-csharp/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/getsentry/raven-csharp</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Raven is a C# client for Sentry (getsentry.com) 
+https://www.getsentry.com</description>
+    <releaseNotes>Based on https://github.com/getsentry/raven-csharp/commit/bb375370abf28b7269236ab11f52abeda8cbbb41.</releaseNotes>
+    <copyright>Copyright 2013 getsentry.com</copyright>
+    <tags>raven sentry logging</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="4.5" />
+    </dependencies>
+  </metadata>
+</package>
