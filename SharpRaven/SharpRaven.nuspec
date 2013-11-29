@@ -1,19 +1,21 @@
-<?xml version="1.0"?>
-<package >
-  <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <authors>jsk, asbjornu</authors>
-    <owners>jsk, asbjornu</owners>
-    <licenseUrl>https://github.com/getsentry/raven-csharp/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/getsentry/raven-csharp</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Raven is a C# client for Sentry https://www.getsentry.com</description>
-    <releaseNotes>Based on https://github.com/getsentry/raven-csharp/commit/bb375370abf28b7269236ab11f52abeda8cbbb41.</releaseNotes>
-    <copyright>Copyright 2013 getsentry.com</copyright>
-    <tags>raven sentry logging</tags>
-    <dependencies>
-      <dependency id="Newtonsoft.Json" version="4.5" />
-    </dependencies>
-  </metadata>
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>$id$</id>
+        <version>$version$</version>
+        <title>.NET client for Sentry (getsentry.com)</title>
+        <authors>David Cramer, GetSentry.com</authors>
+        <owners>jsk, asbjornu, gmaclellan</owners>
+        <licenseUrl>https://github.com/getsentry/raven-csharp/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/getsentry/raven-csharp</projectUrl>
+        <iconUrl>https://www.getsentry.com/_static/getsentry/images/favicon.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Raven is a C# client for Sentry (getsentry.com and github.com/getsentry/sentry)</description>
+        <releaseNotes>Based on https://github.com/getsentry/raven-csharp/commit/bb375370abf28b7269236ab11f52abeda8cbbb41.</releaseNotes>
+        <copyright>Copyright 2013 getsentry.com</copyright>
+        <tags>raven sentry logging</tags>
+        <dependencies>
+            <dependency id="Newtonsoft.Json" version="4.5.11" />
+        </dependencies>
+    </metadata>
 </package>
