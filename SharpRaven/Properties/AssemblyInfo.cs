@@ -2,11 +2,11 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("SharpRaven")]
-[assembly: AssemblyDescription("A Sentry Client written in C# 4.0")]
+[assembly: AssemblyDescription("SharpRaven is a C# client for Sentry https://www.getsentry.com")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Sentry")]
 [assembly: AssemblyProduct("SharpRaven")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCopyright("Copyright © Sentry 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
