@@ -17,5 +17,8 @@
         <dependencies>
             <dependency id="Newtonsoft.Json" version="4.5.11" />
         </dependencies>
+        <files>
+            <file src="SharpRaven\bin\Release\SharpRaven.*" target="lib" />
+        </files>
     </metadata>
 </package>
