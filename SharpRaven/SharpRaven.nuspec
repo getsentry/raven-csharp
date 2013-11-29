@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>raven-csharp</id>
-    <version>1.0.2</version>
-    <authors>jsk</authors>
-    <owners>jsk</owners>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>jsk, asbjornu</authors>
+    <owners>jsk, asbjornu</owners>
     <licenseUrl>https://github.com/getsentry/raven-csharp/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/getsentry/raven-csharp</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Raven is a C# client for Sentry (getsentry.com) 
-https://www.getsentry.com</description>
+    <description>Raven is a C# client for Sentry https://www.getsentry.com</description>
     <releaseNotes>Based on https://github.com/getsentry/raven-csharp/commit/bb375370abf28b7269236ab11f52abeda8cbbb41.</releaseNotes>
     <copyright>Copyright 2013 getsentry.com</copyright>
     <tags>raven sentry logging</tags>
