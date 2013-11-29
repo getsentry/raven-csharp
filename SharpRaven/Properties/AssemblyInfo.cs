@@ -16,4 +16,4 @@ using System.Runtime.InteropServices;
 // AssemblyFileVersion is more informal and can be increased more rapidly and with less consideration than AssemblyVersion. 
 [assembly: AssemblyFileVersion("0.8.0.0")]
 // AssemblyInformationalVersion is even more informal than AssemblyFileVersion and doesn't need a certain format. It will be used as the $version$ replacement string in NuGet and can contain suffixes like "-alpha".
-[assembly: AssemblyInformationalVersion("0.8.0.0")]
+// [assembly: AssemblyInformationalVersion("0.8.0.0")]
