@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>$id$</id>
+        <id>SharpRaven</id>
         <version>$version$</version>
         <title>.NET client for Sentry (getsentry.com)</title>
         <authors>David Cramer, GetSentry.com</authors>
@@ -18,7 +18,7 @@
             <dependency id="Newtonsoft.Json" version="4.5.11" />
         </dependencies>
         <files>
-            <file src="SharpRaven\bin\Release\SharpRaven.*" target="lib" />
+            <file src="SharpRaven\SharpRaven\bin\Release\SharpRaven.*" target="lib" />
         </files>
     </metadata>
 </package>
