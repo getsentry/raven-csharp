@@ -19,6 +19,6 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="SharpRaven\SharpRaven\bin\Release\SharpRaven.*" target="lib" />
+        <file src="SharpRaven\bin\Release\SharpRaven.*" target="lib" />
     </files>
 </package>
