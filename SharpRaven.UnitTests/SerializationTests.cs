@@ -23,8 +23,9 @@ namespace SharpRaven.UnitTests
 
         private static JsonSchema GetSchema()
         {
-            var stream =
-                typeof (SerializationTests).Assembly.GetManifestResourceStream("SharpRaven.UnitTests.schema.json");
+            var stream = typeof (SerializationTests).Assembly
+                                                    .GetManifestResourceStream(typeof (SerializationTests),
+                                                                               "schema.json");
 
             if (stream == null)
             {
