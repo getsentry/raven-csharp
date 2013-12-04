@@ -121,7 +121,7 @@ namespace SharpRaven.Data
         /// The record severity.
         /// Defaults to error.
         /// </summary>
-        [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore, Required = Required.Always)]
         [JsonConverter(typeof (StringEnumConverter))]
         public ErrorLevel Level { get; set; }
 
