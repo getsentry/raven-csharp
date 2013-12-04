@@ -8,15 +8,8 @@ using SharpRaven.Serialization;
 
 namespace SharpRaven.Data
 {
-    /// <summary>
-    /// The JSON packet sent to Sentry.
-    /// </summary>
     public class JsonPacket
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonPacket"/> class.
-        /// </summary>
-        /// <param name="project">The project.</param>
         public JsonPacket(string project)
         {
             // Get assemblies.
@@ -41,17 +34,18 @@ namespace SharpRaven.Data
             Project = "default";
             // Platform
             Platform = "csharp";
+
+            // Get data from the HTTP request
+            Request = SentryRequest.GetRequest();
+            // Get the user data from the HTTP request
+            if (Request != null)
+                User = Request.GetUser();                
+
             Project = project;
         }
 
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonPacket"/> class.
-        /// </summary>
-        /// <param name="project">The project.</param>
-        /// <param name="e">The <see cref="Exception"/>.</param>
         public JsonPacket(string project, Exception e)
-            : this(project)
         {
             Message = e.Message;
 
@@ -76,12 +70,10 @@ namespace SharpRaven.Data
                  currentException != null;
                  currentException = currentException.InnerException)
             {
-                SentryException sentryException = new SentryException(currentException)
-                {
-                    Module = currentException.Source,
-                    Type = currentException.GetType().Name,
-                    Value = currentException.Message
-                };
+                SentryException sentryException = new SentryException(currentException);
+                sentryException.Module = currentException.Source;
+                sentryException.Type = currentException.GetType().Name;
+                sentryException.Value = currentException.Message;
                 Exceptions.Add(sentryException);
             }
         }
@@ -173,16 +165,21 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "exception", NullValueHandling = NullValueHandling.Ignore)]
         public List<SentryException> Exceptions { get; set; }
 
+        [JsonProperty(PropertyName = "request", NullValueHandling = NullValueHandling.Ignore)]
+        public SentryRequest Request { get; set; }
 
+        [JsonProperty(PropertyName = "user", NullValueHandling = NullValueHandling.Ignore)]
+        public SentryUser User { get; set; }
+        
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// Turn into a JSON string.
         /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <returns>json string</returns>
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
+
+            //return @"{""project"": ""SharpRaven"",""event_id"": ""fc6d8c0c43fc4630ad850ee518f1b9d0"",""culprit"": ""my.module.function_name"",""timestamp"": ""2012-11-11T17:41:36"",""message"": ""SyntaxError: Wattttt!"",""sentry.interfaces.Exception"": {""type"": ""SyntaxError"",""value"": ""Wattttt!"",""module"": ""__builtins__""}""}";
         }
     }
 }
