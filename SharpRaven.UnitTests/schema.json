@@ -1,13 +1,253 @@
-﻿{
-    "description": "An exception packet for Sentry",
-    "type": "object",
-    "properties": {
-        "level": {
-            "enum": ["fatal", "error", "warning", "info", "debug"],
+{
+  "title": "JsonPacket",
+  "type": "object",
+  "properties": {
+    "extra": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {}
+    },
+    "tags": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "event_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "project": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "culprit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "level": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "logger": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "platform": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "message": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "server_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "modules": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "Name": {
             "required": true,
-        },
-        "tags" : {
-            "type" : "object",
-        },
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Version": {
+            "required": true,
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "exception": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "type": {
+            "required": true,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "value": {
+            "required": true,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "module": {
+            "required": true,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "stacktrace": {
+            "required": true,
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "frames": {
+                "required": true,
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "abs_path": {
+                      "required": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "filename": {
+                      "required": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "module": {
+                      "required": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "function": {
+                      "required": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "vars": {
+                      "required": true,
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "pre_context": {
+                      "required": true,
+                      "type": [
+                        "array",
+                        "null"
+                      ],
+                      "items": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "context_line": {
+                      "required": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "lineno": {
+                      "required": true,
+                      "type": "integer"
+                    },
+                    "colno": {
+                      "required": true,
+                      "type": "integer"
+                    },
+                    "in_app": {
+                      "required": true,
+                      "type": "boolean"
+                    },
+                    "post_context": {
+                      "required": true,
+                      "type": [
+                        "array",
+                        "null"
+                      ],
+                      "items": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
+  }
 }
