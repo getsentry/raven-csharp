@@ -27,6 +27,16 @@ namespace SharpRaven.UnitTests
                     { "key1", "value1" },
                     { "key2", "value2" },
                 },
+                Request = new SentryRequest
+                {
+                    QueryString = "?a=b&c=d",
+                    Data = new
+                    {
+                        A = true,
+                        B = 1,
+                        C = "Hello"
+                    }
+                }
             };
 
             JObject jPacket = JObject.Parse(packet.ToString());
