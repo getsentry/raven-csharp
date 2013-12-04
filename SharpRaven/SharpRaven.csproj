@@ -58,6 +58,7 @@
     <Compile Include="Logging\LogScrubber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenClient.cs" />
+    <Compile Include="Serialization\ErrorLevelConverter.cs" />
     <Compile Include="Utilities\GzipUtil.cs" />
     <Compile Include="Utilities\PacketBuilder.cs" />
     <Compile Include="Utilities\SystemUtil.cs" />

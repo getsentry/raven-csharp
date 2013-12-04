@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
+using SharpRaven.Serialization;
+
 namespace SharpRaven.Data
 {
     /// <summary>
@@ -122,7 +124,7 @@ namespace SharpRaven.Data
         /// Defaults to error.
         /// </summary>
         [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore, Required = Required.Always)]
-        [JsonConverter(typeof (StringEnumConverter))]
+        [JsonConverter(typeof(ErrorLevelConverter))]
         public ErrorLevel Level { get; set; }
 
         /// <summary>
