@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using NUnit.Framework;
 
@@ -22,10 +23,21 @@ namespace SharpRaven.UnitTests
         }
 
 
-        private static string GetJsonSchemaPath()
+        private static string GetSchemaPath()
         {
-            return null;
+            var directory = new DirectoryInfo(Environment.CurrentDirectory);
+            FileInfo file = null;
+
+            while (directory != null && directory.Exists &&
+                   (file = directory.EnumerateFiles("*.json")
+                                    .FirstOrDefault(f => f.FullName.EndsWith("schema.json"))) == null)
+            {
+                directory = directory.Parent;
+            }
+
+            return file != null ? file.FullName : null;
         }
+
 
         private static JsonSchema GetSchema()
         {
@@ -61,19 +73,21 @@ namespace SharpRaven.UnitTests
 
 
         [Test]
-        [Explicit]
+        [Explicit("Run to re-generate the schema.json file based on the current type layout of JsonPacket")]
         public void GenerateJsonSchema()
         {
             JsonSchemaGenerator generator = new JsonSchemaGenerator();
             var type = typeof (JsonPacket);
             var schema = generator.Generate(type);
-            var path = Path.Combine(typeof (SerializationTests).Assembly.Location, "..", "..");
-            path = new DirectoryInfo(path).FullName;
-            Console.WriteLine(path);
+            schema.Title = type.Name;
+            schema.Description = "An exception packet for Sentry";
+            var path = GetSchemaPath();
 
-            using (var writer = new StringWriter())
-            using (var jsonTextWriter = new JsonTextWriter(writer))
+            using (var fileStream = File.OpenWrite(path))
+            using (var fileWriter = new StreamWriter(fileStream))
+            using (var jsonTextWriter = new JsonTextWriter(fileWriter))
             {
+                jsonTextWriter.Formatting = Formatting.Indented;
                 schema.WriteTo(jsonTextWriter);
             }
         }
