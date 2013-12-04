@@ -158,11 +158,21 @@
                     "null"
                   ],
                   "properties": {
-                    "colno": {
+                    "abs_path": {
                       "required": true,
-                      "type": "integer"
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "filename": {
+                      "required": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "module": {
                       "required": true,
                       "type": [
                         "string",
@@ -176,28 +186,13 @@
                         "null"
                       ]
                     },
-                    "in_app": {
-                      "required": true,
-                      "type": "boolean"
-                    },
-                    "lineno": {
-                      "required": true,
-                      "type": "integer"
-                    },
-                    "module": {
+                    "vars": {
                       "required": true,
                       "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "post_context": {
-                      "required": true,
-                      "type": [
-                        "array",
+                        "object",
                         "null"
                       ],
-                      "items": {
+                      "additionalProperties": {
                         "type": [
                           "string",
                           "null"
@@ -224,25 +219,30 @@
                         "null"
                       ]
                     },
-                    "vars": {
+                    "lineno": {
+                      "required": true,
+                      "type": "integer"
+                    },
+                    "colno": {
+                      "required": true,
+                      "type": "integer"
+                    },
+                    "in_app": {
+                      "required": true,
+                      "type": "boolean"
+                    },
+                    "post_context": {
                       "required": true,
                       "type": [
-                        "object",
+                        "array",
                         "null"
                       ],
-                      "additionalProperties": {
+                      "items": {
                         "type": [
                           "string",
                           "null"
                         ]
                       }
-                    },
-                    "abs_path": {
-                      "required": true,
-                      "type": [
-                        "string",
-                        "null"
-                      ]
                     }
                   }
                 }
@@ -251,24 +251,105 @@
           }
         }
       }
-    }
-  }
-} "null"
-                      ]
-                    }
-                  }
-                }
-              }
-            }
+    },
+    "request": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "method": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {}
+        },
+        "query_string": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cookies": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "headers": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "env": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }
-    }
-  }
-}           }
-              }
-            }
-          }
+    },
+    "user": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "username": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "email": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ip_address": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     }
