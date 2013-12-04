@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SharpRaven {
-    public class DSN {
+    /// <summary>
+    /// The Data Source Name of a given project in Sentry.
+    /// </summary>
+    public class Dsn {
         /// <summary>
-        /// Absolute DSN Uri
+        /// Absolute Dsn Uri
         /// </summary>
-        public Uri URI { get; set; }
+        public Uri Uri { get; set; }
         /// <summary>
-        /// Sentry URI for sending reports.
+        /// Sentry Uri for sending reports.
         /// </summary>
-        public string SentryURI { get; set; }
+        public string SentryUri { get; set; }
         /// <summary>
         /// Project public key.
         /// </summary>
@@ -33,20 +36,24 @@ namespace SharpRaven {
         /// </summary>
         public string Path { get; set; }
 
-        public DSN(string dsn) {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Dsn"/> class.
+        /// </summary>
+        /// <param name="dsn">The Data Source Name.</param>
+        public Dsn(string dsn) {
             bool useSSl = dsn.StartsWith("https", StringComparison.InvariantCultureIgnoreCase);
-            Uri URI = new Uri(dsn);
+            Uri uri = new Uri(dsn);
 
             // Set all info
-            PrivateKey = GetPrivateKey(URI);
-            PublicKey = GetPublicKey(URI);
-            Port = GetPort(URI);
-            ProjectID = GetProjectID(URI);
-            Path = GetPath(URI);
+            PrivateKey = GetPrivateKey(uri);
+            PublicKey = GetPublicKey(uri);
+            Port = GetPort(uri);
+            ProjectID = GetProjectID(uri);
+            Path = GetPath(uri);
 
-            SentryURI = String.Format(@"{0}://{1}:{2}{3}/api/{4}/store/", 
+            this.SentryUri = String.Format(@"{0}://{1}:{2}{3}/api/{4}/store/", 
                 useSSl ? "https" : "http",
-                URI.DnsSafeHost,
+                uri.DnsSafeHost,
                 Port,
                 Path,
                 ProjectID);
@@ -62,7 +69,7 @@ namespace SharpRaven {
         }
 
         /// <summary>
-        /// Get a path from a DSN uri
+        /// Get a path from a Dsn uri
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
@@ -73,7 +80,7 @@ namespace SharpRaven {
         }
 
         /// <summary>
-        /// Get a public key from a DSN uri.
+        /// Get a public key from a Dsn uri.
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
@@ -82,7 +89,7 @@ namespace SharpRaven {
         }
 
         /// <summary>
-        /// Get a private key from a DSN uri.
+        /// Get a private key from a Dsn uri.
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
@@ -91,7 +98,7 @@ namespace SharpRaven {
         }
 
         /// <summary>
-        /// Get a project ID from a DSN uri.
+        /// Get a project ID from a Dsn uri.
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>

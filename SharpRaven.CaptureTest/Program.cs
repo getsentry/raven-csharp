@@ -24,11 +24,11 @@ namespace SharpRaven.CaptureTest
             ravenClient.Logger = "C#";
             ravenClient.LogScrubber = new Logging.LogScrubber();
 
-            PrintInfo("Sentry Uri: " + ravenClient.CurrentDSN.SentryURI);
-            PrintInfo("Port: " + ravenClient.CurrentDSN.Port);
-            PrintInfo("Public Key: " + ravenClient.CurrentDSN.PublicKey);
-            PrintInfo("Private Key: " + ravenClient.CurrentDSN.PrivateKey);
-            PrintInfo("Project ID: " + ravenClient.CurrentDSN.ProjectID);
+            PrintInfo("Sentry Uri: " + ravenClient.CurrentDsn.SentryUri);
+            PrintInfo("Port: " + ravenClient.CurrentDsn.Port);
+            PrintInfo("Public Key: " + ravenClient.CurrentDsn.PublicKey);
+            PrintInfo("Private Key: " + ravenClient.CurrentDsn.PrivateKey);
+            PrintInfo("Project ID: " + ravenClient.CurrentDsn.ProjectID);
         }
 
         static void testWithoutStacktrace()

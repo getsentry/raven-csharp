@@ -16,7 +16,7 @@ namespace SharpRaven.Data
         private readonly dynamic httpContext;
 
 
-        private SentryRequest()
+        internal SentryRequest()
         {
             // NOTE: We're using dynamic to not require a reference to System.Web.
             this.httpContext = GetHttpContext();

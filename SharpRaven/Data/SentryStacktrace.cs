@@ -45,7 +45,7 @@ namespace SharpRaven.Data {
         }
 
         [JsonProperty(PropertyName = "frames")]
-        public ExceptionFrame[] Frames;
+        public ExceptionFrame[] Frames { get; set; }
 
     }
 }
