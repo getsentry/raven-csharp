@@ -1,4 +1,4 @@
-{
+﻿{
   "title": "JsonPacket",
   "description": "An exception packet for Sentry",
   "type": "object",
@@ -41,13 +41,14 @@
       ]
     },
     "level": {
-      "type": "integer",
+      "type": "string",
+      "required": true,
       "enum": [
-        0,
-        1,
-        2,
-        3,
-        4
+        "fatal",
+        "error",
+        "warning",
+        "info",
+        "debug"
       ]
     },
     "timestamp": {
