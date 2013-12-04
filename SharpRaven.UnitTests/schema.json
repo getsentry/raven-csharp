@@ -1,4 +1,4 @@
-﻿{
+{
   "title": "JsonPacket",
   "description": "An exception packet for Sentry",
   "type": "object",
@@ -41,8 +41,8 @@
       ]
     },
     "level": {
-      "type": "string",
       "required": true,
+      "type": "string",
       "enum": [
         "fatal",
         "error",
@@ -52,7 +52,8 @@
       ]
     },
     "timestamp": {
-      "type": "string"
+      "type": "string",
+      "format": "date-time"
     },
     "logger": {
       "type": [
@@ -157,21 +158,11 @@
                     "null"
                   ],
                   "properties": {
-                    "abs_path": {
+                    "colno": {
                       "required": true,
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                      "type": "integer"
                     },
                     "filename": {
-                      "required": true,
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "module": {
                       "required": true,
                       "type": [
                         "string",
@@ -185,13 +176,28 @@
                         "null"
                       ]
                     },
-                    "vars": {
+                    "in_app": {
+                      "required": true,
+                      "type": "boolean"
+                    },
+                    "lineno": {
+                      "required": true,
+                      "type": "integer"
+                    },
+                    "module": {
                       "required": true,
                       "type": [
-                        "object",
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "post_context": {
+                      "required": true,
+                      "type": [
+                        "array",
                         "null"
                       ],
-                      "additionalProperties": {
+                      "items": {
                         "type": [
                           "string",
                           "null"
@@ -218,33 +224,48 @@
                         "null"
                       ]
                     },
-                    "lineno": {
-                      "required": true,
-                      "type": "integer"
-                    },
-                    "colno": {
-                      "required": true,
-                      "type": "integer"
-                    },
-                    "in_app": {
-                      "required": true,
-                      "type": "boolean"
-                    },
-                    "post_context": {
+                    "vars": {
                       "required": true,
                       "type": [
-                        "array",
+                        "object",
                         "null"
                       ],
-                      "items": {
+                      "additionalProperties": {
                         "type": [
                           "string",
                           "null"
                         ]
                       }
+                    },
+                    "abs_path": {
+                      "required": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     }
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}           }
               }
             }
           }
