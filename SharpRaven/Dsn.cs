@@ -75,7 +75,7 @@ namespace SharpRaven {
         /// <returns></returns>
         public string GetPath(Uri uri)
         {
-            int lastSlash = uri.AbsolutePath.LastIndexOf("/");
+            int lastSlash = uri.AbsolutePath.LastIndexOf("/", StringComparison.Ordinal);
             return uri.AbsolutePath.Substring(0, lastSlash);
         }
 
@@ -103,7 +103,7 @@ namespace SharpRaven {
         /// <param name="uri"></param>
         /// <returns></returns>
         public string GetProjectID(Uri uri) {
-            int lastSlash = uri.AbsoluteUri.LastIndexOf("/");
+            int lastSlash = uri.AbsoluteUri.LastIndexOf("/", StringComparison.Ordinal);
             return uri.AbsoluteUri.Substring(lastSlash + 1);
         }
     }
