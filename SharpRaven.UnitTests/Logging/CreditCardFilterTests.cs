@@ -10,7 +10,7 @@ namespace SharpRaven.UnitTests.Logging
     public class CreditCardFilterTests
     {
         [Test]
-        public void Filter_InvalidCreditCardNumberIsNotScrubbed()
+        public void InvalidCreditCardNumber_IsNotScrubbed()
         {
             const string creditCardNumber = "1234-5678-9101-1121";
             var input = String.Format(
@@ -25,7 +25,7 @@ namespace SharpRaven.UnitTests.Logging
 
 
         [Test]
-        public void Filter_ValidCreditCardNumberIsScrubbed()
+        public void ValidCreditCardNumber_IsScrubbed()
         {
             const string creditCardNumber = "5271-1902-4264-3112";
             var input = String.Format(
