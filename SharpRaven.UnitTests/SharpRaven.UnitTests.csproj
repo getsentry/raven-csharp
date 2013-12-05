@@ -47,6 +47,7 @@
     <EmbeddedResource Include="schema.json" />
     <Compile Include="Logging\CreditCardFilterTests.cs" />
     <Compile Include="Logging\PhoneNumberFilterTests.cs" />
+    <Compile Include="Logging\SocialSecurityFilterTests.cs" />
     <Compile Include="SchemaHelper.cs" />
     <Compile Include="SerializationTests.cs" />
     <Compile Include="SchemaTests.cs" />
