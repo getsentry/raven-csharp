@@ -7,23 +7,25 @@ namespace SharpRaven.Data {
         /// The type of exception.
         /// </summary>
         [JsonProperty(PropertyName = "type")]
-        public string Type;
+        public string Type { get; set; }
+
         /// <summary>
         /// The message of the exception.
         /// </summary>
         [JsonProperty(PropertyName = "value")]
-        public string Value;
+        public string Value { get; set; }
+
         /// <summary>
         /// The module where the exception happened.
         /// </summary>
         [JsonProperty(PropertyName = "module")]
-        public string Module;
+        public string Module { get; set; }
 
         /// <summary>
         /// The stacktrace of the exception.
         /// </summary>
         [JsonProperty(PropertyName = "stacktrace")]
-        public SentryStacktrace Stacktrace;
+        public SentryStacktrace Stacktrace { get; set; }
 
 
         public SentryException(Exception e) {

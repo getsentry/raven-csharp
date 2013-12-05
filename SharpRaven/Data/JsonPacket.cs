@@ -4,33 +4,49 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
+using SharpRaven.Serialization;
+
 namespace SharpRaven.Data
 {
     public class JsonPacket
     {
-        /// <summary>
-        /// An arbitrary mapping of additional metadata to store with the event.
-        /// </summary>
-        [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
-        public object Extra;
-
-        /// <summary>
-        /// A map or list of tags for this event.
-        /// </summary>
-        [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, string> Tags;
-
-
         public JsonPacket(string project)
         {
-            Initialize();
+            // Get assemblies.
+            /*Modules = new List<Module>();
+            foreach (System.Reflection.Module m in Utilities.SystemUtil.GetModules()) {
+                Modules.Add(new Module() {
+                    Name = m.ScopeName,
+                    Version = m.ModuleVersionId.ToString()
+                });
+            }*/
+            // The current hostname
+            ServerName = Environment.MachineName;
+            // Create timestamp
+            TimeStamp = DateTime.UtcNow;
+            // Default logger.
+            Logger = "root";
+            // Default error level.
+            Level = ErrorLevel.Error;
+            // Create a guid.
+            EventID = Guid.NewGuid().ToString().Replace("-", String.Empty);
+            // Project
+            Project = "default";
+            // Platform
+            Platform = "csharp";
+
+            // Get data from the HTTP request
+            Request = SentryRequest.GetRequest();
+            // Get the user data from the HTTP request
+            if (Request != null)
+                User = Request.GetUser();                
+
             Project = project;
         }
 
 
         public JsonPacket(string project, Exception e)
         {
-            Initialize();
             Message = e.Message;
 
             if (e.TargetSite != null)
@@ -46,7 +62,7 @@ namespace SharpRaven.Data
 
             Project = project;
             ServerName = Environment.MachineName;
-            Level = ErrorLevel.error;
+            Level = ErrorLevel.Error;
 
             Exceptions = new List<SentryException>();
 
@@ -61,6 +77,19 @@ namespace SharpRaven.Data
                 Exceptions.Add(sentryException);
             }
         }
+
+
+        /// <summary>
+        /// An arbitrary mapping of additional metadata to store with the event.
+        /// </summary>
+        [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
+        public object Extra { get; set; }
+
+        /// <summary>
+        /// A map or list of tags for this event.
+        /// </summary>
+        [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
+        public IDictionary<string, string> Tags { get; set; }
 
 
         /// <summary>
@@ -86,8 +115,8 @@ namespace SharpRaven.Data
         /// The record severity.
         /// Defaults to error.
         /// </summary>
-        [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore)]
-        [JsonConverter(typeof (StringEnumConverter))]
+        [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore, Required = Required.Always)]
+        [JsonConverter(typeof(ErrorLevelConverter))]
         public ErrorLevel Level { get; set; }
 
         /// <summary>
@@ -141,55 +170,16 @@ namespace SharpRaven.Data
 
         [JsonProperty(PropertyName = "user", NullValueHandling = NullValueHandling.Ignore)]
         public SentryUser User { get; set; }
-
-
-        private void Initialize()
-        {
-            // Get assemblies.
-            /*Modules = new List<Module>();
-            foreach (System.Reflection.Module m in Utilities.SystemUtil.GetModules()) {
-                Modules.Add(new Module() {
-                    Name = m.ScopeName,
-                    Version = m.ModuleVersionId.ToString()
-                });
-            }*/
-            // The current hostname
-            ServerName = Environment.MachineName;
-            // Create timestamp
-            TimeStamp = DateTime.UtcNow;
-            // Default logger.
-            Logger = "root";
-            // Default error level.
-            Level = ErrorLevel.error;
-            // Create a guid.
-            EventID = Guid.NewGuid().ToString().Replace("-", String.Empty);
-            // Project
-            Project = "default";
-            // Platform
-            Platform = "csharp";
-
-            // Get data from the HTTP request
-            Request = SentryRequest.GetRequest();
-            // Get the user data from the HTTP request
-            if (Request != null)
-                User = Request.GetUser();
-        }
         
         /// <summary>
         /// Turn into a JSON string.
         /// </summary>
         /// <returns>json string</returns>
-        public string Serialize()
+        public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
 
             //return @"{""project"": ""SharpRaven"",""event_id"": ""fc6d8c0c43fc4630ad850ee518f1b9d0"",""culprit"": ""my.module.function_name"",""timestamp"": ""2012-11-11T17:41:36"",""message"": ""SyntaxError: Wattttt!"",""sentry.interfaces.Exception"": {""type"": ""SyntaxError"",""value"": ""Wattttt!"",""module"": ""__builtins__""}""}";
         }
-    }
-
-    public class Module
-    {
-        public string Name;
-        public string Version;
     }
 }

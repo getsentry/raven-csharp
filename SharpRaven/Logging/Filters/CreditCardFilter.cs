@@ -1,4 +1,6 @@
-﻿namespace SharpRaven.Logging.Filters
+﻿using System;
+
+namespace SharpRaven.Logging.Filters
 {
     using System.Text.RegularExpressions;
 
@@ -40,8 +42,8 @@
         /// </returns>
         private bool IsValidCreditCardNumber(string number)
         {
-            number = number.Replace("-", string.Empty);
-            number = number.Replace(" ", string.Empty);
+            number.Replace("-", String.Empty);
+            number.Replace(" ", String.Empty);
 
             int[] deltas = new[] { 0, 1, 2, 3, 4, -4, -3, -2, -1, 0 };
             int checksum = 0;
