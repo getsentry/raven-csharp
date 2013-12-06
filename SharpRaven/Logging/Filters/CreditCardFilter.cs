@@ -22,9 +22,7 @@ namespace SharpRaven.Logging.Filters
         {
             Regex cardRegex = new Regex(@"\b(?:\d[ -]*?){13,16}\b", RegexOptions.IgnoreCase);
 
-            cardRegex.Replace(input, m => this.IsValidCreditCardNumber(m.Value) ? "####-CC-TRUNCATED-####" : m.Value);
-
-            return input;
+            return cardRegex.Replace(input, m => IsValidCreditCardNumber(m.Value) ? "####-CC-TRUNCATED-####" : m.Value);
         }
 
         /// <summary>
@@ -42,8 +40,8 @@ namespace SharpRaven.Logging.Filters
         /// </returns>
         private bool IsValidCreditCardNumber(string number)
         {
-            number.Replace("-", String.Empty);
-            number.Replace(" ", String.Empty);
+            number = number.Replace("-", String.Empty);
+            number = number.Replace(" ", String.Empty);
 
             int[] deltas = new[] { 0, 1, 2, 3, 4, -4, -3, -2, -1, 0 };
             int checksum = 0;
@@ -51,7 +49,7 @@ namespace SharpRaven.Logging.Filters
 
             for (int i = chars.Length - 1; i > -1; i--)
             {
-                int j = ((int)chars[i]) - 48;
+                int j = chars[i] - 48;
                 checksum += j;
 
                 if (((i - chars.Length) % 2) == 0)
