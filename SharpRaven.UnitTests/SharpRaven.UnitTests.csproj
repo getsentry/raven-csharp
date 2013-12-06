@@ -46,6 +46,7 @@
   <ItemGroup>
     <EmbeddedResource Include="schema.json" />
     <Compile Include="Logging\CreditCardFilterTests.cs" />
+    <Compile Include="Logging\FilterTestsBase.cs" />
     <Compile Include="Logging\PhoneNumberFilterTests.cs" />
     <Compile Include="Logging\SocialSecurityFilterTests.cs" />
     <Compile Include="SchemaHelper.cs" />
