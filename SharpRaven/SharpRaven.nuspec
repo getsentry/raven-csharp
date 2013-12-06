@@ -11,7 +11,7 @@
         <iconUrl>https://www.getsentry.com/_static/getsentry/images/favicon.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Raven is a C# client for Sentry (getsentry.com and github.com/getsentry/sentry)</description>
-        <releaseNotes>Based on https://github.com/getsentry/raven-csharp/commit/bb375370abf28b7269236ab11f52abeda8cbbb41.</releaseNotes>
+        <releaseNotes>$releaseNotes$</releaseNotes>
         <copyright>Copyright 2013 getsentry.com</copyright>
         <tags>raven sentry logging</tags>
         <dependencies>
