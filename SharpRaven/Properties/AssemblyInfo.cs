@@ -2,36 +2,24 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
 [assembly: AssemblyTitle("SharpRaven")]
-[assembly: AssemblyDescription("A Sentry Client written in C# 4.0")]
+[assembly: AssemblyDescription("SharpRaven is a C# client for Sentry https://www.getsentry.com")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Sentry")]
 [assembly: AssemblyProduct("SharpRaven")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCopyright("Copyright © Sentry 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("b5683941-1254-484e-b074-87cedd4fc78e")]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.7.8.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+// AssemblyVersion the most formal version number and is akin to "API Version". It doesn't need to change unless there's breaking changes.
+[assembly: AssemblyVersion("0.8.0.0")]
+
+// AssemblyFileVersion is more informal and can be increased more rapidly and with less consideration than AssemblyVersion. 
+[assembly: AssemblyFileVersion("0.8.0.0")]
+
+// AssemblyInformationalVersion is even more informal than AssemblyFileVersion and doesn't need a certain format. It will be used as the $version$ replacement string in NuGet and can contain suffixes like "-alpha".
+// [assembly: AssemblyInformationalVersion("0.8.0.0")]
+
 [assembly: InternalsVisibleTo("SharpRaven.UnitTests")]
