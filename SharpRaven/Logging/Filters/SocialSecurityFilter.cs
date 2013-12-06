@@ -1,15 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace SharpRaven.Logging.Filters {
-    public class SocialSecurityFilter : IFilter {
+namespace SharpRaven.Logging.Filters
+{
+    /// <summary>
+    /// NOT IMPLEMENTED YET
+    /// </summary>
+    [Obsolete("This filter is not implemented yet.")]
+    public class SocialSecurityFilter : IFilter
+    {
         /// <summary>
         /// NOT IMPLEMENTED YET
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public string Filter(string input) {
+        public string Filter(string input)
+        {
             return input;
         }
     }

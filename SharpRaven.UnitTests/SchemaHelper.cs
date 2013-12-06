@@ -63,7 +63,7 @@ namespace SharpRaven.UnitTests
 
             foreach (var p in type.GetProperties())
             {
-                var jsonPropertyAttribute = p.GetCustomAttribute<JsonPropertyAttribute>();
+                var jsonPropertyAttribute = p.GetCustomAttributes(false).OfType<JsonPropertyAttribute>().FirstOrDefault();
 
                 if ((jsonPropertyAttribute == null || jsonPropertyAttribute.PropertyName != jsProperty.Key) &&
                     (p.Name != jsProperty.Key))
@@ -157,7 +157,7 @@ namespace SharpRaven.UnitTests
 
         private static IEnumerable<object> GetEnumValues(Type enumType, PropertyInfo property)
         {
-            var converterAttribute = property.GetCustomAttribute<JsonConverterAttribute>();
+            var converterAttribute = property.GetCustomAttributes(false).OfType<JsonConverterAttribute>().FirstOrDefault();
 
             if (converterAttribute != null)
             {
