@@ -7,7 +7,14 @@ using System.Text;
 using Newtonsoft.Json;
 
 namespace SharpRaven.Data {
+    /// <summary>
+    /// Represents Sentry's version of an <see cref="Exception"/>'s stack trace.
+    /// </summary>
     public class SentryStacktrace {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SentryStacktrace"/> class.
+        /// </summary>
+        /// <param name="e">The decimal.</param>
         public SentryStacktrace(Exception e) {
             StackTrace trace = new StackTrace(e, true);
 
@@ -44,6 +51,12 @@ namespace SharpRaven.Data {
             };
         }
 
+        /// <summary>
+        /// Gets or sets the <see cref="Exception"/> frames.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Exception"/> frames.
+        /// </value>
         [JsonProperty(PropertyName = "frames")]
         public ExceptionFrame[] Frames { get; set; }
 
