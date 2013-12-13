@@ -41,9 +41,21 @@ namespace SharpRaven.Data
         }
 
 
+        /// <summary>
+        /// Gets or sets the URL of the HTTP request.
+        /// </summary>
+        /// <value>
+        /// The URL of the HTTP request.
+        /// </value>
         [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
 
+        /// <summary>
+        /// Gets or sets the method of the HTTP request.
+        /// </summary>
+        /// <value>
+        /// The method of the HTTP request.
+        /// </value>
         [JsonProperty(PropertyName = "method", NullValueHandling = NullValueHandling.Ignore)]
         public string Method { get; set; }
 
@@ -56,12 +68,30 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "data", NullValueHandling = NullValueHandling.Ignore)]
         public object Data { get; set; }
 
+        /// <summary>
+        /// Gets or sets the query string.
+        /// </summary>
+        /// <value>
+        /// The query string.
+        /// </value>
         [JsonProperty(PropertyName = "query_string", NullValueHandling = NullValueHandling.Ignore)]
         public string QueryString { get; set; }
 
+        /// <summary>
+        /// Gets or sets the cookies.
+        /// </summary>
+        /// <value>
+        /// The cookies.
+        /// </value>
         [JsonProperty(PropertyName = "cookies", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Cookies { get; set; }
 
+        /// <summary>
+        /// Gets or sets the headers.
+        /// </summary>
+        /// <value>
+        /// The headers.
+        /// </value>
         [JsonProperty(PropertyName = "headers", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Headers { get; set; }
 
@@ -76,6 +106,12 @@ namespace SharpRaven.Data
         public IDictionary<string, string> Environment { get; set; }
 
 
+        /// <summary>
+        /// Gets the request.
+        /// </summary>
+        /// <returns>
+        /// If an HTTP contest is available, an instance of <see cref="SentryRequest"/>, otherwise <c>null</c>.
+        /// </returns>
         public static SentryRequest GetRequest()
         {
             var request = new SentryRequest();
@@ -83,6 +119,12 @@ namespace SharpRaven.Data
         }
 
 
+        /// <summary>
+        /// Gets the user.
+        /// </summary>
+        /// <returns>
+        /// If an HTTP context is available, an instance of <see cref="SentryUser"/>, otherwise <c>null</c>.
+        /// </returns>
         public SentryUser GetUser()
         {
             if (!HasHttpContext)
