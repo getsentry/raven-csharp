@@ -2,6 +2,9 @@
 using Newtonsoft.Json;
 
 namespace SharpRaven.Data {
+    /// <summary>
+    /// Represents Sentry's version of an <see cref="Exception"/>.
+    /// </summary>
     public class SentryException {
         /// <summary>
         /// The type of exception.
@@ -28,6 +31,10 @@ namespace SharpRaven.Data {
         public SentryStacktrace Stacktrace { get; set; }
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SentryException"/> class.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception"/>.</param>
         public SentryException(Exception e) {
             this.Module = e.Source;
             this.Type = e.Message;
