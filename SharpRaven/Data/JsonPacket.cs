@@ -8,8 +8,15 @@ using SharpRaven.Serialization;
 
 namespace SharpRaven.Data
 {
+    /// <summary>
+    /// Represents the JSON packet that is transmitted to Sentry.
+    /// </summary>
     public class JsonPacket
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonPacket"/> class.
+        /// </summary>
+        /// <param name="project">The project.</param>
         public JsonPacket(string project)
         {
             // Get assemblies.
@@ -45,6 +52,11 @@ namespace SharpRaven.Data
         }
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonPacket"/> class.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="e">The decimal.</param>
         public JsonPacket(string project, Exception e)
         {
             Message = e.Message;
@@ -156,25 +168,47 @@ namespace SharpRaven.Data
 
         /// <summary>
         /// A list of relevant modules (libraries) and their versions.
-        /// 
         /// Automated to report all modules currently loaded in project.
         /// </summary>
+        /// <value>
+        /// The modules.
+        /// </value>
         [JsonProperty(PropertyName = "modules", NullValueHandling = NullValueHandling.Ignore)]
         public List<Module> Modules { get; set; }
 
+        /// <summary>
+        /// Gets or sets the exceptions.
+        /// </summary>
+        /// <value>
+        /// The exceptions.
+        /// </value>
         [JsonProperty(PropertyName = "exception", NullValueHandling = NullValueHandling.Ignore)]
         public List<SentryException> Exceptions { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see cref="SentryRequest"/> object, containing information about the HTTP request.
+        /// </summary>
+        /// <value>
+        /// The <see cref="SentryRequest"/> object, containing information about the HTTP request.
+        /// </value>
         [JsonProperty(PropertyName = "request", NullValueHandling = NullValueHandling.Ignore)]
         public SentryRequest Request { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see cref="SentryUser"/> object, which describes the authenticated User for a request.
+        /// </summary>
+        /// <value>
+        /// The <see cref="SentryUser"/> object, which describes the authenticated User for a request.
+        /// </value>
         [JsonProperty(PropertyName = "user", NullValueHandling = NullValueHandling.Ignore)]
         public SentryUser User { get; set; }
         
         /// <summary>
-        /// Turn into a JSON string.
+        /// Converts the <see cref="JsonPacket"/> into a JSON string.
         /// </summary>
-        /// <returns>json string</returns>
+        /// <returns>
+        /// The <see cref="JsonPacket"/> as a JSON string.
+        /// </returns>
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);

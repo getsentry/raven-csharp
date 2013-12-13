@@ -185,13 +185,18 @@ namespace SharpRaven
 
         #region Deprecated methods
 
-        /**
+        /*
          *  These methods have been deprectaed in favour of the ones
          *  that have the same names as the other sentry clients, this
          *  is purely for the sake of consistency
          */
 
 
+        /// <summary>
+        /// Captures the event.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception" /> to capture.</param>
+        /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
         public int CaptureEvent(Exception e)
         {
@@ -199,6 +204,12 @@ namespace SharpRaven
         }
 
 
+        /// <summary>
+        /// Captures the event.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception" /> to capture.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
         public int CaptureEvent(Exception e, Dictionary<string, string> tags)
         {

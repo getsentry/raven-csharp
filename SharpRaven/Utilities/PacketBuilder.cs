@@ -3,7 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SharpRaven.Utilities {
+    /// <summary>
+    /// Utility class for building 
+    /// </summary>
     public static class PacketBuilder {
+        /// <summary>
+        /// Creates the authentication header base on the provided <see cref="Dsn"/>.
+        /// </summary>
+        /// <param name="dsn">The DSN.</param>
+        /// <returns>
+        /// The authentication header.
+        /// </returns>
         public static string CreateAuthenticationHeader(Dsn dsn) {
             string header = String.Empty;
             header += "Sentry sentry_version=4";
