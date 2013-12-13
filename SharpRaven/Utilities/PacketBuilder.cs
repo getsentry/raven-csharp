@@ -7,9 +7,12 @@ namespace SharpRaven.Utilities
     /// </summary>
     public static class PacketBuilder
     {
-        private static string userAgent;
+        private static readonly string userAgent;
 
 
+        /// <summary>
+        /// Initializes the <see cref="PacketBuilder"/> class.
+        /// </summary>
         static PacketBuilder()
         {
             var assemblyName = typeof(PacketBuilder).Assembly.GetName();
@@ -28,7 +31,6 @@ namespace SharpRaven.Utilities
         public static string UserAgent
         {
             get { return userAgent; }
-            private set { userAgent = value; }
         }
 
 
