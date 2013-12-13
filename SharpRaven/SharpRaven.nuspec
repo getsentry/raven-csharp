@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>SharpRaven</id>
+        <version>$version$</version>
+        <title>.NET client for Sentry (getsentry.com)</title>
+        <authors>David Cramer, GetSentry.com</authors>
+        <owners>jsk, asbjornu, gmaclellan</owners>
+        <licenseUrl>https://github.com/getsentry/raven-csharp/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/getsentry/raven-csharp</projectUrl>
+        <iconUrl>https://www.getsentry.com/_static/getsentry/images/favicon.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Raven is a C# client for Sentry (getsentry.com and github.com/getsentry/sentry)</description>
+        <releaseNotes>$releaseNotes$</releaseNotes>
+        <copyright>Copyright 2013 getsentry.com</copyright>
+        <tags>raven sentry logging</tags>
+        <dependencies>
+            <dependency id="Newtonsoft.Json" version="4.5.11" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="SharpRaven\bin\Release\SharpRaven.*" target="lib" />
+    </files>
+</package>
