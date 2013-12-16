@@ -44,6 +44,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NuGetTests.cs" />
     <Compile Include="Utilities\PacketBuilderTests.cs" />
     <EmbeddedResource Include="schema.json" />
     <Compile Include="Logging\CreditCardFilterTests.cs" />
