@@ -1,2 +1,2 @@
 test:
-	xbuild SharpRaven.sln
+	xbuild src/SharpRaven.sln
