@@ -29,6 +29,8 @@
 #endregion
 
 using System;
+using System.Diagnostics;
+using System.IO;
 
 using NUnit.Framework;
 
@@ -41,10 +43,43 @@ namespace SharpRaven.UnitTests
     [TestFixture]
     public class NuGetTests
     {
+        private static string MakeAbsolute(string relativePath)
+        {
+            string absolutePath = Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\..\", relativePath);
+            return new DirectoryInfo(absolutePath).FullName;
+        }
+
+
         [Test]
         public void Pack_Works()
         {
-            throw new NotImplementedException();
+            string pathToNuGet = MakeAbsolute(@".nuget\NuGet.exe");
+            string pathToNuSpec = MakeAbsolute(@"src\app\SharpRaven\SharpRaven.nuspec");
+
+            ProcessStartInfo start = new ProcessStartInfo(pathToNuGet)
+            {
+                Arguments = String.Format(
+                    "Pack {0} -Version {1} -Properties Configuration=Release -Properties \"ReleaseNotes=Test\"",
+                    pathToNuSpec,
+                    GetType().Assembly.GetName().Version),
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+            };
+
+            using (var process = new Process())
+            {
+                process.OutputDataReceived += (s, e) => Console.WriteLine(e.Data);
+                process.ErrorDataReceived += (s, e) => Console.WriteLine(e.Data);
+                process.StartInfo = start;
+                Assert.That(process.Start(), Is.True, "The NuGet process couldn't start.");
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                process.WaitForExit(2000);
+                Assert.That(process.ExitCode, Is.EqualTo(0), "The NuGet process exited with an unexpected code.");
+            }
         }
     }
 }
