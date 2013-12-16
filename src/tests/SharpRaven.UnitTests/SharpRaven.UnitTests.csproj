@@ -33,9 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HttpSimulator">
-      <HintPath>..\..\packages\HttpSimulator.1.0.0.0\lib\Net40\HttpSimulator.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Newtonsoft.Json.5.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -48,12 +45,16 @@
       <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\SentryRequestTests.cs" />
     <Compile Include="Data\SentryUserTests.cs" />
     <Compile Include="NuGetTests.cs" />
+    <Compile Include="Utilities\HttpSimulator.cs" />
     <Compile Include="Utilities\PacketBuilderTests.cs" />
+    <Compile Include="Utilities\ReflectionHelper.cs" />
+    <Compile Include="Utilities\SimulatedHttpRequest.cs" />
     <EmbeddedResource Include="schema.json" />
     <Compile Include="Logging\CreditCardFilterTests.cs" />
     <Compile Include="Logging\FilterTestsBase.cs" />
