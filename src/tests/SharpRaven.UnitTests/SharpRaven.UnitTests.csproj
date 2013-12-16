@@ -47,6 +47,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\SentryRequestTests.cs" />
     <Compile Include="Data\SentryUserTests.cs" />
     <Compile Include="NuGetTests.cs" />
     <Compile Include="Utilities\PacketBuilderTests.cs" />
