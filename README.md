@@ -3,7 +3,7 @@ Usage
 Instantiate the client with your DSN:
 
 ```csharp
-ravenClient = new RavenClient("http://public:secret@example.com/project-id");
+var ravenClient = new RavenClient("http://public:secret@example.com/project-id");
 ```
 
 Capturing Exceptions
