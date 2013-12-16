@@ -18,7 +18,6 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Subtext.Framework.Properties;
 
 namespace UnitTests.Subtext
 {
@@ -83,9 +82,7 @@ namespace UnitTests.Subtext
             FieldInfo field = type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static);
             if (field == null)
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                                          Resources.ReflectionArgument_CouldNotFindsStaticField,
-                                                          fieldName));
+                throw new ArgumentException("Could not find static field " + fieldName);
             }
 
             field.SetValue(null, value);
@@ -103,9 +100,7 @@ namespace UnitTests.Subtext
             FieldInfo field = type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static);
             if (field == null)
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                                          Resources.ReflectionArgument_CouldNotFindsStaticField,
-                                                          fieldName));
+                throw new ArgumentException("Could not find static field " + fieldName);
             }
 
             field.SetValue(null, value);
@@ -141,9 +136,7 @@ namespace UnitTests.Subtext
                                                         BindingFlags.Instance);
             if (field == null)
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                                          Resources.ReflectionArgument_CouldNotFindInstanceField,
-                                                          memberName));
+                throw new ArgumentException("Could not find instance field " + memberName);
             }
 
             field.SetValue(source, value);
@@ -184,9 +177,7 @@ namespace UnitTests.Subtext
                                                paramTypes, null);
             if (method == null)
             {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, Resources.ReflectionArgument_CouldNotFindMethod,
-                                  methodName), "method");
+                throw new ArgumentException("Could not find method " + methodName, "methodName");
             }
 
             return (TReturn)method.Invoke(null, parameters);
@@ -200,9 +191,7 @@ namespace UnitTests.Subtext
                                                            null, paramTypes, null);
             if (method == null)
             {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, Resources.ReflectionArgument_CouldNotFindMethod,
-                                  methodName), "method");
+                throw new ArgumentException("Could not find method " + methodName, "methodName");
             }
 
             method.Invoke(source, parameters);
@@ -217,9 +206,7 @@ namespace UnitTests.Subtext
                                                            null, paramTypes, null);
             if (method == null)
             {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, Resources.ReflectionArgument_CouldNotFindMethod,
-                                  methodName), "method");
+                throw new ArgumentException("Could not find method " + methodName, "methodName");
             }
 
             return (TReturn)method.Invoke(source, parameters);
@@ -230,9 +217,7 @@ namespace UnitTests.Subtext
             PropertyInfo propertyInfo = source.GetType().GetProperty(propertyName);
             if (propertyInfo == null)
             {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, Resources.ReflectionArgument_CouldNotFindProperty,
-                                  propertyName), "propertyName");
+                throw new ArgumentException("Could not find property " + propertyName, "propertyName");
             }
 
             return (TReturn)propertyInfo.GetValue(source, null);
@@ -245,9 +230,7 @@ namespace UnitTests.Subtext
                                                                      null, typeof(TReturn), new Type[0], null);
             if (propertyInfo == null)
             {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, Resources.ReflectionArgument_CouldNotFindProperty,
-                                  propertyName), "propertyName");
+                throw new ArgumentException("Could not find property " + propertyName, "propertyName");
             }
 
             return (TReturn)propertyInfo.GetValue(source, null);
@@ -259,9 +242,7 @@ namespace UnitTests.Subtext
                                                                      BindingFlags.NonPublic | BindingFlags.Instance);
             if (propertyInfo == null)
             {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, Resources.ReflectionArgument_CouldNotFindProperty,
-                                  propertyName), "propertyName");
+                throw new ArgumentException("Could not find property " + propertyName, "propertyName");
             }
 
             return propertyInfo.GetValue(source, null);
