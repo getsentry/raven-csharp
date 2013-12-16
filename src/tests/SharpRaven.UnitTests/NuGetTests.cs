@@ -41,6 +41,7 @@ namespace SharpRaven.UnitTests
     /// setting up TeamCity to run more than one test DLL.
     /// </summary>
     [TestFixture]
+    [Category("NuGet")]
     public class NuGetTests
     {
         private static string MakeAbsolute(string relativePath)
