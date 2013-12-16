@@ -28,9 +28,13 @@
 
 #endregion
 
+using System.Collections.Generic;
+
 using NUnit.Framework;
 
 using SharpRaven.Data;
+
+using Subtext.TestLibrary;
 
 namespace SharpRaven.UnitTests.Data
 {
@@ -42,6 +46,29 @@ namespace SharpRaven.UnitTests.Data
         {
             var request = SentryRequest.GetRequest();
             Assert.That(request, Is.Null);
+        }
+
+
+        [Test]
+        public void GetRequest_WithHttpContext_ReturnsRequest()
+        {
+            using (var simulator = new HttpSimulator())
+            {
+                simulator.SetFormVariable("Form1", "Value1");
+                simulator.SetHeader("Cookie", "Cookie1=Abc");
+
+                using (simulator.SimulateRequest())
+                {
+                    var request = SentryRequest.GetRequest();
+                    
+                    Assert.That(request, Is.Not.Null);
+                    Assert.That(request.Data, Is.TypeOf<Dictionary<string, string>>());
+
+                    var data = (Dictionary<string, string>) request.Data;
+                    Assert.That(data, Has.Count.EqualTo(1));
+                    Assert.That(data["Form1"], Is.EqualTo("Value1"));
+                }
+            }
         }
     }
 }
