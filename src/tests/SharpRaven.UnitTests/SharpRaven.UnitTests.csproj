@@ -44,6 +44,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\SentryUserTests.cs" />
     <Compile Include="NuGetTests.cs" />
     <Compile Include="Utilities\PacketBuilderTests.cs" />
     <EmbeddedResource Include="schema.json" />
