@@ -28,6 +28,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 using NUnit.Framework;
@@ -41,6 +42,22 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class SentryRequestTests
     {
+        private static void SimulateHttpRequest(Action<SentryRequest> test)
+        {
+            using (var simulator = new HttpSimulator())
+            {
+                simulator.SetFormVariable("Form1", "Value1");
+                simulator.SetHeader("UserAgent", "SharpRaven");
+
+                using (simulator.SimulateRequest())
+                {
+                    var request = SentryRequest.GetRequest();
+                    test.Invoke(request);
+                }
+            }
+        }
+
+
         [Test]
         public void GetRequest_NoHttpContext_ReturnsNull()
         {
@@ -50,25 +67,35 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
-        public void GetRequest_WithHttpContext_ReturnsRequest()
+        public void GetRequest_WithHttpContext_RequestHasFormVariables()
         {
-            using (var simulator = new HttpSimulator())
+            SimulateHttpRequest(request =>
             {
-                simulator.SetFormVariable("Form1", "Value1");
-                simulator.SetHeader("Cookie", "Cookie1=Abc");
+                Assert.That(request.Data, Is.TypeOf<Dictionary<string, string>>());
 
-                using (simulator.SimulateRequest())
-                {
-                    var request = SentryRequest.GetRequest();
-                    
-                    Assert.That(request, Is.Not.Null);
-                    Assert.That(request.Data, Is.TypeOf<Dictionary<string, string>>());
+                var data = (Dictionary<string, string>) request.Data;
 
-                    var data = (Dictionary<string, string>) request.Data;
-                    Assert.That(data, Has.Count.EqualTo(1));
-                    Assert.That(data["Form1"], Is.EqualTo("Value1"));
-                }
-            }
+                Assert.That(data, Has.Count.EqualTo(1));
+                Assert.That(data["Form1"], Is.EqualTo("Value1"));
+            });
+        }
+
+
+        [Test]
+        public void GetRequest_WithHttpContext_RequestHasHeaders()
+        {
+            SimulateHttpRequest(request =>
+            {
+                Assert.That(request.Headers, Has.Count.EqualTo(2));
+                Assert.That(request.Headers["UserAgent"], Is.EqualTo("SharpRaven"));
+            });
+        }
+
+
+        [Test]
+        public void GetRequest_WithHttpContext_RequestIsNotNull()
+        {
+            SimulateHttpRequest(request => Assert.That(request, Is.Not.Null));
         }
     }
 }
