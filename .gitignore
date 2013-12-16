@@ -8,5 +8,5 @@ obj/
 *.manifest
 .DS_Store
 *.suo
-/packages/
-!/packages/repositories.config
+/src/packages/*
+!/src/packages/repositories.config
