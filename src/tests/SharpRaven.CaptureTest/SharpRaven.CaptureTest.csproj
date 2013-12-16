@@ -47,7 +47,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SharpRaven\SharpRaven.csproj">
+    <ProjectReference Include="..\..\app\SharpRaven\SharpRaven.csproj">
       <Project>{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}</Project>
       <Name>SharpRaven</Name>
     </ProjectReference>
