@@ -19,6 +19,7 @@ using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Web.Hosting;
 
@@ -36,6 +37,8 @@ namespace UnitTests.Subtext
         readonly string _verb;
         private readonly NameValueCollection _formVariables = new NameValueCollection();
         private readonly NameValueCollection _headers = new NameValueCollection();
+        private readonly NameValueCollection _cookies = new NameValueCollection();
+
 
         /// <summary>
         /// Creates a new <see cref="SimulatedHttpRequest"/> instance.
@@ -81,6 +84,17 @@ namespace UnitTests.Subtext
         public NameValueCollection Headers
         {
             get { return _headers; }
+        }
+
+        /// <summary>
+        /// Gets the cookies.
+        /// </summary>
+        /// <value>
+        /// The cookies.
+        /// </value>
+        public NameValueCollection Cookies
+        {
+            get { return _cookies; }
         }
 
         /// <summary>
@@ -145,14 +159,22 @@ namespace UnitTests.Subtext
 
         public override string GetKnownRequestHeader(int index)
         {
-            if (index == 0x24)
-            {
-                return _referer == null ? string.Empty : _referer.ToString();
-            }
+            var requestHeader = (HttpRequestHeader)index;
 
-            if (index == 12 && _verb == "POST")
+            switch (requestHeader)
             {
-                return "application/x-www-form-urlencoded";
+                case HttpRequestHeader.Referer:
+                    return _referer == null ? string.Empty : _referer.ToString();
+
+                case HttpRequestHeader.ContentType:
+                    if (_verb == "POST")
+                    {
+                        return "application/x-www-form-urlencoded";
+                    }
+                    break;
+
+                case HttpRequestHeader.Cookie:
+                    return Convert(_cookies);
             }
 
             return base.GetKnownRequestHeader(index);
@@ -204,20 +226,27 @@ namespace UnitTests.Subtext
             set;
         }
 
+        
         /// <summary>
         /// Reads request data from the client (when not preloaded).
         /// </summary>
         /// <returns>The number of bytes read.</returns>
         public override byte[] GetPreloadedEntityBody()
         {
-            string formText = string.Empty;
+            string formText = Convert(_formVariables);
+            return Encoding.UTF8.GetBytes(formText);
+        }
 
-            foreach (string key in _formVariables.Keys)
+        private static string Convert(NameValueCollection collection)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string key in collection.Keys)
             {
-                formText += string.Format(CultureInfo.InvariantCulture, "{0}={1}&", key, _formVariables[key]);
+                sb.Append(String.Format(CultureInfo.InvariantCulture, "{0}={1}&", key, collection[key]));
             }
 
-            return Encoding.UTF8.GetBytes(formText);
+            return sb.ToString();
         }
 
         /// <summary>

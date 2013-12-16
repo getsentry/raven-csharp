@@ -30,6 +30,7 @@ namespace UnitTests.Subtext
         private const string DefaultPhysicalAppPath = @"c:\InetPub\wwwRoot\";
         private readonly NameValueCollection _formVars = new NameValueCollection();
         private readonly NameValueCollection _headers = new NameValueCollection();
+        private readonly NameValueCollection _cookies = new NameValueCollection();
         private Uri _referer;
         private string _applicationPath = "/";
         private StringBuilder _builder;
@@ -38,7 +39,7 @@ namespace UnitTests.Subtext
         private TextWriter _responseWriter;
         private SimulatedHttpRequest _workerRequest;
         private string _currentExecutionPath;
-
+        
         public HttpSimulator()
             : this("/", DefaultPhysicalAppPath)
         {
@@ -226,6 +227,7 @@ namespace UnitTests.Subtext
             _workerRequest.CurrentExecutionPath = _currentExecutionPath;
             _workerRequest.Form.Add(_formVars);
             _workerRequest.Headers.Add(_headers);
+            _workerRequest.Cookies.Add(_cookies);
 
             if (_referer != null)
             {
@@ -329,6 +331,26 @@ namespace UnitTests.Subtext
             }
 
             _headers.Add(name, value);
+
+            return this;
+        }
+
+
+        /// <summary>
+        /// Sets the cookie.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">Cannot set headers after calling Simulate().</exception>
+        public HttpSimulator SetCookie(string name, string value)
+        {
+            if (_workerRequest != null)
+            {
+                throw new InvalidOperationException("Cannot set headers after calling Simulate().");
+            }
+
+            _cookies.Add(name, value);
 
             return this;
         }
@@ -787,5 +809,6 @@ namespace UnitTests.Subtext
         }
 
         #endregion
+
     }
 }
