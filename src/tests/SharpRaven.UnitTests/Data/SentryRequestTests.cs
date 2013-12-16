@@ -98,7 +98,7 @@ namespace SharpRaven.UnitTests.Data
         {
             SimulateHttpRequest(request =>
             {
-                Assert.That(request.Headers, Has.Count.EqualTo(2));
+                Assert.That(request.Headers, Has.Count.EqualTo(3));
                 Assert.That(request.Headers["UserAgent"], Is.EqualTo("SharpRaven"));
             });
         }
