@@ -167,7 +167,7 @@ namespace SharpRaven.Data
         }
 
 
-        private IDictionary<string, string> Convert(Func<dynamic, NameValueCollection> collectionGetter)
+        private IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
         {
             if (this.httpContext == null)
                 return null;
@@ -176,17 +176,42 @@ namespace SharpRaven.Data
 
             try
             {
-                NameValueCollection collection = collectionGetter.Invoke(this.httpContext);
-                var keys = collection.AllKeys.ToArray();
+                var collection = collectionGetter.Invoke(this.httpContext);
+                var keys = Enumerable.ToArray(collection.AllKeys);
 
-                foreach (var key in keys)
+                foreach (object key in keys)
                 {
-                    // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
-                    if (key.StartsWith("ALL_") || key.StartsWith("HTTP_"))
+                    if (key == null)
                         continue;
 
-                    var value = collection[key];
-                    dictionary.Add(key, value);
+                    string stringKey = key as string ?? key.ToString();
+
+                    // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
+                    if (stringKey.StartsWith("ALL_") || stringKey.StartsWith("HTTP_"))
+                        continue;
+
+                    var value = collection[stringKey];
+                    string stringValue = value as string;
+
+                    if (stringValue != null)
+                    {
+                        // Most dictionary values will be strings and go through this path.
+                        dictionary.Add(stringKey, stringValue);
+                    }
+                    else
+                    {
+                        // HttpCookieCollection is an ugly, evil beast that needs to be treated with a sledgehammer.
+
+                        try
+                        {
+                            // For whatever stupid reason, HttpCookie.ToString() doesn't return its Value, so we need to dive into the .Value property like this.
+                            dictionary.Add(stringKey, value.Value);
+                        }
+                        catch (Exception exception)
+                        {
+                            dictionary.Add(stringKey, exception.ToString());
+                        }
+                    }
                 }
             }
             catch (Exception exception)
