@@ -28,7 +28,9 @@
 
 #endregion
 
-using System;
+using System.Security.Principal;
+
+using NSubstitute;
 
 using NUnit.Framework;
 
@@ -40,16 +42,21 @@ namespace SharpRaven.UnitTests.Data
     public class SentryUserTests
     {
         [Test]
-        public void Constructor_AssignedPrincipal_InformationIsExpected()
+        public void Constructor_AssignedPrincipal_UsernameIsSet()
         {
-            throw new NotImplementedException();
+            const string username = "chuck.norris";
+            var principal = Substitute.For<IPrincipal>();
+            principal.Identity.Name.Returns(username);
+            var user = new SentryUser(principal);
+
+            Assert.That(user.Username, Is.EqualTo(username));
         }
 
 
         [Test]
         public void Constructor_NullPrincipal_DoesNotThrow()
         {
-            SentryUser user = new SentryUser(null);
+            var user = new SentryUser(null);
             Assert.That(user.Username, Is.Null);
         }
     }
