@@ -7,6 +7,7 @@ namespace SharpRaven.Utilities
     /// </summary>
     public static class PacketBuilder
     {
+        private const int SentryVersion = 4;
         private static readonly string userAgent;
 
 
@@ -43,11 +44,12 @@ namespace SharpRaven.Utilities
         /// </returns>
         public static string CreateAuthenticationHeader(Dsn dsn)
         {
-            return String.Format("Sentry sentry_version=4"
-                                 + ", sentry_client={0}"
-                                 + ", sentry_timestamp={1}"
-                                 + ", sentry_key={2}"
-                                 + ", sentry_secret={3}",
+            return String.Format("Sentry sentry_version={0}"
+                                 + ", sentry_client={1}"
+                                 + ", sentry_timestamp={2}"
+                                 + ", sentry_key={3}"
+                                 + ", sentry_secret={4}",
+                                 SentryVersion,
                                  UserAgent,
                                  (long) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds,
                                  dsn.PublicKey,
