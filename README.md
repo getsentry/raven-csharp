@@ -3,7 +3,7 @@ Usage
 Instantiate the client with your DSN:
 
 ```csharp
-ravenClient = new RavenClient('http://public:secret@example.com/project-id');
+ravenClient = new RavenClient("http://public:secret@example.com/project-id");
 ```
 
 Capturing Exceptions
@@ -27,7 +27,7 @@ Logging Non-Exceptions
 You can capture a message without being bound by an exception:
 
 ```csharp
-ravenClient.CaptureMessage('Hello World!');
+ravenClient.CaptureMessage("Hello World!");
 ```
 
 Additional Data
@@ -38,7 +38,7 @@ The capture methods allow you to provide additional data to be sent with your re
 The full argument specs are:
 
 ```csharp
-CaptureException(Exception e, Dictionary<string, string> tags = null, object extra = null)
+CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
 CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, Dictionary<string, string> tags = null, object extra = null)
 ```
 
