@@ -35,7 +35,7 @@ using NUnit.Framework;
 
 using SharpRaven.Data;
 
-using Subtext.TestLibrary;
+using UnitTests.Subtext;
 
 namespace SharpRaven.UnitTests.Data
 {
@@ -48,6 +48,7 @@ namespace SharpRaven.UnitTests.Data
             {
                 simulator.SetFormVariable("Form1", "Value1");
                 simulator.SetHeader("UserAgent", "SharpRaven");
+                simulator.SetCookie("Cookie", "Monster");
 
                 using (simulator.SimulateRequest())
                 {
@@ -63,6 +64,17 @@ namespace SharpRaven.UnitTests.Data
         {
             var request = SentryRequest.GetRequest();
             Assert.That(request, Is.Null);
+        }
+
+
+        [Test]
+        public void GetRequest_WithHttpContext_RequestHasCookies()
+        {
+            SimulateHttpRequest(request =>
+            {
+                Assert.That(request.Cookies, Has.Count.EqualTo(1));
+                Assert.That(request.Cookies["Cookie"], Is.EqualTo("Monster"));
+            });
         }
 
 
