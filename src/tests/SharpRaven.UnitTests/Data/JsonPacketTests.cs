@@ -33,12 +33,26 @@ using System;
 using NUnit.Framework;
 
 using SharpRaven.Data;
+using SharpRaven.UnitTests.Utilities;
 
 namespace SharpRaven.UnitTests.Data
 {
     [TestFixture]
     public class JsonPacketTests
     {
+        private static void SimulateHttpRequest(Action<JsonPacket> test)
+        {
+            using (var simulator = new HttpSimulator())
+            {
+                using (simulator.SimulateRequest())
+                {
+                    var json = new JsonPacket(Guid.NewGuid().ToString("n"));
+                    test.Invoke(json);
+                }
+            }
+        }
+
+
         [Test]
         public void Constructor_NullException_ThrowsArgumentNullException()
         {
@@ -153,6 +167,26 @@ namespace SharpRaven.UnitTests.Data
             var json = new JsonPacket(project);
 
             Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
+        }
+
+
+        [Test]
+        [Category("NoMono")]
+        public void Constructor_WithHttpContext_RequestIsNotNull()
+        {
+            SimulateHttpRequest(json => Assert.That(json.Request, Is.Not.Null));
+        }
+
+
+        [Test]
+        [Category("NoMono")]
+        public void Constructor_WithHttpContext_UsertIsNotNull()
+        {
+            SimulateHttpRequest(json =>
+            {
+                Assert.That(json.User, Is.Not.Null);
+                Assert.That(json.User.IpAddress, Is.EqualTo("127.0.0.1"));
+            });
         }
     }
 }
