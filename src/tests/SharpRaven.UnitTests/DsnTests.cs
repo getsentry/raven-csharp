@@ -38,6 +38,22 @@ namespace SharpRaven.UnitTests
     public class DsnTests
     {
         [Test]
+        public void Constructor_EmptyDsn_ThrowsArgumentNullException()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(() => new Dsn("      "));
+            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+        }
+
+
+        [Test]
+        public void Constructor_InvalidDsn_ThrowsArgumentException()
+        {
+            var exception = Assert.Throws<ArgumentException>(() => new Dsn("oijweofijw$%"));
+            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+        }
+
+
+        [Test]
         public void Constructor_NullDsn_ThrowsArgumentNullException()
         {
             var exception = Assert.Throws<ArgumentNullException>(() => new Dsn(null));
