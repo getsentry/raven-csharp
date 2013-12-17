@@ -30,7 +30,11 @@
 
 using System;
 
+using NSubstitute;
+
 using NUnit.Framework;
+
+using SharpRaven.Logging;
 
 namespace SharpRaven.UnitTests
 {
@@ -38,10 +42,26 @@ namespace SharpRaven.UnitTests
     public class RavenClientTests
     {
         [Test]
-        public void Constructor_StringDsn_CurrentDsnEqualsDsn()
+        public void CaptureMessage_ScrubberIsInvoked()
         {
+            string message = Guid.NewGuid().ToString("n");
+
             IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-            Assert.That(ravenClient.CurrentDsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
+            ravenClient.LogScrubber = Substitute.For<IScrubber>();
+            ravenClient.LogScrubber.Scrub(Arg.Any<string>())
+                       .Returns(c =>
+                       {
+                           string json = c.Arg<string>();
+                           Assert.That(json, Is.StringContaining(message));
+                           return json;
+                       });
+
+            string id = ravenClient.CaptureMessage(message);
+            Guid guid = Guid.Parse(id);
+            Assert.That(guid, Is.Not.Null);
+
+            // Verify that we actually received a Scrub() call:
+            ravenClient.LogScrubber.Received().Scrub(Arg.Any<string>());
         }
 
 
@@ -58,6 +78,22 @@ namespace SharpRaven.UnitTests
         {
             var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn) null));
             Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+        }
+
+
+        [Test]
+        public void Constructor_StringDsn_CurrentDsnEqualsDsn()
+        {
+            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+            Assert.That(ravenClient.CurrentDsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
+        }
+
+
+        [Test]
+        public void Logger_IsRoot()
+        {
+            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+            Assert.That(ravenClient.Logger, Is.EqualTo("root"));
         }
     }
 }
