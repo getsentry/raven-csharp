@@ -4,7 +4,7 @@
         <id>SharpRaven</id>
         <version>$version$</version>
         <title>.NET client for Sentry (getsentry.com)</title>
-        <authors>David Cramer, GetSentry.com</authors>
+        <authors>Sentry Team</authors>
         <owners>jsk, asbjornu, gmaclellan</owners>
         <licenseUrl>https://github.com/getsentry/raven-csharp/blob/master/LICENSE</licenseUrl>
         <projectUrl>https://github.com/getsentry/raven-csharp</projectUrl>
