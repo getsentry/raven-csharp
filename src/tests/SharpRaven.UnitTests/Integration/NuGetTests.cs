@@ -34,7 +34,7 @@ using System.IO;
 
 using NUnit.Framework;
 
-namespace SharpRaven.UnitTests
+namespace SharpRaven.UnitTests.Integration
 {
     /// <summary>
     /// NuGet tests. These are more integration tests than unit tests, but I can't bother with

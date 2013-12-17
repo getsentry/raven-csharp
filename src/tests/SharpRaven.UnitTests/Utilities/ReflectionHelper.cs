@@ -16,10 +16,9 @@
 #endregion
 
 using System;
-using System.Globalization;
 using System.Reflection;
 
-namespace UnitTests.Subtext
+namespace SharpRaven.UnitTests.Utilities
 {
     /// <summary>
     /// Helper class to simplify common reflection tasks.

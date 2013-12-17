@@ -23,7 +23,7 @@ using System.Net;
 using System.Text;
 using System.Web.Hosting;
 
-namespace UnitTests.Subtext
+namespace SharpRaven.UnitTests.Utilities
 {
     /// <summary>
     /// Used to simulate an HttpRequest.
@@ -66,10 +66,10 @@ namespace UnitTests.Subtext
                 throw new ArgumentNullException("applicationPath");
             }
 
-            _host = host;
-            _verb = verb;
-            _port = port;
-            _physicalFilePath = physicalFilePath;
+            this._host = host;
+            this._verb = verb;
+            this._port = port;
+            this._physicalFilePath = physicalFilePath;
         }
 
         public SimulatedHttpRequest(string applicationPath, string physicalAppPath, string page, string query)
@@ -83,7 +83,7 @@ namespace UnitTests.Subtext
         /// <value>The headers.</value>
         public NameValueCollection Headers
         {
-            get { return _headers; }
+            get { return this._headers; }
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace UnitTests.Subtext
         /// </value>
         public NameValueCollection Cookies
         {
-            get { return _cookies; }
+            get { return this._cookies; }
         }
 
         /// <summary>
@@ -103,12 +103,12 @@ namespace UnitTests.Subtext
         /// <value>The format exception.</value>
         public NameValueCollection Form
         {
-            get { return _formVariables; }
+            get { return this._formVariables; }
         }
 
         internal void SetReferer(Uri referer)
         {
-            _referer = referer;
+            this._referer = referer;
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace UnitTests.Subtext
         /// </returns>
         public override string GetHttpVerbName()
         {
-            return _verb;
+            return this._verb;
         }
 
         /// <summary>
@@ -129,12 +129,12 @@ namespace UnitTests.Subtext
         /// <returns></returns>
         public override string GetServerName()
         {
-            return _host;
+            return this._host;
         }
 
         public override int GetLocalPort()
         {
-            return _port;
+            return this._port;
         }
 
         /// <summary>
@@ -143,16 +143,16 @@ namespace UnitTests.Subtext
         /// <returns>An array of header name-value pairs.</returns>
         public override string[][] GetUnknownRequestHeaders()
         {
-            if (_headers == null || _headers.Count == 0)
+            if (this._headers == null || this._headers.Count == 0)
             {
                 return null;
             }
-            var headersArray = new string[_headers.Count][];
-            for (int i = 0; i < _headers.Count; i++)
+            var headersArray = new string[this._headers.Count][];
+            for (int i = 0; i < this._headers.Count; i++)
             {
                 headersArray[i] = new string[2];
-                headersArray[i][0] = _headers.Keys[i];
-                headersArray[i][1] = _headers[i];
+                headersArray[i][0] = this._headers.Keys[i];
+                headersArray[i][1] = this._headers[i];
             }
             return headersArray;
         }
@@ -164,17 +164,17 @@ namespace UnitTests.Subtext
             switch (requestHeader)
             {
                 case HttpRequestHeader.Referer:
-                    return _referer == null ? string.Empty : _referer.ToString();
+                    return this._referer == null ? string.Empty : this._referer.ToString();
 
                 case HttpRequestHeader.ContentType:
-                    if (_verb == "POST")
+                    if (this._verb == "POST")
                     {
                         return "application/x-www-form-urlencoded";
                     }
                     break;
 
                 case HttpRequestHeader.Cookie:
-                    return Convert(_cookies);
+                    return Convert(this._cookies);
             }
 
             return base.GetKnownRequestHeader(index);
@@ -207,12 +207,12 @@ namespace UnitTests.Subtext
 
         public override string GetFilePathTranslated()
         {
-            return _physicalFilePath;
+            return this._physicalFilePath;
         }
 
         public override string GetFilePath()
         {
-            return CurrentExecutionPath ?? base.GetFilePath();
+            return this.CurrentExecutionPath ?? base.GetFilePath();
         }
 
         public override string GetPathInfo()
@@ -233,7 +233,7 @@ namespace UnitTests.Subtext
         /// <returns>The number of bytes read.</returns>
         public override byte[] GetPreloadedEntityBody()
         {
-            string formText = Convert(_formVariables);
+            string formText = Convert(this._formVariables);
             return Encoding.UTF8.GetBytes(formText);
         }
 

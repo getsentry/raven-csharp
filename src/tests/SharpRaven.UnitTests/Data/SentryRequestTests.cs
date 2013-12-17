@@ -34,8 +34,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 
 using SharpRaven.Data;
-
-using UnitTests.Subtext;
+using SharpRaven.UnitTests.Utilities;
 
 namespace SharpRaven.UnitTests.Data
 {

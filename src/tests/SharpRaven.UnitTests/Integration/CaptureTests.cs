@@ -35,7 +35,7 @@ using NUnit.Framework;
 
 using SharpRaven.Logging;
 
-namespace SharpRaven.UnitTests
+namespace SharpRaven.UnitTests.Integration
 {
     [TestFixture]
     public class CaptureTests
