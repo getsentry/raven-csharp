@@ -46,20 +46,23 @@ namespace SharpRaven.Data
         /// Initializes a new instance of the <see cref="JsonPacket"/> class.
         /// </summary>
         /// <param name="project">The project.</param>
-        /// <param name="e">The <see cref="Exception"/>.</param>
-        public JsonPacket(string project, Exception e)
+        /// <param name="exception">The <see cref="Exception"/>.</param>
+        public JsonPacket(string project, Exception exception)
             : this(project)
         {
-            Message = e.Message;
+            if (exception == null)
+                throw new ArgumentNullException("exception");
 
-            if (e.TargetSite != null)
+            Message = exception.Message;
+
+            if (exception.TargetSite != null)
             {
 // ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
                 Culprit = String.Format("{0} in {1}",
-                                        ((e.TargetSite.ReflectedType == null)
+                                        ((exception.TargetSite.ReflectedType == null)
                                              ? "<dynamic type>"
-                                             : e.TargetSite.ReflectedType.FullName),
-                                        e.TargetSite.Name);
+                                             : exception.TargetSite.ReflectedType.FullName),
+                                        exception.TargetSite.Name);
 // ReSharper restore ConditionIsAlwaysTrueOrFalse
             }
 
@@ -69,7 +72,7 @@ namespace SharpRaven.Data
 
             Exceptions = new List<SentryException>();
 
-            for (Exception currentException = e;
+            for (Exception currentException = exception;
                  currentException != null;
                  currentException = currentException.InnerException)
             {
