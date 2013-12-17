@@ -79,5 +79,14 @@ namespace SharpRaven.UnitTests.Logging
         {
             Assert.That(this.scrubber.Filters, Has.Count.EqualTo(3));
         }
+
+
+        [Test]
+        public void Scrub_Null_ReturnsNull()
+        {
+            var result = this.scrubber.Scrub(null);
+
+            Assert.That(result, Is.Null);
+        }
     }
 }
