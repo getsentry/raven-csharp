@@ -98,7 +98,7 @@ namespace SharpRaven
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns>
-        /// The ID of the successfully captured <see cref="Exception"/>, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <see cref="Exception"/>, or <c>null</c> if it fails.
         /// </returns>
         public string CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
         {
@@ -121,7 +121,7 @@ namespace SharpRaven
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns>
-        /// The ID of the successfully captured message, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured message, or <c>null</c> if it fails.
         /// </returns>
         public string CaptureMessage(string message,
                                      ErrorLevel level = ErrorLevel.Info,
@@ -146,7 +146,7 @@ namespace SharpRaven
         /// <param name="packet">The packet to send.</param>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
         /// <returns>
-        /// The ID of the successfully captured JSON packet, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
         private string Send(JsonPacket packet, Dsn dsn)
         {
