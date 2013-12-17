@@ -38,6 +38,14 @@ namespace SharpRaven.UnitTests
     public class RavenClientTests
     {
         [Test]
+        public void Constructor_StringDsn_CurrentDsnEqualsDsn()
+        {
+            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+            Assert.That(ravenClient.CurrentDsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
+        }
+
+
+        [Test]
         public void Constructor_NullDsnString_ThrowsArgumentNullException()
         {
             var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string) null));
