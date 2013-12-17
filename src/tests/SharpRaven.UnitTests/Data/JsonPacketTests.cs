@@ -74,6 +74,17 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        public void Constructor_ProjectAndException_MessageEqualsExceptionMessage()
+        {
+            var project = Guid.NewGuid().ToString();
+            Exception exception = new Exception("Error");
+            var json = new JsonPacket(project, exception);
+
+            Assert.That(json.Message, Is.EqualTo(exception.Message));
+        }
+
+
+        [Test]
         public void Constructor_ProjectAndException_ModulesHasCountGreaterThanZero()
         {
             var project = Guid.NewGuid().ToString();
