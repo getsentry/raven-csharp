@@ -48,6 +48,7 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\JsonPacketTests.cs" />
     <Compile Include="Data\SentryRequestTests.cs" />
     <Compile Include="Data\SentryUserTests.cs" />
     <Compile Include="Logging\LogScrubberTests.cs" />
