@@ -49,7 +49,7 @@ namespace SharpRaven.Utilities
 
             using (MemoryStream memory = new MemoryStream())
             {
-                using (GZipStream gzip = new GZipStream(memory, CompressionMode.Compress))
+                using (DeflateStream gzip = new DeflateStream(memory, CompressionMode.Compress))
                 {
                     gzip.Write(data, 0, data.Length);
                 }

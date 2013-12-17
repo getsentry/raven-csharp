@@ -157,25 +157,37 @@ namespace SharpRaven
                 HttpWebRequest request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
                 request.Method = "POST";
                 request.Accept = "application/json";
-                request.ContentType = "application/json; charset=utf-8";
                 request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
                 request.UserAgent = PacketBuilder.UserAgent;
 
-                // Write the messagebody.
-                using (Stream s = request.GetRequestStream())
+                if (Compression)
                 {
-                    using (StreamWriter sw = new StreamWriter(s))
-                    {
-                        // Compress and encode.
-                        //string data = Utilities.GzipUtil.CompressEncode(packet.Serialize());
-                        //Console.WriteLine("Writing: " + data);
-                        // Write to the JSON script when ready.
-                        string data = packet.ToString();
-                        if (LogScrubber != null)
-                            data = LogScrubber.Scrub(data);
+                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "deflate");
+                    request.AutomaticDecompression = DecompressionMethods.Deflate;
+                    request.ContentType = "application/octet-stream";
+                }
+                else
+                {
+                    request.ContentType = "application/json; charset=utf-8";
+                }
 
-                        sw.Write(data);
+                string data = packet.ToString();
+
+                if (LogScrubber != null)
+                    data = LogScrubber.Scrub(data);
+
+                // Write the message body.
+                using (Stream stream = request.GetRequestStream())
+                {
+                    using (StreamWriter writer = new StreamWriter(stream))
+                    {
+                        if (Compression)
+                            data = GzipUtil.CompressEncode(data);
+
+                        Console.WriteLine(data);
+
+                        writer.Write(data);
                     }
                 }
 
@@ -195,17 +207,18 @@ namespace SharpRaven
                     }
                 }
             }
-            catch (WebException e)
+            catch (Exception exception)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("[ERROR] ");
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(e);
+                Console.WriteLine(exception);
 
-                if (e.Response != null)
+                WebException webException = exception as WebException;
+                if (webException != null && webException.Response != null)
                 {
                     string messageBody;
-                    using (Stream stream = e.Response.GetResponseStream())
+                    using (Stream stream = webException.Response.GetResponseStream())
                     {
                         if (stream == null)
                             return null;
@@ -218,18 +231,9 @@ namespace SharpRaven
 
                     Console.WriteLine("[MESSAGE BODY] " + messageBody);
                 }
-
-                return null;
             }
-            catch (Exception e)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("[ERROR] ");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(e);
 
-                return null;
-            }
+            return null;
         }
 
         #region Deprecated methods
