@@ -97,7 +97,9 @@ namespace SharpRaven
         /// <param name="e">The <see cref="Exception" /> to capture.</param>
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// The ID of the successfully captured <see cref="Exception"/>, or <c>null</c> if it fails.
+        /// </returns>
         public string CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, e)
@@ -118,11 +120,13 @@ namespace SharpRaven
         /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// The ID of the successfully captured message, or <c>null</c> if it fails.
+        /// </returns>
         public string CaptureMessage(string message,
-                                  ErrorLevel level = ErrorLevel.Info,
-                                  Dictionary<string, string> tags = null,
-                                  object extra = null)
+                                     ErrorLevel level = ErrorLevel.Info,
+                                     Dictionary<string, string> tags = null,
+                                     object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID)
             {
@@ -142,7 +146,7 @@ namespace SharpRaven
         /// <param name="packet">The packet to send.</param>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
         /// <returns>
-        /// <c>true</c> if the <see cref="Send"/> succeeds, <c>false</c> if it fails.
+        /// The ID of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
         private string Send(JsonPacket packet, Dsn dsn)
         {
@@ -172,12 +176,7 @@ namespace SharpRaven
                             data = LogScrubber.Scrub(data);
 
                         sw.Write(data);
-                        // Close streams.
-                        sw.Flush();
-                        sw.Close();
                     }
-                    s.Flush();
-                    s.Close();
                 }
 
                 using (HttpWebResponse wr = (HttpWebResponse) request.GetResponse())
@@ -201,7 +200,7 @@ namespace SharpRaven
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("[ERROR] ");
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e);
 
                 if (e.Response != null)
                 {
@@ -224,7 +223,11 @@ namespace SharpRaven
             }
             catch (Exception e)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("[ERROR] ");
+                Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine(e);
+
                 return null;
             }
         }
