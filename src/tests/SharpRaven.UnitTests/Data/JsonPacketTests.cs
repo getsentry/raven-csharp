@@ -58,20 +58,40 @@ namespace SharpRaven.UnitTests.Data
         [Test]
         public void Constructor_ProjectAndException_EventIDIsNotNull()
         {
-            string project = Guid.NewGuid().ToString();
-            var json = new JsonPacket(project, new Exception("Erro"));
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project, new Exception("Error"));
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
         }
 
 
         [Test]
+        public void Constructor_ProjectAndException_ProjectIsEqual()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project, new Exception("Error"));
+
+            Assert.That(json.Project, Is.EqualTo(project));
+        }
+
+
+        [Test]
         public void Constructor_Project_EventIDIsNotNull()
         {
-            string project = Guid.NewGuid().ToString();
+            var project = Guid.NewGuid().ToString();
             var json = new JsonPacket(project);
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+        }
+
+
+        [Test]
+        public void Constructor_Project_ProjectIsEqual()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project);
+
+            Assert.That(json.Project, Is.EqualTo(project));
         }
     }
 }
