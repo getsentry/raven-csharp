@@ -28,6 +28,7 @@
 
 #endregion
 
+using System;
 using System.Linq;
 
 using NUnit.Framework;
@@ -82,11 +83,51 @@ namespace SharpRaven.UnitTests.Logging
 
 
         [Test]
+        public void InvalidValues_AreNotScrubbed()
+        {
+            const string invalidCreditCardNumber = "1234-5678-9101-1121";
+            const string invalidPhoneNumber = "1531";
+
+            // TODO: Add social security number test data once that filter is implemented.
+
+            var input = String.Format(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. {0} Praesent est dui, ornare eget condimentum a, {1} tincidunt sit amet lectus. Nulla pellentesque, tortor eget tempus malesuada.",
+                invalidCreditCardNumber,
+                invalidPhoneNumber);
+
+            var output = this.scrubber.Scrub(input);
+
+            Assert.That(output, Is.StringContaining(invalidCreditCardNumber));
+            Assert.That(output, Is.StringContaining(invalidPhoneNumber));
+        }
+
+
+        [Test]
         public void Scrub_Null_ReturnsNull()
         {
             var result = this.scrubber.Scrub(null);
 
             Assert.That(result, Is.Null);
+        }
+
+
+        [Test]
+        public void ValidValues_AreScrubbed()
+        {
+            const string validCreditCardNumber = "5271-1902-4264-3112";
+            const string validPhoneNumber = "55518231234";
+
+            // TODO: Add social security number test data once that filter is implemented.
+
+            var input = String.Format(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. {0} Praesent est dui, ornare eget condimentum a, {1} tincidunt sit amet lectus. Nulla pellentesque, tortor eget tempus malesuada.",
+                validCreditCardNumber,
+                validPhoneNumber);
+
+            var output = this.scrubber.Scrub(input);
+
+            Assert.That(output, Is.Not.StringContaining(validCreditCardNumber));
+            Assert.That(output, Is.Not.StringContaining(validPhoneNumber));
         }
     }
 }
