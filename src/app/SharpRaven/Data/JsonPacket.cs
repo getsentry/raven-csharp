@@ -95,13 +95,14 @@ namespace SharpRaven.Data
                 throw new ArgumentNullException("project");
 
             // Get assemblies.
-            /*Modules = new List<Module>();
+            Modules = new List<Module>();
             foreach (System.Reflection.Module m in Utilities.SystemUtil.GetModules()) {
                 Modules.Add(new Module() {
                     Name = m.ScopeName,
                     Version = m.ModuleVersionId.ToString()
                 });
-            }*/
+            }
+
             // The current hostname
             ServerName = Environment.MachineName;
             // Create timestamp
