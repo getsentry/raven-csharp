@@ -107,9 +107,18 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
-        public void CaptureWithStacktrace_ReturnsValidId()
+        public void CaptureMessage_ReturnsValidID()
         {
-            Console.WriteLine("Causing division by zero exception.");
+            var id = this.ravenClient.CaptureMessage("Test");
+            Console.WriteLine("Sent packet: " + id);
+
+            Assert.That(id, Is.Not.Null.Or.Empty);
+        }
+
+
+        [Test]
+        public void CaptureWithStacktrace_ReturnsValidID()
+        {
             try
             {
                 FirstLevelException();
@@ -133,9 +142,8 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
-        public void CaptureWithoutStacktrace_ReturnsValidId()
+        public void CaptureWithoutStacktrace_ReturnsValidID()
         {
-            Console.WriteLine("Send exception without stacktrace.");
             var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
             Console.WriteLine("Sent packet: " + id);
 
