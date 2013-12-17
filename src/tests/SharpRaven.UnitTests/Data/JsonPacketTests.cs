@@ -66,6 +66,16 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        public void Constructor_ProjectAndException_ModulesHasCountGreaterThanZero()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project, new Exception("Error"));
+
+            Assert.That(json.Modules, Has.Count.GreaterThan(0));
+        }
+
+
+        [Test]
         public void Constructor_ProjectAndException_ProjectIsEqual()
         {
             var project = Guid.NewGuid().ToString();
@@ -82,6 +92,16 @@ namespace SharpRaven.UnitTests.Data
             var json = new JsonPacket(project);
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+        }
+
+
+        [Test]
+        public void Constructor_Project_ModulesHasCountGreaterThanZero()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project);
+
+            Assert.That(json.Modules, Has.Count.GreaterThan(0));
         }
 
 
