@@ -71,7 +71,7 @@ namespace SharpRaven
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns></returns>
-        int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null);
+        string CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null);
 
 
         /// <summary>
@@ -82,10 +82,10 @@ namespace SharpRaven
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns></returns>
-        int CaptureMessage(string message,
-                           ErrorLevel level = ErrorLevel.Info,
-                           Dictionary<string, string> tags = null,
-                           object extra = null);
+        string CaptureMessage(string message,
+                              ErrorLevel level = ErrorLevel.Info,
+                              Dictionary<string, string> tags = null,
+                              object extra = null);
 
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace SharpRaven
         /// <param name="e">The <see cref="Exception"/> to capture.</param>
         /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
-        int CaptureEvent(Exception e);
+        string CaptureEvent(Exception e);
 
 
         /// <summary>
@@ -104,6 +104,6 @@ namespace SharpRaven
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
-        int CaptureEvent(Exception e, Dictionary<string, string> tags);
+        string CaptureEvent(Exception e, Dictionary<string, string> tags);
     }
 }

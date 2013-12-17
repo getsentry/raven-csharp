@@ -33,6 +33,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 
+using Newtonsoft.Json;
+
 using SharpRaven.Data;
 using SharpRaven.Logging;
 using SharpRaven.Utilities;
@@ -96,7 +98,7 @@ namespace SharpRaven
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns></returns>
-        public int CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
+        public string CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, e)
             {
@@ -105,10 +107,7 @@ namespace SharpRaven
                 Extra = extra
             };
 
-            Send(packet, CurrentDsn);
-
-            // TODO: This should return something intelligible, like an ID, no? [asbjornu]
-            return 0;
+            return Send(packet, CurrentDsn);
         }
 
 
@@ -120,7 +119,7 @@ namespace SharpRaven
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns></returns>
-        public int CaptureMessage(string message,
+        public string CaptureMessage(string message,
                                   ErrorLevel level = ErrorLevel.Info,
                                   Dictionary<string, string> tags = null,
                                   object extra = null)
@@ -133,10 +132,7 @@ namespace SharpRaven
                 Extra = extra
             };
 
-            Send(packet, CurrentDsn);
-
-            // TODO: This should return something intelligible, like an ID, no? [asbjornu]
-            return 0;
+            return Send(packet, CurrentDsn);
         }
 
 
@@ -148,7 +144,7 @@ namespace SharpRaven
         /// <returns>
         /// <c>true</c> if the <see cref="Send"/> succeeds, <c>false</c> if it fails.
         /// </returns>
-        private bool Send(JsonPacket packet, Dsn dsn)
+        private string Send(JsonPacket packet, Dsn dsn)
         {
             packet.Logger = Logger;
 
@@ -186,8 +182,18 @@ namespace SharpRaven
 
                 using (HttpWebResponse wr = (HttpWebResponse) request.GetResponse())
                 {
-                    // TODO: Shouldn't something be fetched from the response, like an ID? [asbjornu]
-                    wr.Close();
+                    using (Stream responseStream = wr.GetResponseStream())
+                    {
+                        if (responseStream == null)
+                            return null;
+
+                        using (StreamReader sr = new StreamReader(responseStream))
+                        {
+                            string content = sr.ReadToEnd();
+                            var response = JsonConvert.DeserializeObject<dynamic>(content);
+                            return response.id;
+                        }
+                    }
                 }
             }
             catch (WebException e)
@@ -197,20 +203,30 @@ namespace SharpRaven
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine(e.Message);
 
-                string messageBody = String.Empty;
                 if (e.Response != null)
                 {
-                    using (StreamReader sw = new StreamReader(e.Response.GetResponseStream()))
+                    string messageBody;
+                    using (Stream stream = e.Response.GetResponseStream())
                     {
-                        messageBody = sw.ReadToEnd();
+                        if (stream == null)
+                            return null;
+
+                        using (StreamReader sw = new StreamReader(stream))
+                        {
+                            messageBody = sw.ReadToEnd();
+                        }
                     }
+
                     Console.WriteLine("[MESSAGE BODY] " + messageBody);
                 }
 
-                return false;
+                return null;
             }
-
-            return true;
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
         }
 
         #region Deprecated methods
@@ -228,7 +244,7 @@ namespace SharpRaven
         /// <param name="e">The <see cref="Exception" /> to capture.</param>
         /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
-        public int CaptureEvent(Exception e)
+        public string CaptureEvent(Exception e)
         {
             return CaptureException(e);
         }
@@ -241,7 +257,7 @@ namespace SharpRaven
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
-        public int CaptureEvent(Exception e, Dictionary<string, string> tags)
+        public string CaptureEvent(Exception e, Dictionary<string, string> tags)
         {
             return CaptureException(e, tags);
         }
