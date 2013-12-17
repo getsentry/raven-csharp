@@ -40,57 +40,28 @@ namespace SharpRaven.UnitTests
     [TestFixture]
     public class CaptureTests
     {
-        private const string DsnUrl =
-            "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
-
-        private RavenClient ravenClient;
-
         [SetUp]
         public void Setup()
         {
             Console.WriteLine("Initializing RavenClient.");
-            ravenClient = new RavenClient(DsnUrl);
-            ravenClient.Logger = "C#";
-            ravenClient.LogScrubber = new LogScrubber();
-
-            PrintInfo("Sentry Uri: " + ravenClient.CurrentDsn.SentryUri);
-            PrintInfo("Port: " + ravenClient.CurrentDsn.Port);
-            PrintInfo("Public Key: " + ravenClient.CurrentDsn.PublicKey);
-            PrintInfo("Private Key: " + ravenClient.CurrentDsn.PrivateKey);
-            PrintInfo("Project ID: " + ravenClient.CurrentDsn.ProjectID);
-        }
-
-
-        [Test]
-        public void CaptureWithoutStacktrace()
-        {
-            Console.WriteLine("Send exception without stacktrace.");
-            var id = ravenClient.CaptureException(new Exception("Test without a stacktrace."));
-            Console.WriteLine("Sent packet: " + id);
-        }
-
-
-        [Test]
-        public void CaptureWithStacktrace()
-        {
-            Console.WriteLine("Causing division by zero exception.");
-            try
+            this.ravenClient = new RavenClient(DsnUrl)
             {
-                FirstLevelException();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Captured: " + e.Message);
-                Dictionary<string, string> tags = new Dictionary<string, string>();
-                Dictionary<string, string> extras = new Dictionary<string, string>();
+                Logger = "C#",
+                LogScrubber = new LogScrubber()
+            };
 
-                tags["TAG"] = "TAG1";
-                extras["extra"] = "EXTRA1";
-
-                var id = ravenClient.CaptureException(e, tags, extras);
-                Console.WriteLine("Sent packet: " + id);
-            }
+            PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
         }
+
+
+        private const string DsnUrl =
+            "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+
+        private RavenClient ravenClient;
 
 
         private static void SecondLevelException()
@@ -132,6 +103,38 @@ namespace SharpRaven.UnitTests
             Console.Write("[INFO] ");
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(info);
+        }
+
+
+        [Test]
+        public void CaptureWithStacktrace()
+        {
+            Console.WriteLine("Causing division by zero exception.");
+            try
+            {
+                FirstLevelException();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Captured: " + e.Message);
+                Dictionary<string, string> tags = new Dictionary<string, string>();
+                Dictionary<string, string> extras = new Dictionary<string, string>();
+
+                tags["TAG"] = "TAG1";
+                extras["extra"] = "EXTRA1";
+
+                var id = this.ravenClient.CaptureException(e, tags, extras);
+                Console.WriteLine("Sent packet: " + id);
+            }
+        }
+
+
+        [Test]
+        public void CaptureWithoutStacktrace()
+        {
+            Console.WriteLine("Send exception without stacktrace.");
+            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
+            Console.WriteLine("Sent packet: " + id);
         }
     }
 }
