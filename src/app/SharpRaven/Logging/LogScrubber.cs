@@ -29,6 +29,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 
 using SharpRaven.Logging.Filters;
 
@@ -39,21 +40,20 @@ namespace SharpRaven.Logging
     /// </summary>
     public class LogScrubber : IScrubber
     {
-        // Default scrubber implementation.
+        private readonly List<IFilter> filters;
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="LogScrubber"/> class.
         /// </summary>
         public LogScrubber()
         {
-            Filters = new List<IFilter>();
-
-            // Add default scrubbers.
-            Filters.AddRange(new IFilter[]
+            this.filters = new List<IFilter>
             {
                 new CreditCardFilter(),
                 new PhoneNumberFilter(),
                 new SocialSecurityFilter()
-            });
+            };
         }
 
 
@@ -63,7 +63,10 @@ namespace SharpRaven.Logging
         /// <value>
         /// The filters.
         /// </value>
-        public List<IFilter> Filters { get; private set; }
+        public List<IFilter> Filters
+        {
+            get { return this.filters; }
+        }
 
 
         /// <summary>
@@ -76,12 +79,7 @@ namespace SharpRaven.Logging
         /// </returns>
         public string Scrub(string input)
         {
-            foreach (IFilter f in Filters)
-            {
-                input = f.Filter(input);
-            }
-
-            return input;
+            return this.filters.Aggregate(input, (current, f) => f.Filter(current));
         }
     }
 }
