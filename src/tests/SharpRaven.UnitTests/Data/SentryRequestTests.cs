@@ -68,6 +68,7 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        [Category("NoMono")]
         public void GetRequest_WithHttpContext_RequestHasCookies()
         {
             SimulateHttpRequest(request =>
@@ -79,6 +80,7 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        [Category("NoMono")]
         public void GetRequest_WithHttpContext_RequestHasFormVariables()
         {
             SimulateHttpRequest(request =>
@@ -94,6 +96,7 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        [Category("NoMono")]
         public void GetRequest_WithHttpContext_RequestHasHeaders()
         {
             SimulateHttpRequest(request =>
@@ -105,6 +108,7 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        [Category("NoMono")]
         public void GetRequest_WithHttpContext_RequestIsNotNull()
         {
             SimulateHttpRequest(request => Assert.That(request, Is.Not.Null));
