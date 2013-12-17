@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 using SharpRaven.Serialization;
+using SharpRaven.Utilities;
 
 namespace SharpRaven.Data
 {
@@ -66,20 +67,19 @@ namespace SharpRaven.Data
 // ReSharper restore ConditionIsAlwaysTrueOrFalse
             }
 
-            Project = project;
-            ServerName = Environment.MachineName;
-            Level = ErrorLevel.Error;
-
             Exceptions = new List<SentryException>();
 
             for (Exception currentException = exception;
                  currentException != null;
                  currentException = currentException.InnerException)
             {
-                SentryException sentryException = new SentryException(currentException);
-                sentryException.Module = currentException.Source;
-                sentryException.Type = currentException.GetType().Name;
-                sentryException.Value = currentException.Message;
+                SentryException sentryException = new SentryException(currentException)
+                {
+                    Module = currentException.Source,
+                    Type = currentException.GetType().Name,
+                    Value = currentException.Message
+                };
+
                 Exceptions.Add(sentryException);
             }
         }
@@ -90,14 +90,26 @@ namespace SharpRaven.Data
         /// </summary>
         /// <param name="project">The project.</param>
         public JsonPacket(string project)
+            : this()
         {
             if (project == null)
                 throw new ArgumentNullException("project");
 
+            Project = project;
+        }
+
+
+        /// <summary>
+        /// Prevents a default instance of the <see cref="JsonPacket"/> class from being created.
+        /// </summary>
+        private JsonPacket()
+        {
             // Get assemblies.
             Modules = new List<Module>();
-            foreach (System.Reflection.Module m in Utilities.SystemUtil.GetModules()) {
-                Modules.Add(new Module() {
+            foreach (System.Reflection.Module m in SystemUtil.GetModules())
+            {
+                Modules.Add(new Module
+                {
                     Name = m.ScopeName,
                     Version = m.ModuleVersionId.ToString()
                 });
@@ -105,26 +117,31 @@ namespace SharpRaven.Data
 
             // The current hostname
             ServerName = Environment.MachineName;
+
             // Create timestamp
             TimeStamp = DateTime.UtcNow;
+
             // Default logger.
             Logger = "root";
+
             // Default error level.
             Level = ErrorLevel.Error;
+
             // Create a guid.
             EventID = Guid.NewGuid().ToString().Replace("-", String.Empty);
+
             // Project
             Project = "default";
+
             // Platform
             Platform = "csharp";
 
             // Get data from the HTTP request
             Request = SentryRequest.GetRequest();
+
             // Get the user data from the HTTP request
             if (Request != null)
                 User = Request.GetUser();
-
-            Project = project;
         }
 
 
