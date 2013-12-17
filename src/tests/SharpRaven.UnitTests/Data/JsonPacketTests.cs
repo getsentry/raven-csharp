@@ -64,12 +64,13 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
-        public void Constructor_ProjectAndException_EventIDIsNotNull()
+        public void Constructor_ProjectAndException_EventIDIsValidGuid()
         {
             var project = Guid.NewGuid().ToString();
             var json = new JsonPacket(project, new Exception("Error"));
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
         }
 
 
@@ -115,12 +116,13 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
-        public void Constructor_Project_EventIDIsNotNull()
+        public void Constructor_Project_EventIDIsValidGuid()
         {
             var project = Guid.NewGuid().ToString();
             var json = new JsonPacket(project);
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
         }
 
 
