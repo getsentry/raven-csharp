@@ -46,6 +46,9 @@ namespace SharpRaven
     /// </summary>
     public class RavenClient : IRavenClient
     {
+        private readonly Dsn currentDsn;
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RavenClient"/> class.
         /// </summary>
@@ -65,8 +68,7 @@ namespace SharpRaven
             if (dsn == null)
                 throw new ArgumentNullException("dsn");
 
-            CurrentDsn = dsn;
-            Compression = true;
+            this.currentDsn = dsn;
             Logger = "root";
         }
 
@@ -74,7 +76,10 @@ namespace SharpRaven
         /// <summary>
         /// The Dsn currently being used to log exceptions.
         /// </summary>
-        public Dsn CurrentDsn { get; set; }
+        public Dsn CurrentDsn
+        {
+            get { return this.currentDsn; }
+        }
 
         /// <summary>
         /// Interface for providing a 'log scrubber' that removes 
@@ -84,8 +89,9 @@ namespace SharpRaven
 
         /// <summary>
         /// Enable Gzip Compression?
-        /// Defaults to <c>true</c>.
+        /// Defaults to <c>false</c>.
         /// </summary>
+        [Obsolete("GZip compression isn't supported yet.", true)]
         public bool Compression { get; set; }
 
         /// <summary>

@@ -44,7 +44,7 @@ namespace SharpRaven
         /// <summary>
         /// The Dsn currently being used to log exceptions.
         /// </summary>
-        Dsn CurrentDsn { get; set; }
+        Dsn CurrentDsn { get; }
 
         /// <summary>
         /// Interface for providing a 'log scrubber' that removes 
@@ -54,7 +54,6 @@ namespace SharpRaven
 
         /// <summary>
         /// Enable Gzip Compression?
-        /// Defaults to <c>true</c>.
         /// </summary>
         bool Compression { get; set; }
 
