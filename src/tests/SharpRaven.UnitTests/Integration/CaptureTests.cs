@@ -113,6 +113,7 @@ namespace SharpRaven.UnitTests.Integration
             Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
         }
 
 
@@ -137,6 +138,7 @@ namespace SharpRaven.UnitTests.Integration
                 Console.WriteLine("Sent packet: " + id);
 
                 Assert.That(id, Is.Not.Null.Or.Empty);
+                Assert.That(Guid.Parse(id), Is.Not.Null);
             }
         }
 
@@ -148,6 +150,7 @@ namespace SharpRaven.UnitTests.Integration
             Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
         }
     }
 }
