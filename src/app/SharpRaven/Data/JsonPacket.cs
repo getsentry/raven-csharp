@@ -128,7 +128,7 @@ namespace SharpRaven.Data
             Level = ErrorLevel.Error;
 
             // Create a guid.
-            EventID = Guid.NewGuid().ToString().Replace("-", String.Empty);
+            EventID = Guid.NewGuid().ToString("n");
 
             // Project
             Project = "default";
