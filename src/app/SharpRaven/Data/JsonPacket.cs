@@ -46,7 +46,7 @@ namespace SharpRaven.Data
         /// Initializes a new instance of the <see cref="JsonPacket"/> class.
         /// </summary>
         /// <param name="project">The project.</param>
-        /// <param name="e">The decimal.</param>
+        /// <param name="e">The <see cref="Exception"/>.</param>
         public JsonPacket(string project, Exception e)
             : this(project)
         {
@@ -88,6 +88,9 @@ namespace SharpRaven.Data
         /// <param name="project">The project.</param>
         public JsonPacket(string project)
         {
+            if (project == null)
+                throw new ArgumentNullException("project");
+
             // Get assemblies.
             /*Modules = new List<Module>();
             foreach (System.Reflection.Module m in Utilities.SystemUtil.GetModules()) {
