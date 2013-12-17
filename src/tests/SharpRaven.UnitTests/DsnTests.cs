@@ -91,5 +91,13 @@ namespace SharpRaven.UnitTests
             Assert.That(dsn.Uri, Is.Not.Null);
             Assert.That(dsn.Uri.ToString(), Is.EqualTo(TestHelper.DsnUri));
         }
+
+
+        [Test]
+        public void ToString_ReturnsStringEqualToDsn()
+        {
+            var dsn = new Dsn(TestHelper.DsnUri);
+            Assert.That(dsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
+        }
     }
 }
