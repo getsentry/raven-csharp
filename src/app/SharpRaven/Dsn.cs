@@ -43,8 +43,11 @@ namespace SharpRaven
         /// <param name="dsn">The Data Source Name.</param>
         public Dsn(string dsn)
         {
+            if (String.IsNullOrWhiteSpace(dsn))
+                throw new ArgumentNullException("dsn");
+
+            var uri = GetUri(dsn);
             bool useSSl = dsn.StartsWith("https", StringComparison.InvariantCultureIgnoreCase);
-            Uri uri = new Uri(dsn);
 
             // Set all info
             PrivateKey = GetPrivateKey(uri);
@@ -96,6 +99,19 @@ namespace SharpRaven
         /// Sentry path.
         /// </summary>
         public string Path { get; set; }
+
+
+        private static Uri GetUri(string dsn)
+        {
+            try
+            {
+                return new Uri(dsn);
+            }
+            catch (Exception exception)
+            {
+                throw new ArgumentException("Invalid DSN", "dsn", exception);
+            }
+        }
 
 
         /// <summary>

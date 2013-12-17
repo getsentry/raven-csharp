@@ -62,6 +62,9 @@ namespace SharpRaven
         /// <param name="dsn">The Data Source Name in Sentry.</param>
         public RavenClient(Dsn dsn)
         {
+            if (dsn == null)
+                throw new ArgumentNullException("dsn");
+
             CurrentDsn = dsn;
             Compression = true;
             Logger = "root";
