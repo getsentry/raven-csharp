@@ -40,6 +40,14 @@ namespace SharpRaven.UnitTests.Data
     public class JsonPacketTests
     {
         [Test]
+        public void Constructor_NullException_ThrowsArgumentNullException()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(String.Empty, null));
+            Assert.That(exception.ParamName, Is.EqualTo("exception"));
+        }
+
+
+        [Test]
         public void Constructor_NullProject_ThrowsArgumentNullException()
         {
             var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(null));
