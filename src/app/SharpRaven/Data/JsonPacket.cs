@@ -46,6 +46,46 @@ namespace SharpRaven.Data
         /// Initializes a new instance of the <see cref="JsonPacket"/> class.
         /// </summary>
         /// <param name="project">The project.</param>
+        /// <param name="e">The decimal.</param>
+        public JsonPacket(string project, Exception e)
+            : this(project)
+        {
+            Message = e.Message;
+
+            if (e.TargetSite != null)
+            {
+// ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
+                Culprit = String.Format("{0} in {1}",
+                                        ((e.TargetSite.ReflectedType == null)
+                                             ? "<dynamic type>"
+                                             : e.TargetSite.ReflectedType.FullName),
+                                        e.TargetSite.Name);
+// ReSharper restore ConditionIsAlwaysTrueOrFalse
+            }
+
+            Project = project;
+            ServerName = Environment.MachineName;
+            Level = ErrorLevel.Error;
+
+            Exceptions = new List<SentryException>();
+
+            for (Exception currentException = e;
+                 currentException != null;
+                 currentException = currentException.InnerException)
+            {
+                SentryException sentryException = new SentryException(currentException);
+                sentryException.Module = currentException.Source;
+                sentryException.Type = currentException.GetType().Name;
+                sentryException.Value = currentException.Message;
+                Exceptions.Add(sentryException);
+            }
+        }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonPacket"/> class.
+        /// </summary>
+        /// <param name="project">The project.</param>
         public JsonPacket(string project)
         {
             // Get assemblies.
@@ -78,45 +118,6 @@ namespace SharpRaven.Data
                 User = Request.GetUser();
 
             Project = project;
-        }
-
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonPacket"/> class.
-        /// </summary>
-        /// <param name="project">The project.</param>
-        /// <param name="e">The decimal.</param>
-        public JsonPacket(string project, Exception e)
-        {
-            Message = e.Message;
-
-            if (e.TargetSite != null)
-            {
-// ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
-                Culprit = String.Format("{0} in {1}",
-                                        ((e.TargetSite.ReflectedType == null)
-                                             ? "<dynamic type>"
-                                             : e.TargetSite.ReflectedType.FullName),
-                                        e.TargetSite.Name);
-// ReSharper restore ConditionIsAlwaysTrueOrFalse
-            }
-
-            Project = project;
-            ServerName = Environment.MachineName;
-            Level = ErrorLevel.Error;
-
-            Exceptions = new List<SentryException>();
-
-            for (Exception currentException = e;
-                 currentException != null;
-                 currentException = currentException.InnerException)
-            {
-                SentryException sentryException = new SentryException(currentException);
-                sentryException.Module = currentException.Source;
-                sentryException.Type = currentException.GetType().Name;
-                sentryException.Value = currentException.Message;
-                Exceptions.Add(sentryException);
-            }
         }
 
 
