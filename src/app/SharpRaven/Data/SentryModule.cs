@@ -33,7 +33,7 @@ namespace SharpRaven.Data
     /// <summary>
     /// A module or library that might be in use and thus could relevant for debugging purposes.
     /// </summary>
-    public class Module
+    public class SentryModule
     {
         /// <summary>
         /// Gets or sets the name of the module (or library).

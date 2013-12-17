@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 using Newtonsoft.Json;
 
@@ -105,10 +106,10 @@ namespace SharpRaven.Data
         private JsonPacket()
         {
             // Get assemblies.
-            Modules = new List<Module>();
-            foreach (System.Reflection.Module m in SystemUtil.GetModules())
+            Modules = new List<SentryModule>();
+            foreach (Module m in SystemUtil.GetModules())
             {
-                Modules.Add(new Module
+                Modules.Add(new SentryModule
                 {
                     Name = m.ScopeName,
                     Version = m.ModuleVersionId.ToString()
@@ -228,7 +229,7 @@ namespace SharpRaven.Data
         /// The modules.
         /// </value>
         [JsonProperty(PropertyName = "modules", NullValueHandling = NullValueHandling.Ignore)]
-        public List<Module> Modules { get; set; }
+        public List<SentryModule> Modules { get; set; }
 
         /// <summary>
         /// Gets or sets the exceptions.
