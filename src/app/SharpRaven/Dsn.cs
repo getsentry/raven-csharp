@@ -47,7 +47,6 @@ namespace SharpRaven
                 throw new ArgumentNullException("dsn");
 
             var uri = GetUri(dsn);
-            bool useSSl = dsn.StartsWith("https", StringComparison.InvariantCultureIgnoreCase);
 
             // Set all info
             PrivateKey = GetPrivateKey(uri);
@@ -56,12 +55,14 @@ namespace SharpRaven
             ProjectID = GetProjectID(uri);
             Path = GetPath(uri);
 
-            SentryUri = String.Format(@"{0}://{1}:{2}{3}/api/{4}/store/",
-                                      useSSl ? "https" : "http",
+            string sentryUri = String.Format(@"{0}://{1}:{2}{3}/api/{4}/store/",
+                                      uri.Scheme,
                                       uri.DnsSafeHost,
                                       Port,
                                       Path,
                                       ProjectID);
+
+            SentryUri = new Uri(sentryUri);
         }
 
 
@@ -73,7 +74,7 @@ namespace SharpRaven
         /// <summary>
         /// Sentry Uri for sending reports.
         /// </summary>
-        public string SentryUri { get; set; }
+        public Uri SentryUri { get; set; }
 
         /// <summary>
         /// Project public key.
