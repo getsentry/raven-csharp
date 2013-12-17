@@ -105,6 +105,16 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        public void Constructor_ProjectAndException_ServerNameEqualsMachineName()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project, new Exception("Error"));
+
+            Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
+        }
+
+
+        [Test]
         public void Constructor_Project_EventIDIsNotNull()
         {
             var project = Guid.NewGuid().ToString();
@@ -131,6 +141,16 @@ namespace SharpRaven.UnitTests.Data
             var json = new JsonPacket(project);
 
             Assert.That(json.Project, Is.EqualTo(project));
+        }
+
+
+        [Test]
+        public void Constructor_Project_ServerNameEqualsMachineName()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project);
+
+            Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
         }
     }
 }
