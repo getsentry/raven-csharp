@@ -28,6 +28,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -79,7 +80,9 @@ namespace SharpRaven.Logging
         /// </returns>
         public string Scrub(string input)
         {
-            return this.filters.Aggregate(input, (current, f) => f.Filter(current));
+            return !String.IsNullOrWhiteSpace(input)
+                       ? this.filters.Aggregate(input, (current, f) => f.Filter(current))
+                       : input;
         }
     }
 }
