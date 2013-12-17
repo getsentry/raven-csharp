@@ -37,6 +37,15 @@ namespace SharpRaven
     /// </summary>
     public class Dsn
     {
+        private readonly string path;
+        private readonly int port;
+        private readonly string privateKey;
+        private readonly string projectID;
+        private readonly string publicKey;
+        private readonly Uri sentryUri;
+        private readonly Uri uri;
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Dsn"/> class.
         /// </summary>
@@ -46,60 +55,92 @@ namespace SharpRaven
             if (String.IsNullOrWhiteSpace(dsn))
                 throw new ArgumentNullException("dsn");
 
-            var uri = GetUri(dsn);
+            this.uri = GetUri(dsn);
 
             // Set all info
-            PrivateKey = GetPrivateKey(uri);
-            PublicKey = GetPublicKey(uri);
-            Port = GetPort(uri);
-            ProjectID = GetProjectID(uri);
-            Path = GetPath(uri);
+            this.privateKey = GetPrivateKey(this.uri);
+            this.publicKey = GetPublicKey(this.uri);
+            this.port = this.uri.Port;
+            this.projectID = GetProjectID(this.uri);
+            this.path = GetPath(this.uri);
 
-            string sentryUri = String.Format(@"{0}://{1}:{2}{3}/api/{4}/store/",
-                                      uri.Scheme,
-                                      uri.DnsSafeHost,
-                                      Port,
-                                      Path,
-                                      ProjectID);
-
-            SentryUri = new Uri(sentryUri);
+            string sentryUriString = String.Format("{0}://{1}:{2}{3}/api/{4}/store/",
+                                                   this.uri.Scheme,
+                                                   this.uri.DnsSafeHost,
+                                                   Port,
+                                                   Path,
+                                                   ProjectID);
+            this.sentryUri = new Uri(sentryUriString);
         }
 
 
         /// <summary>
         /// Absolute Dsn Uri
         /// </summary>
-        public Uri Uri { get; set; }
+        public Uri Uri
+        {
+            get { return this.uri; }
+        }
 
         /// <summary>
         /// Sentry Uri for sending reports.
         /// </summary>
-        public Uri SentryUri { get; set; }
+        public Uri SentryUri
+        {
+            get { return this.sentryUri; }
+        }
 
         /// <summary>
         /// Project public key.
         /// </summary>
-        public string PublicKey { get; set; }
+        public string PublicKey
+        {
+            get { return this.publicKey; }
+        }
 
         /// <summary>
         /// Project private key.
         /// </summary>
-        public string PrivateKey { get; set; }
+        public string PrivateKey
+        {
+            get { return this.privateKey; }
+        }
 
         /// <summary>
         /// Project identification.
         /// </summary>
-        public string ProjectID { get; set; }
+        public string ProjectID
+        {
+            get { return this.projectID; }
+        }
 
         /// <summary>
         /// The sentry server port.
         /// </summary>
-        public int Port { get; set; }
+        public int Port
+        {
+            get { return this.port; }
+        }
 
         /// <summary>
         /// Sentry path.
         /// </summary>
-        public string Path { get; set; }
+        public string Path
+        {
+            get { return this.path; }
+        }
+
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            return this.uri.ToString();
+        }
 
 
         private static Uri GetUri(string dsn)
@@ -116,22 +157,11 @@ namespace SharpRaven
 
 
         /// <summary>
-        /// Get port from Uri
-        /// </summary>
-        /// <param name="uri"></param>
-        /// <returns></returns>
-        public int GetPort(Uri uri)
-        {
-            return uri.Port;
-        }
-
-
-        /// <summary>
         /// Get a path from a Dsn uri
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public string GetPath(Uri uri)
+        private static string GetPath(Uri uri)
         {
             int lastSlash = uri.AbsolutePath.LastIndexOf("/", StringComparison.Ordinal);
             return uri.AbsolutePath.Substring(0, lastSlash);
@@ -143,7 +173,7 @@ namespace SharpRaven
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public string GetPublicKey(Uri uri)
+        private static string GetPublicKey(Uri uri)
         {
             return uri.UserInfo.Split(':')[0];
         }
@@ -154,7 +184,7 @@ namespace SharpRaven
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public string GetPrivateKey(Uri uri)
+        private static string GetPrivateKey(Uri uri)
         {
             return uri.UserInfo.Split(':')[1];
         }
@@ -165,7 +195,7 @@ namespace SharpRaven
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public string GetProjectID(Uri uri)
+        private static string GetProjectID(Uri uri)
         {
             int lastSlash = uri.AbsoluteUri.LastIndexOf("/", StringComparison.Ordinal);
             return uri.AbsoluteUri.Substring(lastSlash + 1);
