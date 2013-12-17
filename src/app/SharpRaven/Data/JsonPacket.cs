@@ -30,7 +30,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 
 using Newtonsoft.Json;
 
@@ -106,15 +106,7 @@ namespace SharpRaven.Data
         private JsonPacket()
         {
             // Get assemblies.
-            Modules = new List<SentryModule>();
-            foreach (Module m in SystemUtil.GetModules())
-            {
-                Modules.Add(new SentryModule
-                {
-                    Name = m.ScopeName,
-                    Version = m.ModuleVersionId.ToString()
-                });
-            }
+            Modules = SystemUtil.GetModules().ToList();
 
             // The current hostname
             ServerName = Environment.MachineName;
