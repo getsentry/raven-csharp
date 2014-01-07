@@ -58,8 +58,8 @@ namespace SharpRaven.UnitTests.Integration
             string pathToNuGet = MakeAbsolute(@".nuget\NuGet.exe");
             string pathToNuSpec = MakeAbsolute(@"src\app\SharpRaven\SharpRaven.nuspec");
 
-            Console.WriteLine("pathToNuGet: " + pathToNuGet);
-            Console.WriteLine("pathToNuSpec: " + pathToNuSpec);
+            //Console.WriteLine("pathToNuGet: " + pathToNuGet);
+            //Console.WriteLine("pathToNuSpec: " + pathToNuSpec);
 
             ProcessStartInfo start = new ProcessStartInfo(pathToNuGet)
             {
@@ -74,7 +74,7 @@ namespace SharpRaven.UnitTests.Integration
                 WindowStyle = ProcessWindowStyle.Hidden,
             };
 
-            Console.WriteLine("Arguments: " + start.Arguments);
+            //Console.WriteLine("Arguments: " + start.Arguments);
 
             using (var process = new Process())
             {
