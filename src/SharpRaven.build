@@ -9,7 +9,7 @@
     <Target Name="BuildAll" DependsOnTargets="Compile" />
 
     <Target Name="Compile">
-        <Message Text="=== COMPILING $(Configuration) configuration ===" />
+        <Message Text="=== COMPILING $(Configuration) configuration at $(SolutionFile) ===" />
         <MSBuild Projects="$(SolutionFile)"
                  Properties="Configuration=$(Configuration)" />
     </Target>
