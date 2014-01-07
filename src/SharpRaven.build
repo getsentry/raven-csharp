@@ -12,5 +12,9 @@
         <Message Text="=== COMPILING $(Configuration) configuration at $(SolutionFile) ===" />
         <MSBuild Projects="$(SolutionFile)"
                  Properties="Configuration=$(Configuration)" />
+
+        <Message Text="========= COMPILING Release 4.0 configuration at $(SolutionFile) =========" />
+        <MSBuild Projects="$(SolutionFile)"
+                 Properties="Configuration=Release 4.0" />
     </Target>
 </Project>
