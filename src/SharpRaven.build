@@ -3,7 +3,7 @@
     <PropertyGroup>
         <WorkingFolder>$(MSBuildProjectDirectory)</WorkingFolder>
         <Configuration>Release 4.5</Configuration>
-        <SolutionFileName>SharpRaven.sln</SolutionFileName>
+        <SolutionFile>SharpRaven.sln</SolutionFile>
     </PropertyGroup>
 
     <Target Name="BuildAll" DependsOnTargets="Compile" />
