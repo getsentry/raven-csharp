@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <WorkingFolder>$(MSBuildProjectDirectory)</WorkingFolder>
+        <Configuration>Release 4.5</Configuration>
+        <SolutionFileName>SharpRaven.sln</SolutionFileName>
+    </PropertyGroup>
+
+    <Target Name="BuildAll" DependsOnTargets="Compile" />
+
+    <Target Name="Compile">
+        <Message Text="=== COMPILING $(Configuration) configuration ===" />
+        <MSBuild Projects="$(SolutionFile)"
+                 Properties="Configuration=$(Configuration)" />
+    </Target>
+</Project>
