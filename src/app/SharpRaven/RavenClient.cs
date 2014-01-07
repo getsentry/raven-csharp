@@ -33,6 +33,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 
+#if !(net40)
+  using System.Net.Http;
+  using System.Net.Http.Headers;
+  using System.Threading.Tasks;
+#endif
+
 using Newtonsoft.Json;
 
 using SharpRaven.Data;
@@ -240,6 +246,134 @@ namespace SharpRaven
                 return null;
             }
         }
+
+#if !(net40)
+
+        #region async Task<string> CaptureMessageAsync(string message, ErrorLevel level = ErrorLevel.Info, Dictionary<string, string> tags = null, object extra = null)
+        /// <summary>
+        /// Captures the message asynchronously.
+        /// </summary>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <param name="extra">The extra metadata to send with the captured exception.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured message, or <c>null</c> if it fails.
+        /// </returns>
+        public async Task<string> CaptureMessageAsync(string message, ErrorLevel level = ErrorLevel.Info, Dictionary<string, string> tags = null, object extra = null)
+        {
+            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID)
+            {
+                Message = message,
+                Level = level,
+                Tags = tags,
+                Extra = extra
+            };
+
+
+            return await SendAsync(packet, CurrentDsn);
+        }
+        #endregion
+
+        #region async Task<string> CaptureExceptionAsync(Exception e, IDictionary<string, string> tags = null, object extra = null)
+        /// <summary>
+        /// Captures the exception.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception" /> to capture.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <param name="extra">The extra metadata to send with the captured exception.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <see cref="Exception"/>, or <c>null</c> if it fails.
+        /// </returns>
+        public async Task<string> CaptureExceptionAsync(Exception e, IDictionary<string, string> tags = null, object extra = null)
+        {
+            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, e)
+            {
+                Level = ErrorLevel.Error,
+                Tags = tags,
+                Extra = extra
+            };
+
+            return await SendAsync(packet, CurrentDsn);
+        }
+        #endregion
+
+        #region async Task<string> SendAsync(JsonPacket packet, Dsn dsn)
+        /// <summary>
+        /// Sends the specified packet to Sentry asynchronously.
+        /// </summary>
+        /// <param name="packet">The packet to send.</param>
+        /// <param name="dsn">The Data Source Name in Sentry.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
+        /// </returns>
+        private async Task<string> SendAsync(JsonPacket packet, Dsn dsn)
+        {
+            string data, responseContent;
+            HttpClient httpClient;
+            HttpContent httpContent;
+            HttpResponseMessage httpResponse;
+            StringContent stringContent;
+
+            packet.Logger = Logger;
+
+            try
+            {
+                data = packet.ToString();
+                if (LogScrubber != null)
+                {
+                    data = LogScrubber.Scrub(data);
+                }
+
+                using (httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
+                    httpClient.DefaultRequestHeaders.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
+                    httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("RavenSharp", "1.0"));
+
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
+
+                    using (stringContent = new StringContent(data))
+                    {
+                        stringContent.Headers.ContentType.CharSet = "utf-8";
+                        stringContent.Headers.ContentType.MediaType = "application/json";
+
+                        using (httpResponse = await httpClient.PostAsync(dsn.SentryUri, stringContent))
+                        using (httpContent = httpResponse.Content)
+                        {
+                            responseContent = await httpContent.ReadAsStringAsync();
+                            if (httpResponse.IsSuccessStatusCode)
+                            {
+                                var response = JsonConvert.DeserializeObject<dynamic>(responseContent);
+
+                                return response.id;
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("[MESSAGE BODY] ");
+                                Console.ForegroundColor = ConsoleColor.Gray;
+                                Console.WriteLine(responseContent);
+
+                                return null;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("[ERROR] ");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(e);
+
+                return null;
+            }
+        }
+        #endregion
+
+#endif
 
         #region Deprecated methods
 
