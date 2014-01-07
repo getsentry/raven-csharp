@@ -48,9 +48,6 @@ namespace SharpRaven.UnitTests.Integration
         {
             string absolutePath = Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\..\", relativePath);
 
-            //throw new ApplicationException("absolutePath: " + absolutePath);
-            Console.WriteLine("absolutePath: " + absolutePath);
-
             return new DirectoryInfo(absolutePath).FullName;
         }
 
@@ -60,6 +57,9 @@ namespace SharpRaven.UnitTests.Integration
         {
             string pathToNuGet = MakeAbsolute(@".nuget\NuGet.exe");
             string pathToNuSpec = MakeAbsolute(@"src\app\SharpRaven\SharpRaven.nuspec");
+
+            Console.WriteLine("pathToNuGet: " + pathToNuGet);
+            Console.WriteLine("pathToNuSpec: " + pathToNuSpec);
 
             ProcessStartInfo start = new ProcessStartInfo(pathToNuGet)
             {
