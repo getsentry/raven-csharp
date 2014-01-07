@@ -58,9 +58,6 @@ namespace SharpRaven.UnitTests.Integration
             string pathToNuGet = MakeAbsolute(@".nuget\NuGet.exe");
             string pathToNuSpec = MakeAbsolute(@"src\app\SharpRaven\SharpRaven.nuspec");
 
-            //Console.WriteLine("pathToNuGet: " + pathToNuGet);
-            //Console.WriteLine("pathToNuSpec: " + pathToNuSpec);
-
             ProcessStartInfo start = new ProcessStartInfo(pathToNuGet)
             {
                 Arguments = String.Format(
@@ -74,8 +71,6 @@ namespace SharpRaven.UnitTests.Integration
                 WindowStyle = ProcessWindowStyle.Hidden,
             };
 
-            //Console.WriteLine("Arguments: " + start.Arguments);
-
             using (var process = new Process())
             {
                 process.OutputDataReceived += (s, e) => Console.WriteLine(e.Data);
@@ -84,7 +79,7 @@ namespace SharpRaven.UnitTests.Integration
                 Assert.That(process.Start(), Is.True, "The NuGet process couldn't start.");
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                process.WaitForExit(2000);
+                process.WaitForExit(3000);
                 Assert.That(process.ExitCode, Is.EqualTo(0), "The NuGet process exited with an unexpected code.");
             }
         }
