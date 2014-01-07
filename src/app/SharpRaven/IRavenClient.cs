@@ -67,10 +67,11 @@ namespace SharpRaven
         /// Captures the exception.
         /// </summary>
         /// <param name="e">The <see cref="Exception"/> to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns></returns>
-        string CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null);
+        string CaptureException(Exception e, ErrorLevel level = ErrorLevel.Error, IDictionary<string, string> tags = null, object extra = null);
 
 
         /// <summary>

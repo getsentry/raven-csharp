@@ -104,16 +104,17 @@ namespace SharpRaven
         /// Captures the exception.
         /// </summary>
         /// <param name="e">The <see cref="Exception" /> to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns>
         /// The <see cref="JsonPacket.EventID"/> of the successfully captured <see cref="Exception"/>, or <c>null</c> if it fails.
         /// </returns>
-        public string CaptureException(Exception e, IDictionary<string, string> tags = null, object extra = null)
+        public string CaptureException(Exception e, ErrorLevel level = ErrorLevel.Error, IDictionary<string, string> tags = null, object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, e)
             {
-                Level = ErrorLevel.Error,
+                Level = level,
                 Tags = tags,
                 Extra = extra
             };
@@ -271,7 +272,7 @@ namespace SharpRaven
         [Obsolete("The more common CaptureException method should be used")]
         public string CaptureEvent(Exception e, Dictionary<string, string> tags)
         {
-            return CaptureException(e, tags);
+            return CaptureException(e, tags: tags);
         }
 
         #endregion
