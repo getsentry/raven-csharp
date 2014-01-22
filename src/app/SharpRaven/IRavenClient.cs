@@ -68,9 +68,9 @@ namespace SharpRaven
         /// </summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
         /// <param name="message">The optional messge to capture instead of the default <see cref="Exception.Message" />.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />.</param>
-        /// <param name="tags">The tags to annotate the captured exception with.</param>
-        /// <param name="extra">The extra metadata to send with the captured exception.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error"/>.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
         /// </returns>
@@ -85,11 +85,11 @@ namespace SharpRaven
         /// Captures the message.
         /// </summary>
         /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel"/> of the captured message.</param>
-        /// <param name="tags">The tags to annotate the captured exception with.</param>
-        /// <param name="extra">The extra metadata to send with the captured exception.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message"/>. Default <see cref="ErrorLevel.Info"/>.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="message"/> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="message"/>.</param>
         /// <returns>
-        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="exception"/>, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
         /// </returns>
         string CaptureMessage(string message,
                               ErrorLevel level = ErrorLevel.Info,
