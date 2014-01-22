@@ -75,6 +75,7 @@ namespace SharpRaven
         /// </returns>
         string CaptureException(Exception exception,
                                 string message = null,
+                                ErrorLevel level = ErrorLevel.Error,
                                 IDictionary<string, string> tags = null,
                                 object extra = null);
 

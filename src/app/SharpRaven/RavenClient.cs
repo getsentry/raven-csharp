@@ -132,6 +132,7 @@ namespace SharpRaven
         /// </summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
         /// <param name="message">The optional messge to capture instead of the default <see cref="Exception.Message" />.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured message.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
@@ -139,13 +140,14 @@ namespace SharpRaven
         /// </returns>
         public string CaptureException(Exception exception,
                                        string message = null,
+                                       ErrorLevel level = ErrorLevel.Error,
                                        IDictionary<string, string> tags = null,
                                        object extra = null)
         {
             JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, exception)
             {
                 Message = message ?? exception.Message,
-                Level = ErrorLevel.Error,
+                Level = level,
                 Tags = tags,
                 Extra = extra
             };
