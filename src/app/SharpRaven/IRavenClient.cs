@@ -67,11 +67,12 @@ namespace SharpRaven
         /// Captures the <see cref="Exception" />.
         /// </summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
-        /// <param name="message">The optional messge to capture instead of the default <see cref="Exception.Message"/>.</param>
+        /// <param name="message">The optional messge to capture instead of the default <see cref="Exception.Message" />.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />.</param>
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <param name="extra">The extra metadata to send with the captured exception.</param>
         /// <returns>
-        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="exception"/>, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
         /// </returns>
         string CaptureException(Exception exception,
                                 string message = null,
