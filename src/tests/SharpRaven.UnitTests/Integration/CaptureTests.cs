@@ -128,12 +128,12 @@ namespace SharpRaven.UnitTests.Integration
             {
                 Console.WriteLine("Captured: " + e.Message);
                 Dictionary<string, string> tags = new Dictionary<string, string>();
-                Dictionary<string, string> extras = new Dictionary<string, string>();
+                Dictionary<string, string> extra = new Dictionary<string, string>();
 
                 tags["TAG"] = "TAG1";
-                extras["extra"] = "EXTRA1";
+                extra["extra"] = "EXTRA1";
 
-                var id = this.ravenClient.CaptureException(e, tags, extras);
+                var id = this.ravenClient.CaptureException(e, tags: tags, extra: extra);
 
                 Console.WriteLine("Sent packet: " + id);
 
