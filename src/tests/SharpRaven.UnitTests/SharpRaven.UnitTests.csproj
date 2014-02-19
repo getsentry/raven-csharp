@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\JsonPacketTests.cs" />
+    <Compile Include="Data\SentryMessageTests.cs" />
     <Compile Include="Data\SentryRequestTests.cs" />
     <Compile Include="Data\SentryUserTests.cs" />
     <Compile Include="DsnTests.cs" />

@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
+    <Compile Include="Data\SentryMessage.cs" />
     <Compile Include="Data\SentryModule.cs" />
     <Compile Include="Data\SentryException.cs" />
     <Compile Include="Data\SentryRequest.cs" />
