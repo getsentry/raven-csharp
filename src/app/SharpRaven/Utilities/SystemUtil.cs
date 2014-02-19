@@ -28,9 +28,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 using SharpRaven.Data;
 
@@ -49,14 +49,12 @@ namespace SharpRaven.Utilities
         /// </returns>
         public static IEnumerable<SentryModule> GetModules()
         {
-            // Get primary module.
-            Assembly assembly = Assembly.GetExecutingAssembly();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            // Return all modules
-            return assembly.GetModules().Select(m => new SentryModule
+            return assemblies.Select(a => a.GetName()).OrderBy(a => a.Name).Select(a => new SentryModule
             {
-                Name = m.ScopeName,
-                Version = m.ModuleVersionId.ToString()
+                Name = a.Name,
+                Version = a.Version.ToString()
             });
         }
     }
