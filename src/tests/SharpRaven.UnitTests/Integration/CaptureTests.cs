@@ -107,18 +107,7 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
-        public void CaptureMessage_ReturnsValidID()
-        {
-            var id = this.ravenClient.CaptureMessage("Test");
-            Console.WriteLine("Sent packet: " + id);
-
-            Assert.That(id, Is.Not.Null.Or.Empty);
-            Assert.That(Guid.Parse(id), Is.Not.Null);
-        }
-
-
-        [Test]
-        public void CaptureWithStacktrace_ReturnsValidID()
+        public void CaptureException_WithStacktrace_ReturnsValidID()
         {
             try
             {
@@ -144,9 +133,20 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
-        public void CaptureWithoutStacktrace_ReturnsValidID()
+        public void CaptureException_WithoutStacktrace_ReturnsValidID()
         {
             var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
+            Console.WriteLine("Sent packet: " + id);
+
+            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
+        }
+
+
+        [Test]
+        public void CaptureMessage_ReturnsValidID()
+        {
+            var id = this.ravenClient.CaptureMessage("Test");
             Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null.Or.Empty);
