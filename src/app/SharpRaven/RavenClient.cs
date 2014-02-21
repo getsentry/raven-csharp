@@ -38,6 +38,7 @@ using Newtonsoft.Json;
 using SharpRaven.Data;
 using SharpRaven.Logging;
 using SharpRaven.Utilities;
+using System.Threading.Tasks;
 
 namespace SharpRaven
 {
@@ -128,6 +129,34 @@ namespace SharpRaven
             return Send(packet, CurrentDsn);
         }
 
+		/// <summary>
+		/// Captures the <see cref="Exception" />.
+		/// </summary>
+		/// <param name="exception">The <see cref="Exception" /> to capture.</param>
+		/// <param name="message">The optional messge to capture. Default: <see cref="Exception.Message" />.</param>
+		/// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error"/>.</param>
+		/// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
+		/// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
+		/// <returns>
+		/// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
+		/// </returns>
+		public async Task<string> CaptureExceptionAsync(Exception exception,
+									   string message = null,
+									   ErrorLevel level = ErrorLevel.Error,
+									   IDictionary<string, string> tags = null,
+									   object extra = null)
+		{
+			JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, exception)
+			{
+				Message = message ?? exception.Message,
+				Level = level,
+				Tags = tags,
+				Extra = extra
+			};
+
+			return await SendAsync(packet, CurrentDsn);
+		}
+
 
         /// <summary>
         /// Captures the message.
@@ -154,6 +183,33 @@ namespace SharpRaven
 
             return Send(packet, CurrentDsn);
         }
+
+
+		/// <summary>
+		/// Captures the message.
+		/// </summary>
+		/// <param name="message">The message to capture.</param>
+		/// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message"/>. Default <see cref="ErrorLevel.Info"/>.</param>
+		/// <param name="tags">The tags to annotate the captured <paramref name="message"/> with.</param>
+		/// <param name="extra">The extra metadata to send with the captured <paramref name="message"/>.</param>
+		/// <returns>
+		/// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
+		/// </returns>
+		public async Task<string> CaptureMessageAsync(string message,
+									 ErrorLevel level = ErrorLevel.Info,
+									 Dictionary<string, string> tags = null,
+									 object extra = null)
+		{
+			JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID)
+			{
+				Message = message,
+				Level = level,
+				Tags = tags,
+				Extra = extra
+			};
+
+			return await SendAsync(packet, CurrentDsn);
+		}
 
 
         /// <summary>
@@ -206,7 +262,7 @@ namespace SharpRaven
                         {
                             string content = sr.ReadToEnd();
                             var response = JsonConvert.DeserializeObject<dynamic>(content);
-                            return response.id;
+							return (string)response.id;
                         }
                     }
                 }
@@ -248,10 +304,104 @@ namespace SharpRaven
             }
         }
 
+
+
+		/// <summary>
+		/// Sends the specified packet to Sentry.
+		/// </summary>
+		/// <param name="packet">The packet to send.</param>
+		/// <param name="dsn">The Data Source Name in Sentry.</param>
+		/// <returns>
+		/// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
+		/// </returns>
+		private async Task<string> SendAsync(JsonPacket packet, Dsn dsn)
+		{
+			packet.Logger = Logger;
+
+			try
+			{
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
+				request.Method = "POST";
+				request.Accept = "application/json";
+				request.ContentType = "application/json; charset=utf-8";
+				request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
+				ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
+				request.UserAgent = PacketBuilder.UserAgent;
+
+				// Write the messagebody.
+				using (Stream s = await request.GetRequestStreamAsync())
+				{
+					using (StreamWriter sw = new StreamWriter(s))
+					{
+						// Compress and encode.
+						//string data = Utilities.GzipUtil.CompressEncode(packet.Serialize());
+						//Console.WriteLine("Writing: " + data);
+						// Write to the JSON script when ready.
+						string data = packet.ToString();
+						if (LogScrubber != null)
+							data = LogScrubber.Scrub(data);
+
+						await sw.WriteAsync(data);
+					}
+				}
+
+				using (HttpWebResponse wr = (HttpWebResponse)(await request.GetResponseAsync()))
+				{
+					using (Stream responseStream = wr.GetResponseStream())
+					{
+						if (responseStream == null)
+							return null;
+
+						using (StreamReader sr = new StreamReader(responseStream))
+						{
+							string content = await sr.ReadToEndAsync();
+							var response = JsonConvert.DeserializeObject<dynamic>(content);
+							return (string)response.id;
+						}
+					}
+				}
+			}
+			catch (WebException e)
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.Write("[ERROR] ");
+				Console.ForegroundColor = ConsoleColor.Gray;
+				Console.WriteLine(e);
+
+				if (e.Response != null)
+				{
+					string messageBody;
+					using (Stream stream = e.Response.GetResponseStream())
+					{
+						if (stream == null)
+							return null;
+
+						using (StreamReader sw = new StreamReader(stream))
+						{
+							messageBody = sw.ReadToEnd();
+						}
+					}
+
+					Console.WriteLine("[MESSAGE BODY] " + messageBody);
+				}
+
+				return null;
+			}
+			catch (Exception e)
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.Write("[ERROR] ");
+				Console.ForegroundColor = ConsoleColor.Gray;
+				Console.WriteLine(e);
+
+				return null;
+			}
+		}
+
         #region Deprecated methods
 
         /*
-         *  These methods have been deprectaed in favour of the ones
+         *  These methods have been deprecated in favour of the ones
          *  that have the same names as the other sentry clients, this
          *  is purely for the sake of consistency
          */
