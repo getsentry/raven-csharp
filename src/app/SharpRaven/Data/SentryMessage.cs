@@ -102,7 +102,16 @@ namespace SharpRaven.Data
         public override string ToString()
         {
             if (this.message != null && this.parameters != null && this.parameters.Any())
-                return String.Format(this.message, this.parameters);
+            {
+                try
+                {
+                    return String.Format(this.message, this.parameters);
+                }
+                catch
+                {
+                    return this.message;
+                }
+            }
 
             return this.message ?? String.Empty;
         }
