@@ -207,6 +207,13 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "message", NullValueHandling = NullValueHandling.Ignore)]
         public string Message { get; set; }
 
+
+        /// <summary>
+        /// Optional Message with arguments.
+        /// </summary>
+        [JsonProperty(PropertyName = "sentry.interfaces.Message", NullValueHandling = NullValueHandling.Ignore)]
+        public SentryMessage MessageObject { get; set; }
+
         /// <summary>
         /// Identifies the host client from which the event was recorded.
         /// </summary>
@@ -260,8 +267,19 @@ namespace SharpRaven.Data
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
+        }
 
-            //return @"{""project"": ""SharpRaven"",""event_id"": ""fc6d8c0c43fc4630ad850ee518f1b9d0"",""culprit"": ""my.module.function_name"",""timestamp"": ""2012-11-11T17:41:36"",""message"": ""SyntaxError: Wattttt!"",""sentry.interfaces.Exception"": {""type"": ""SyntaxError"",""value"": ""Wattttt!"",""module"": ""__builtins__""}""}";
+
+        /// <summary>
+        /// Converts the <see cref="JsonPacket" /> into a JSON string.
+        /// </summary>
+        /// <param name="formatting">The formatting.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket" /> as a JSON string.
+        /// </returns>
+        public virtual string ToString(Formatting formatting)
+        {
+            return JsonConvert.SerializeObject(this, formatting);
         }
     }
 }
