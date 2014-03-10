@@ -75,27 +75,19 @@ namespace SharpRaven
 
 
         /// <summary>
-        /// Absolute Dsn Uri
+        /// Sentry path.
         /// </summary>
-        public Uri Uri
+        public string Path
         {
-            get { return this.uri; }
+            get { return this.path; }
         }
 
         /// <summary>
-        /// Sentry Uri for sending reports.
+        /// The sentry server port.
         /// </summary>
-        public Uri SentryUri
+        public int Port
         {
-            get { return this.sentryUri; }
-        }
-
-        /// <summary>
-        /// Project public key.
-        /// </summary>
-        public string PublicKey
-        {
-            get { return this.publicKey; }
+            get { return this.port; }
         }
 
         /// <summary>
@@ -115,19 +107,27 @@ namespace SharpRaven
         }
 
         /// <summary>
-        /// The sentry server port.
+        /// Project public key.
         /// </summary>
-        public int Port
+        public string PublicKey
         {
-            get { return this.port; }
+            get { return this.publicKey; }
         }
 
         /// <summary>
-        /// Sentry path.
+        /// Sentry Uri for sending reports.
         /// </summary>
-        public string Path
+        public Uri SentryUri
         {
-            get { return this.path; }
+            get { return this.sentryUri; }
+        }
+
+        /// <summary>
+        /// Absolute Dsn Uri
+        /// </summary>
+        public Uri Uri
+        {
+            get { return this.uri; }
         }
 
 
@@ -143,19 +143,6 @@ namespace SharpRaven
         }
 
 
-        private static Uri GetUri(string dsn)
-        {
-            try
-            {
-                return new Uri(dsn);
-            }
-            catch (Exception exception)
-            {
-                throw new ArgumentException("Invalid DSN", "dsn", exception);
-            }
-        }
-
-
         /// <summary>
         /// Get a path from a Dsn uri
         /// </summary>
@@ -165,17 +152,6 @@ namespace SharpRaven
         {
             int lastSlash = uri.AbsolutePath.LastIndexOf("/", StringComparison.Ordinal);
             return uri.AbsolutePath.Substring(0, lastSlash);
-        }
-
-
-        /// <summary>
-        /// Get a public key from a Dsn uri.
-        /// </summary>
-        /// <param name="uri"></param>
-        /// <returns></returns>
-        private static string GetPublicKey(Uri uri)
-        {
-            return uri.UserInfo.Split(':')[0];
         }
 
 
@@ -199,6 +175,30 @@ namespace SharpRaven
         {
             int lastSlash = uri.AbsoluteUri.LastIndexOf("/", StringComparison.Ordinal);
             return uri.AbsoluteUri.Substring(lastSlash + 1);
+        }
+
+
+        /// <summary>
+        /// Get a public key from a Dsn uri.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        private static string GetPublicKey(Uri uri)
+        {
+            return uri.UserInfo.Split(':')[0];
+        }
+
+
+        private static Uri GetUri(string dsn)
+        {
+            try
+            {
+                return new Uri(dsn);
+            }
+            catch (Exception exception)
+            {
+                throw new ArgumentException("Invalid DSN", "dsn", exception);
+            }
         }
     }
 }

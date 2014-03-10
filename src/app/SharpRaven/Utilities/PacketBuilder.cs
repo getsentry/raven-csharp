@@ -81,7 +81,7 @@ namespace SharpRaven.Utilities
                                  + ", sentry_secret={4}",
                                  SentryVersion,
                                  UserAgent,
-                                 (long) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds,
+                                 (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds,
                                  dsn.PublicKey,
                                  dsn.PrivateKey);
         }

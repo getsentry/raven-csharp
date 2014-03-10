@@ -38,13 +38,6 @@ namespace SharpRaven.UnitTests
             "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
 
 
-        private static void PerformDivideByZero()
-        {
-            int i2 = 0;
-            int i = 10 / i2;
-        }
-
-
         public static Exception GetException()
         {
             try
@@ -57,6 +50,13 @@ namespace SharpRaven.UnitTests
             }
 
             return null;
+        }
+
+
+        private static void PerformDivideByZero()
+        {
+            int i2 = 0;
+            int i = 10 / i2;
         }
     }
 }

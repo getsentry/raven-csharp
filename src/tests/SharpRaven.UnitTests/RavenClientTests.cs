@@ -49,12 +49,12 @@ namespace SharpRaven.UnitTests
             IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
             ravenClient.LogScrubber = Substitute.For<IScrubber>();
             ravenClient.LogScrubber.Scrub(Arg.Any<string>())
-                       .Returns(c =>
-                       {
-                           string json = c.Arg<string>();
-                           Assert.That(json, Is.StringContaining(message));
-                           return json;
-                       });
+                .Returns(c =>
+                {
+                    string json = c.Arg<string>();
+                    Assert.That(json, Is.StringContaining(message));
+                    return json;
+                });
 
             string id = ravenClient.CaptureMessage(message);
             Guid guid = Guid.Parse(id);
@@ -68,7 +68,7 @@ namespace SharpRaven.UnitTests
         [Test]
         public void Constructor_NullDsnString_ThrowsArgumentNullException()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string) null));
+            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string)null));
             Assert.That(exception.ParamName, Is.EqualTo("dsn"));
         }
 
@@ -76,7 +76,7 @@ namespace SharpRaven.UnitTests
         [Test]
         public void Constructor_NullDsn_ThrowsArgumentNullException()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn) null));
+            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn)null));
             Assert.That(exception.ParamName, Is.EqualTo("dsn"));
         }
 

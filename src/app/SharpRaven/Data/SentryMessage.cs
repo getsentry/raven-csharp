@@ -79,7 +79,6 @@ namespace SharpRaven.Data
             get { return this.message; }
         }
 
-
         /// <summary>
         /// Gets the arguments.
         /// </summary>
@@ -116,6 +115,7 @@ namespace SharpRaven.Data
             return this.message ?? String.Empty;
         }
 
+        #region Operators
 
         /// <summary>
         /// Implicitly converts the <see cref="string"/> <paramref name="message"/> to a <see cref="SentryMessage"/> object.
@@ -145,5 +145,7 @@ namespace SharpRaven.Data
                        ? message.ToString()
                        : null;
         }
+
+        #endregion
     }
 }

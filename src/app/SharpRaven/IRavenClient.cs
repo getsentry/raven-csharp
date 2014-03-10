@@ -42,6 +42,11 @@ namespace SharpRaven
     public interface IRavenClient
     {
         /// <summary>
+        /// Enable Gzip Compression?
+        /// </summary>
+        bool Compression { get; set; }
+
+        /// <summary>
         /// The Dsn currently being used to log exceptions.
         /// </summary>
         Dsn CurrentDsn { get; }
@@ -51,11 +56,6 @@ namespace SharpRaven
         /// sensitive information from exceptions sent to sentry.
         /// </summary>
         IScrubber LogScrubber { get; set; }
-
-        /// <summary>
-        /// Enable Gzip Compression?
-        /// </summary>
-        bool Compression { get; set; }
 
         /// <summary>
         /// Logger. Default is "root"
@@ -96,6 +96,7 @@ namespace SharpRaven
                               Dictionary<string, string> tags = null,
                               object extra = null);
 
+        #region Deprecated Methods
 
         /// <summary>
         /// Captures the event.
@@ -114,5 +115,7 @@ namespace SharpRaven
         /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
         string CaptureEvent(Exception e, Dictionary<string, string> tags);
+
+        #endregion
     }
 }

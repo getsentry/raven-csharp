@@ -83,9 +83,7 @@ namespace SharpRaven.Logging.Filters
                 checksum += j;
 
                 if (((i - chars.Length) % 2) == 0)
-                {
                     checksum += deltas[j];
-                }
             }
 
             return (checksum % 10) == 0;

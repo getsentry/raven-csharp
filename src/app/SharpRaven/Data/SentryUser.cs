@@ -55,24 +55,6 @@ namespace SharpRaven.Data
 
 
         /// <summary>
-        /// Gets or sets the user's unique identifier.
-        /// </summary>
-        /// <value>
-        /// The unique identifier.
-        /// </value>
-        [JsonProperty(PropertyName = "id", NullValueHandling = NullValueHandling.Ignore)]
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the user's username.
-        /// </summary>
-        /// <value>
-        /// The user's username.
-        /// </value>
-        [JsonProperty(PropertyName = "username", NullValueHandling = NullValueHandling.Ignore)]
-        public string Username { get; set; }
-
-        /// <summary>
         /// Gets or sets the user's email address.
         /// </summary>
         /// <value>
@@ -82,6 +64,15 @@ namespace SharpRaven.Data
         public string Email { get; set; }
 
         /// <summary>
+        /// Gets or sets the user's unique identifier.
+        /// </summary>
+        /// <value>
+        /// The unique identifier.
+        /// </value>
+        [JsonProperty(PropertyName = "id", NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        /// <summary>
         /// Gets or sets the user's IP address.
         /// </summary>
         /// <value>
@@ -89,5 +80,14 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "ip_address", NullValueHandling = NullValueHandling.Ignore)]
         public string IpAddress { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user's username.
+        /// </summary>
+        /// <value>
+        /// The user's username.
+        /// </value>
+        [JsonProperty(PropertyName = "username", NullValueHandling = NullValueHandling.Ignore)]
+        public string Username { get; set; }
     }
 }

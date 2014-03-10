@@ -64,30 +64,14 @@ namespace SharpRaven.Data
         }
 
 
-        [JsonIgnore]
-        private bool HasHttpContext
-        {
-            get { return this.httpContext != null; }
-        }
-
-
         /// <summary>
-        /// Gets or sets the URL of the HTTP request.
+        /// Gets or sets the cookies.
         /// </summary>
         /// <value>
-        /// The URL of the HTTP request.
+        /// The cookies.
         /// </value>
-        [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; set; }
-
-        /// <summary>
-        /// Gets or sets the method of the HTTP request.
-        /// </summary>
-        /// <value>
-        /// The method of the HTTP request.
-        /// </value>
-        [JsonProperty(PropertyName = "method", NullValueHandling = NullValueHandling.Ignore)]
-        public string Method { get; set; }
+        [JsonProperty(PropertyName = "cookies", NullValueHandling = NullValueHandling.Ignore)]
+        public IDictionary<string, string> Cookies { get; set; }
 
         /// <summary>
         /// The data variable should only contain the request body (not the query string). It can either be a dictionary (for standard HTTP requests) or a raw request body.
@@ -99,22 +83,14 @@ namespace SharpRaven.Data
         public object Data { get; set; }
 
         /// <summary>
-        /// Gets or sets the query string.
+        /// The env variable is a compounded dictionary of HTTP headers as well as environment information passed from the webserver.
+        /// Sentry will explicitly look for REMOTE_ADDR in env for things which require an IP address.
         /// </summary>
         /// <value>
-        /// The query string.
+        /// The environment.
         /// </value>
-        [JsonProperty(PropertyName = "query_string", NullValueHandling = NullValueHandling.Ignore)]
-        public string QueryString { get; set; }
-
-        /// <summary>
-        /// Gets or sets the cookies.
-        /// </summary>
-        /// <value>
-        /// The cookies.
-        /// </value>
-        [JsonProperty(PropertyName = "cookies", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, string> Cookies { get; set; }
+        [JsonProperty(PropertyName = "env", NullValueHandling = NullValueHandling.Ignore)]
+        public IDictionary<string, string> Environment { get; set; }
 
         /// <summary>
         /// Gets or sets the headers.
@@ -126,14 +102,37 @@ namespace SharpRaven.Data
         public IDictionary<string, string> Headers { get; set; }
 
         /// <summary>
-        /// The env variable is a compounded dictionary of HTTP headers as well as environment information passed from the webserver.
-        /// Sentry will explicitly look for REMOTE_ADDR in env for things which require an IP address.
+        /// Gets or sets the method of the HTTP request.
         /// </summary>
         /// <value>
-        /// The environment.
+        /// The method of the HTTP request.
         /// </value>
-        [JsonProperty(PropertyName = "env", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, string> Environment { get; set; }
+        [JsonProperty(PropertyName = "method", NullValueHandling = NullValueHandling.Ignore)]
+        public string Method { get; set; }
+
+        /// <summary>
+        /// Gets or sets the query string.
+        /// </summary>
+        /// <value>
+        /// The query string.
+        /// </value>
+        [JsonProperty(PropertyName = "query_string", NullValueHandling = NullValueHandling.Ignore)]
+        public string QueryString { get; set; }
+
+        /// <summary>
+        /// Gets or sets the URL of the HTTP request.
+        /// </summary>
+        /// <value>
+        /// The URL of the HTTP request.
+        /// </value>
+        [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
+        public string Url { get; set; }
+
+        [JsonIgnore]
+        private bool HasHttpContext
+        {
+            get { return this.httpContext != null; }
+        }
 
 
         /// <summary>
@@ -164,6 +163,31 @@ namespace SharpRaven.Data
             {
                 IpAddress = this.httpContext.Request.UserHostAddress
             };
+        }
+
+
+        private static dynamic GetHttpContext()
+        {
+            var systemWeb = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web"));
+
+            if (systemWeb == null)
+                return null;
+
+            var httpContextType = systemWeb.GetExportedTypes()
+                .FirstOrDefault(type => type.Name == "HttpContext");
+
+            if (httpContextType == null)
+                return null;
+
+            var currentHttpContextProperty = httpContextType.GetProperty("Current",
+                                                                         BindingFlags.Static | BindingFlags.Public);
+
+            if (currentHttpContextProperty == null)
+                return null;
+
+            return currentHttpContextProperty.GetValue(null, null);
         }
 
 
@@ -220,31 +244,6 @@ namespace SharpRaven.Data
             }
 
             return dictionary;
-        }
-
-
-        private static dynamic GetHttpContext()
-        {
-            var systemWeb = AppDomain.CurrentDomain
-                                     .GetAssemblies()
-                                     .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web"));
-
-            if (systemWeb == null)
-                return null;
-
-            var httpContextType = systemWeb.GetExportedTypes()
-                                           .FirstOrDefault(type => type.Name == "HttpContext");
-
-            if (httpContextType == null)
-                return null;
-
-            var currentHttpContextProperty = httpContextType.GetProperty("Current",
-                                                                         BindingFlags.Static | BindingFlags.Public);
-
-            if (currentHttpContextProperty == null)
-                return null;
-
-            return currentHttpContextProperty.GetValue(null, null);
         }
     }
 }

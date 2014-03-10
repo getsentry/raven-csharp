@@ -50,9 +50,7 @@ namespace SharpRaven.Utilities
             using (MemoryStream memory = new MemoryStream())
             {
                 using (GZipStream gzip = new GZipStream(memory, CompressionMode.Compress))
-                {
                     gzip.Write(data, 0, data.Length);
-                }
 
                 return Convert.ToBase64String(memory.ToArray());
             }

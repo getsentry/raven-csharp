@@ -39,14 +39,17 @@ using SharpRaven.Logging.Filters;
 namespace SharpRaven.UnitTests.Logging
 {
     [TestFixture]
-    public class LogScrubberTests
+    public class @LogScrubberTests
     {
+        #region Setup/Teardown
+
         [SetUp]
         public void SetUp()
         {
             this.scrubber = new LogScrubber();
         }
 
+        #endregion
 
         private LogScrubber scrubber;
 

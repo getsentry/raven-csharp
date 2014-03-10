@@ -74,6 +74,13 @@ namespace SharpRaven
 
 
         /// <summary>
+        /// Enable Gzip Compression?
+        /// Defaults to <c>false</c>.
+        /// </summary>
+        [Obsolete("GZip compression isn't supported yet.", true)]
+        public bool Compression { get; set; }
+
+        /// <summary>
         /// The Dsn currently being used to log exceptions.
         /// </summary>
         public Dsn CurrentDsn
@@ -86,13 +93,6 @@ namespace SharpRaven
         /// sensitive information from exceptions sent to sentry.
         /// </summary>
         public IScrubber LogScrubber { get; set; }
-
-        /// <summary>
-        /// Enable Gzip Compression?
-        /// Defaults to <c>false</c>.
-        /// </summary>
-        [Obsolete("GZip compression isn't supported yet.", true)]
-        public bool Compression { get; set; }
 
         /// <summary>
         /// Logger. Default is "root"
@@ -172,7 +172,7 @@ namespace SharpRaven
 
             try
             {
-                HttpWebRequest request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
                 request.Method = "POST";
                 request.Accept = "application/json";
                 request.ContentType = "application/json; charset=utf-8";
@@ -182,34 +182,30 @@ namespace SharpRaven
 
                 // Write the messagebody.
                 using (Stream s = request.GetRequestStream())
+                using (StreamWriter sw = new StreamWriter(s))
                 {
-                    using (StreamWriter sw = new StreamWriter(s))
-                    {
-                        // Compress and encode.
-                        //string data = Utilities.GzipUtil.CompressEncode(packet.Serialize());
-                        // Write to the JSON script when ready.
-                        string data = packet.ToString(Formatting.Indented);
-                        Console.WriteLine(data);
-                        if (LogScrubber != null)
-                            data = LogScrubber.Scrub(data);
+                    // Compress and encode.
+                    //string data = Utilities.GzipUtil.CompressEncode(packet.Serialize());
+                    // Write to the JSON script when ready.
+                    string data = packet.ToString(Formatting.Indented);
+                    Console.WriteLine(data);
+                    if (LogScrubber != null)
+                        data = LogScrubber.Scrub(data);
 
-                        sw.Write(data);
-                    }
+                    sw.Write(data);
                 }
 
-                using (HttpWebResponse wr = (HttpWebResponse) request.GetResponse())
+                using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
+                using (Stream responseStream = wr.GetResponseStream())
                 {
-                    using (Stream responseStream = wr.GetResponseStream())
-                    {
-                        if (responseStream == null)
-                            return null;
+                    if (responseStream == null)
+                        return null;
 
-                        using (StreamReader sr = new StreamReader(responseStream))
-                        {
-                            string content = sr.ReadToEnd();
-                            var response = JsonConvert.DeserializeObject<dynamic>(content);
-                            return response.id;
-                        }
+                    using (StreamReader sr = new StreamReader(responseStream))
+                    {
+                        string content = sr.ReadToEnd();
+                        var response = JsonConvert.DeserializeObject<dynamic>(content);
+                        return response.id;
                     }
                 }
             }
@@ -229,9 +225,7 @@ namespace SharpRaven
                             return null;
 
                         using (StreamReader sw = new StreamReader(stream))
-                        {
                             messageBody = sw.ReadToEnd();
-                        }
                     }
 
                     Console.WriteLine("[MESSAGE BODY] " + messageBody);
@@ -250,7 +244,7 @@ namespace SharpRaven
             }
         }
 
-        #region Deprecated methods
+        #region Deprecated Methods
 
         /*
          *  These methods have been deprectaed in favour of the ones
@@ -280,7 +274,7 @@ namespace SharpRaven
         [Obsolete("The more common CaptureException method should be used")]
         public string CaptureEvent(Exception e, Dictionary<string, string> tags)
         {
-            return CaptureException(e, tags: tags);
+            return CaptureException(e, tags : tags);
         }
 
         #endregion

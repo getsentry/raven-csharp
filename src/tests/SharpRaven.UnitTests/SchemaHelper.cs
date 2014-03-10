@@ -42,6 +42,29 @@ namespace SharpRaven.UnitTests
 {
     public static class SchemaHelper
     {
+        public static JsonSchema GenerateSchema(Type type)
+        {
+            var schemaGenerator = new JsonSchemaGenerator();
+            var schema = schemaGenerator.Generate(type);
+            schema.Title = type.Name;
+            return schema.MapSchemaTypes(type);
+        }
+
+
+        public static JsonSchema GetSchema()
+        {
+            var stream = typeof(SerializationTests).Assembly
+                .GetManifestResourceStream(typeof(SerializationTests),
+                                           "schema.json");
+
+            if (stream == null)
+                return null;
+
+            using (StreamReader reader = new StreamReader(stream))
+                return JsonSchema.Parse(reader.ReadToEnd());
+        }
+
+
         public static string GetSchemaPath()
         {
             var directory = new DirectoryInfo(Environment.CurrentDirectory);
@@ -49,39 +72,41 @@ namespace SharpRaven.UnitTests
 
             while (directory != null && directory.Exists &&
                    (file = directory.EnumerateFiles("*.json")
-                                    .FirstOrDefault(f => f.FullName.EndsWith("schema.json"))) == null)
-            {
+                               .FirstOrDefault(f => f.FullName.EndsWith("schema.json"))) == null)
                 directory = directory.Parent;
-            }
 
             return file != null ? file.FullName : null;
         }
 
 
-        public static JsonSchema GetSchema()
+        private static IEnumerable<object> GetEnumValues(Type enumType, PropertyInfo property)
         {
-            var stream = typeof(SerializationTests).Assembly
-                                                   .GetManifestResourceStream(typeof(SerializationTests),
-                                                                              "schema.json");
+            var converterAttribute =
+                property.GetCustomAttributes(false).OfType<JsonConverterAttribute>().FirstOrDefault();
 
-            if (stream == null)
+            if (converterAttribute != null)
             {
-                return null;
-            }
+                var converter = (JsonConverter)Activator.CreateInstance(converterAttribute.ConverterType);
+                if (converter.CanConvert(enumType))
+                {
+                    foreach (var value in Enum.GetValues(enumType))
+                    {
+                        using (var stringWriter = new StringWriter())
+                        {
+                            using (var jsonWriter = new JsonTextWriter(stringWriter))
+                                converter.WriteJson(jsonWriter, value, new JsonSerializer());
 
-            using (StreamReader reader = new StreamReader(stream))
+                            yield return stringWriter.ToString().Replace("\"", String.Empty);
+                            ;
+                        }
+                    }
+                }
+            }
+            else
             {
-                return JsonSchema.Parse(reader.ReadToEnd());
+                foreach (var name in Enum.GetNames(enumType))
+                    yield return name;
             }
-        }
-
-
-        public static JsonSchema GenerateSchema(Type type)
-        {
-            var schemaGenerator = new JsonSchemaGenerator();
-            var schema = schemaGenerator.Generate(type);
-            schema.Title = type.Name;
-            return schema.MapSchemaTypes(type);
         }
 
 
@@ -157,9 +182,7 @@ namespace SharpRaven.UnitTests
                     }
                 }
                 else if (propertyType == typeof(DateTime))
-                {
                     jsProperty.Value.Format = "date-time";
-                }
                 else if (propertyType.BaseType == typeof(Enum))
                 {
                     jsProperty.Value.Type = JsonSchemaType.String;
@@ -177,43 +200,10 @@ namespace SharpRaven.UnitTests
                     }
                 }
                 else if (jsProperty.Value.Properties != null && jsProperty.Value.Properties.Any())
-                {
                     jsProperty.Value.MapSchemaTypes(propertyType);
-                }
             }
 
             return schema;
-        }
-
-
-        private static IEnumerable<object> GetEnumValues(Type enumType, PropertyInfo property)
-        {
-            var converterAttribute =
-                property.GetCustomAttributes(false).OfType<JsonConverterAttribute>().FirstOrDefault();
-
-            if (converterAttribute != null)
-            {
-                var converter = (JsonConverter) Activator.CreateInstance(converterAttribute.ConverterType);
-                if (converter.CanConvert(enumType))
-                {
-                    foreach (var value in Enum.GetValues(enumType))
-                    {
-                        using (var stringWriter = new StringWriter())
-                        {
-                            using (var jsonWriter = new JsonTextWriter(stringWriter))
-                            {
-                                converter.WriteJson(jsonWriter, value, new JsonSerializer());
-                            }
-
-                            yield return stringWriter.ToString().Replace("\"", String.Empty);
-                            ;
-                        }
-                    }
-                }
-            }
-            else
-                foreach (var name in Enum.GetNames(enumType))
-                    yield return name;
         }
     }
 }

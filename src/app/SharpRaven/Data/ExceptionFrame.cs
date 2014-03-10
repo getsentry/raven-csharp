@@ -49,6 +49,15 @@ namespace SharpRaven.Data
         public string AbsolutePath { get; set; }
 
         /// <summary>
+        /// Gets or sets the column number.
+        /// </summary>
+        /// <value>
+        /// The column number.
+        /// </value>
+        [JsonProperty(PropertyName = "colno")]
+        public int ColumnNumber { get; set; }
+
+        /// <summary>
         /// Gets or sets the filename.
         /// </summary>
         /// <value>
@@ -56,15 +65,6 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "filename")]
         public string Filename { get; set; }
-
-        /// <summary>
-        /// Gets or sets the module.
-        /// </summary>
-        /// <value>
-        /// The module.
-        /// </value>
-        [JsonProperty(PropertyName = "module")]
-        public string Module { get; set; }
 
         /// <summary>
         /// Gets or sets the function.
@@ -76,13 +76,40 @@ namespace SharpRaven.Data
         public string Function { get; set; }
 
         /// <summary>
-        /// Gets or sets the vars.
+        /// Gets or sets a value indicating whether [information application].
         /// </summary>
         /// <value>
-        /// The vars.
+        /// <c>true</c> if [information application]; otherwise, <c>false</c>.
         /// </value>
-        [JsonProperty(PropertyName = "vars")]
-        public Dictionary<string, string> Vars { get; set; }
+        [JsonProperty(PropertyName = "in_app")]
+        public bool InApp { get; set; }
+
+        /// <summary>
+        /// Gets or sets the line number.
+        /// </summary>
+        /// <value>
+        /// The line number.
+        /// </value>
+        [JsonProperty(PropertyName = "lineno")]
+        public int LineNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the module.
+        /// </summary>
+        /// <value>
+        /// The module.
+        /// </value>
+        [JsonProperty(PropertyName = "module")]
+        public string Module { get; set; }
+
+        /// <summary>
+        /// Gets or sets the post context.
+        /// </summary>
+        /// <value>
+        /// The post context.
+        /// </value>
+        [JsonProperty(PropertyName = "post_context")]
+        public List<string> PostContext { get; set; }
 
         /// <summary>
         /// Gets or sets the preference context.
@@ -103,39 +130,12 @@ namespace SharpRaven.Data
         public string Source { get; set; }
 
         /// <summary>
-        /// Gets or sets the line number.
+        /// Gets or sets the vars.
         /// </summary>
         /// <value>
-        /// The line number.
+        /// The vars.
         /// </value>
-        [JsonProperty(PropertyName = "lineno")]
-        public int LineNumber { get; set; }
-
-        /// <summary>
-        /// Gets or sets the column number.
-        /// </summary>
-        /// <value>
-        /// The column number.
-        /// </value>
-        [JsonProperty(PropertyName = "colno")]
-        public int ColumnNumber { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [information application].
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if [information application]; otherwise, <c>false</c>.
-        /// </value>
-        [JsonProperty(PropertyName = "in_app")]
-        public bool InApp { get; set; }
-
-        /// <summary>
-        /// Gets or sets the post context.
-        /// </summary>
-        /// <value>
-        /// The post context.
-        /// </value>
-        [JsonProperty(PropertyName = "post_context")]
-        public List<string> PostContext { get; set; }
+        [JsonProperty(PropertyName = "vars")]
+        public Dictionary<string, string> Vars { get; set; }
     }
 }

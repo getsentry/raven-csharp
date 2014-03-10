@@ -86,7 +86,7 @@ namespace SharpRaven.UnitTests.Data
             {
                 Assert.That(request.Data, Is.TypeOf<Dictionary<string, string>>());
 
-                var data = (Dictionary<string, string>) request.Data;
+                var data = (Dictionary<string, string>)request.Data;
 
                 Assert.That(data, Has.Count.EqualTo(1));
                 Assert.That(data["Form1"], Is.EqualTo("Value1"));

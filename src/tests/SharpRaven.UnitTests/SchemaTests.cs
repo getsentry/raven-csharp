@@ -31,11 +31,11 @@
 using System;
 using System.IO;
 
-using NUnit.Framework;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+
+using NUnit.Framework;
 
 using SharpRaven.Data;
 

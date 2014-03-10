@@ -43,12 +43,10 @@ namespace SharpRaven.UnitTests.Data
         private static void SimulateHttpRequest(Action<JsonPacket> test)
         {
             using (var simulator = new HttpSimulator())
+            using (simulator.SimulateRequest())
             {
-                using (simulator.SimulateRequest())
-                {
-                    var json = new JsonPacket(Guid.NewGuid().ToString("n"));
-                    test.Invoke(json);
-                }
+                var json = new JsonPacket(Guid.NewGuid().ToString("n"));
+                test.Invoke(json);
             }
         }
 

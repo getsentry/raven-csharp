@@ -51,23 +51,9 @@ namespace SharpRaven.Data
 
             Stacktrace = new SentryStacktrace(e);
             if (Stacktrace.Frames == null || Stacktrace.Frames.Length == 0)
-            {
                 Stacktrace = null;
-            }
         }
 
-
-        /// <summary>
-        /// The type of exception.
-        /// </summary>
-        [JsonProperty(PropertyName = "type")]
-        public string Type { get; set; }
-
-        /// <summary>
-        /// The message of the exception.
-        /// </summary>
-        [JsonProperty(PropertyName = "value")]
-        public string Value { get; set; }
 
         /// <summary>
         /// The module where the exception happened.
@@ -80,5 +66,17 @@ namespace SharpRaven.Data
         /// </summary>
         [JsonProperty(PropertyName = "stacktrace")]
         public SentryStacktrace Stacktrace { get; set; }
+
+        /// <summary>
+        /// The type of exception.
+        /// </summary>
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
+        /// <summary>
+        /// The message of the exception.
+        /// </summary>
+        [JsonProperty(PropertyName = "value")]
+        public string Value { get; set; }
     }
 }

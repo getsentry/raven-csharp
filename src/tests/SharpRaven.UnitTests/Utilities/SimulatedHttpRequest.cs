@@ -30,14 +30,14 @@ namespace SharpRaven.UnitTests.Utilities
     /// </summary>
     public class SimulatedHttpRequest : SimpleWorkerRequest
     {
-        readonly string _host;
-        readonly string _physicalFilePath;
-        readonly int _port;
-        Uri _referer;
-        readonly string _verb;
+        private readonly NameValueCollection _cookies = new NameValueCollection();
         private readonly NameValueCollection _formVariables = new NameValueCollection();
         private readonly NameValueCollection _headers = new NameValueCollection();
-        private readonly NameValueCollection _cookies = new NameValueCollection();
+        private readonly string _host;
+        private readonly string _physicalFilePath;
+        private readonly int _port;
+        private readonly string _verb;
+        private Uri _referer;
 
 
         /// <summary>
@@ -52,19 +52,22 @@ namespace SharpRaven.UnitTests.Utilities
         /// <param name="host">Host.</param>
         /// <param name="port">Port to request.</param>
         /// <param name="verb">The HTTP Verb to use.</param>
-        public SimulatedHttpRequest(string applicationPath, string physicalAppPath, string physicalFilePath, string page,
-                                    string query, TextWriter output, string host, int port, string verb)
+        public SimulatedHttpRequest(string applicationPath,
+                                    string physicalAppPath,
+                                    string physicalFilePath,
+                                    string page,
+                                    string query,
+                                    TextWriter output,
+                                    string host,
+                                    int port,
+                                    string verb)
             : base(applicationPath, physicalAppPath, page, query, output)
         {
             if (String.IsNullOrEmpty(host))
-            {
                 throw new ArgumentNullException("host");
-            }
 
             if (applicationPath == null)
-            {
                 throw new ArgumentNullException("applicationPath");
-            }
 
             this._host = host;
             this._verb = verb;
@@ -72,19 +75,21 @@ namespace SharpRaven.UnitTests.Utilities
             this._physicalFilePath = physicalFilePath;
         }
 
+
         public SimulatedHttpRequest(string applicationPath, string physicalAppPath, string page, string query)
-            : this(applicationPath, physicalAppPath, @"c:\inetpub\" + page, page, query, new StringWriter(), "localhost", 80, "GET")
+            : this(
+                applicationPath,
+                physicalAppPath,
+                @"c:\inetpub\" + page,
+                page,
+                query,
+                new StringWriter(),
+                "localhost",
+                80,
+                "GET")
         {
         }
 
-        /// <summary>
-        /// Gets the headers.
-        /// </summary>
-        /// <value>The headers.</value>
-        public NameValueCollection Headers
-        {
-            get { return this._headers; }
-        }
 
         /// <summary>
         /// Gets the cookies.
@@ -97,6 +102,8 @@ namespace SharpRaven.UnitTests.Utilities
             get { return this._cookies; }
         }
 
+        public string CurrentExecutionPath { get; set; }
+
         /// <summary>
         /// Gets the format exception.
         /// </summary>
@@ -106,79 +113,15 @@ namespace SharpRaven.UnitTests.Utilities
             get { return this._formVariables; }
         }
 
-        internal void SetReferer(Uri referer)
-        {
-            this._referer = referer;
-        }
-
         /// <summary>
-        /// Returns the specified member of the request header.
+        /// Gets the headers.
         /// </summary>
-        /// <returns>
-        /// The HTTP verb returned in the request
-        /// header.
-        /// </returns>
-        public override string GetHttpVerbName()
+        /// <value>The headers.</value>
+        public NameValueCollection Headers
         {
-            return this._verb;
+            get { return this._headers; }
         }
 
-        /// <summary>
-        /// Gets the name of the server.
-        /// </summary>
-        /// <returns></returns>
-        public override string GetServerName()
-        {
-            return this._host;
-        }
-
-        public override int GetLocalPort()
-        {
-            return this._port;
-        }
-
-        /// <summary>
-        /// Get all nonstandard HTTP header name-value pairs.
-        /// </summary>
-        /// <returns>An array of header name-value pairs.</returns>
-        public override string[][] GetUnknownRequestHeaders()
-        {
-            if (this._headers == null || this._headers.Count == 0)
-            {
-                return null;
-            }
-            var headersArray = new string[this._headers.Count][];
-            for (int i = 0; i < this._headers.Count; i++)
-            {
-                headersArray[i] = new string[2];
-                headersArray[i][0] = this._headers.Keys[i];
-                headersArray[i][1] = this._headers[i];
-            }
-            return headersArray;
-        }
-
-        public override string GetKnownRequestHeader(int index)
-        {
-            var requestHeader = (HttpRequestHeader)index;
-
-            switch (requestHeader)
-            {
-                case HttpRequestHeader.Referer:
-                    return this._referer == null ? string.Empty : this._referer.ToString();
-
-                case HttpRequestHeader.ContentType:
-                    if (this._verb == "POST")
-                    {
-                        return "application/x-www-form-urlencoded";
-                    }
-                    break;
-
-                case HttpRequestHeader.Cookie:
-                    return Convert(this._cookies);
-            }
-
-            return base.GetKnownRequestHeader(index);
-        }
 
         /// <summary>
         /// Returns the virtual path to the currently executing
@@ -193,40 +136,73 @@ namespace SharpRaven.UnitTests.Utilities
             return appPath;
         }
 
+
         public override string GetAppPathTranslated()
         {
             string path = base.GetAppPathTranslated();
             return path;
         }
 
-        public override string GetUriPath()
+
+        public override string GetFilePath()
         {
-            string uriPath = base.GetUriPath();
-            return uriPath;
+            return CurrentExecutionPath ?? base.GetFilePath();
         }
+
 
         public override string GetFilePathTranslated()
         {
             return this._physicalFilePath;
         }
 
-        public override string GetFilePath()
+
+        /// <summary>
+        /// Returns the specified member of the request header.
+        /// </summary>
+        /// <returns>
+        /// The HTTP verb returned in the request
+        /// header.
+        /// </returns>
+        public override string GetHttpVerbName()
         {
-            return this.CurrentExecutionPath ?? base.GetFilePath();
+            return this._verb;
         }
+
+
+        public override string GetKnownRequestHeader(int index)
+        {
+            var requestHeader = (HttpRequestHeader)index;
+
+            switch (requestHeader)
+            {
+                case HttpRequestHeader.Referer:
+                    return this._referer == null ? string.Empty : this._referer.ToString();
+
+                case HttpRequestHeader.ContentType:
+                    if (this._verb == "POST")
+                        return "application/x-www-form-urlencoded";
+                    break;
+
+                case HttpRequestHeader.Cookie:
+                    return Convert(this._cookies);
+            }
+
+            return base.GetKnownRequestHeader(index);
+        }
+
+
+        public override int GetLocalPort()
+        {
+            return this._port;
+        }
+
 
         public override string GetPathInfo()
         {
             return "/";
         }
 
-        public string CurrentExecutionPath
-        {
-            get;
-            set;
-        }
 
-        
         /// <summary>
         /// Reads request data from the client (when not preloaded).
         /// </summary>
@@ -237,17 +213,42 @@ namespace SharpRaven.UnitTests.Utilities
             return Encoding.UTF8.GetBytes(formText);
         }
 
-        private static string Convert(NameValueCollection collection)
+
+        /// <summary>
+        /// Gets the name of the server.
+        /// </summary>
+        /// <returns></returns>
+        public override string GetServerName()
         {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (string key in collection.Keys)
-            {
-                sb.Append(String.Format(CultureInfo.InvariantCulture, "{0}={1}&", key, collection[key]));
-            }
-
-            return sb.ToString();
+            return this._host;
         }
+
+
+        /// <summary>
+        /// Get all nonstandard HTTP header name-value pairs.
+        /// </summary>
+        /// <returns>An array of header name-value pairs.</returns>
+        public override string[][] GetUnknownRequestHeaders()
+        {
+            if (this._headers == null || this._headers.Count == 0)
+                return null;
+            var headersArray = new string[this._headers.Count][];
+            for (int i = 0; i < this._headers.Count; i++)
+            {
+                headersArray[i] = new string[2];
+                headersArray[i][0] = this._headers.Keys[i];
+                headersArray[i][1] = this._headers[i];
+            }
+            return headersArray;
+        }
+
+
+        public override string GetUriPath()
+        {
+            string uriPath = base.GetUriPath();
+            return uriPath;
+        }
+
 
         /// <summary>
         /// Returns a value indicating whether all request data
@@ -260,6 +261,23 @@ namespace SharpRaven.UnitTests.Utilities
         public override bool IsEntireEntityBodyIsPreloaded()
         {
             return true;
+        }
+
+
+        internal void SetReferer(Uri referer)
+        {
+            this._referer = referer;
+        }
+
+
+        private static string Convert(NameValueCollection collection)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string key in collection.Keys)
+                sb.Append(String.Format(CultureInfo.InvariantCulture, "{0}={1}&", key, collection[key]));
+
+            return sb.ToString();
         }
     }
 }
