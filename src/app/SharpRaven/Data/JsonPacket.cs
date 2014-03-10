@@ -132,9 +132,10 @@ namespace SharpRaven.Data
             // Get data from the HTTP request
             Request = SentryRequest.GetRequest();
 
-            // Get the user data from the HTTP request
-            if (Request != null)
-                User = Request.GetUser();
+            // Get the user data from the HTTP context or environment
+            User = Request != null
+                       ? Request.GetUser()
+                       : new SentryUser(Environment.UserName);
         }
 
 

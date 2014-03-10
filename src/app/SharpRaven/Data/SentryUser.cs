@@ -46,11 +46,18 @@ namespace SharpRaven.Data
         /// <param name="principal">The principal.</param>
         public SentryUser(IPrincipal principal)
         {
-            if (principal == null)
-                return;
+            if (principal != null)
+                Username = principal.Identity.Name;
+        }
 
-            var identity = principal.Identity;
-            Username = identity.Name;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SentryUser"/> class.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        public SentryUser(string username)
+        {
+            Username = username;
         }
 
 
