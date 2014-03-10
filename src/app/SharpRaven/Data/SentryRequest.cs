@@ -170,7 +170,7 @@ namespace SharpRaven.Data
         {
             var systemWeb = AppDomain.CurrentDomain
                                      .GetAssemblies()
-                                     .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web"));
+                                     .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
 
             if (systemWeb == null)
                 return null;
