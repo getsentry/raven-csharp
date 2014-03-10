@@ -169,14 +169,14 @@ namespace SharpRaven.Data
         private static dynamic GetHttpContext()
         {
             var systemWeb = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web"));
+                                     .GetAssemblies()
+                                     .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web"));
 
             if (systemWeb == null)
                 return null;
 
             var httpContextType = systemWeb.GetExportedTypes()
-                .FirstOrDefault(type => type.Name == "HttpContext");
+                                           .FirstOrDefault(type => type.Name == "HttpContext");
 
             if (httpContextType == null)
                 return null;

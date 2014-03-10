@@ -49,12 +49,12 @@ namespace SharpRaven.UnitTests
             IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
             ravenClient.LogScrubber = Substitute.For<IScrubber>();
             ravenClient.LogScrubber.Scrub(Arg.Any<string>())
-                .Returns(c =>
-                {
-                    string json = c.Arg<string>();
-                    Assert.That(json, Is.StringContaining(message));
-                    return json;
-                });
+                       .Returns(c =>
+                       {
+                           string json = c.Arg<string>();
+                           Assert.That(json, Is.StringContaining(message));
+                           return json;
+                       });
 
             string id = ravenClient.CaptureMessage(message);
             Guid guid = Guid.Parse(id);
