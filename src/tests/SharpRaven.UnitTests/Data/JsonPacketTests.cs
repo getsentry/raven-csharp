@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -43,10 +44,17 @@ namespace SharpRaven.UnitTests.Data
         private static void SimulateHttpRequest(Action<JsonPacket> test)
         {
             using (var simulator = new HttpSimulator())
-            using (simulator.SimulateRequest())
             {
-                var json = new JsonPacket(Guid.NewGuid().ToString("n"));
-                test.Invoke(json);
+                simulator.SetFormVariable("Form1", "Value1")
+                         .SetCookie("Cookie1", "Value1")
+                         .SetHeader("Header1", "Value1")
+                         .SetReferer(new Uri("http://getsentry.com/"));
+
+                using (simulator.SimulateRequest())
+                {
+                    var json = new JsonPacket(Guid.NewGuid().ToString("n"));
+                    test.Invoke(json);
+                }
             }
         }
 
@@ -170,9 +178,54 @@ namespace SharpRaven.UnitTests.Data
 
         [Test]
         [Category("NoMono")]
-        public void Constructor_WithHttpContext_RequestIsNotNull()
+        public void Constructor_WithHttpContext_RequestCookiesContainsExpectedItem()
         {
-            SimulateHttpRequest(json => Assert.That(json.Request, Is.Not.Null));
+            SimulateHttpRequest(json =>
+            {
+                Assert.That(json.Request.Cookies, Is.Not.Null);
+                Assert.That(json.Request.Cookies, Has.Count.EqualTo(1));
+                Assert.That(json.Request.Cookies, Has.Member(new KeyValuePair<string, string>("Cookie1", "Value1")));
+            });
+        }
+
+
+        [Test]
+        [Category("NoMono")]
+        public void Constructor_WithHttpContext_RequestDataContainsExpectedItem()
+        {
+            SimulateHttpRequest(json =>
+            {
+                Assert.That(json.Request.Data, Is.Not.Null);
+                Assert.That(json.Request.Data, Is.TypeOf<Dictionary<string, string>>());
+                var data = (Dictionary<string, string>)json.Request.Data;
+                Assert.That(data, Has.Count.EqualTo(1));
+                Assert.That(data, Has.Member(new KeyValuePair<string, string>("Form1", "Value1")));
+            });
+        }
+
+
+        [Test]
+        [Category("NoMono")]
+        public void Constructor_WithHttpContext_RequestEnvironmentIsFilledWithData()
+        {
+            SimulateHttpRequest(json =>
+            {
+                Assert.That(json.Request, Is.Not.Null);
+                Assert.That(json.Request.Environment, Has.Count.GreaterThan(0));
+            });
+        }
+
+
+        [Test]
+        [Category("NoMono")]
+        public void Constructor_WithHttpContext_RequestHeadersContainsExpectedItem()
+        {
+            SimulateHttpRequest(json =>
+            {
+                Assert.That(json.Request.Headers, Is.Not.Null);
+                Assert.That(json.Request.Headers, Has.Count.GreaterThanOrEqualTo(1));
+                Assert.That(json.Request.Headers, Has.Member(new KeyValuePair<string, string>("Header1", "Value1")));
+            });
         }
 
 
