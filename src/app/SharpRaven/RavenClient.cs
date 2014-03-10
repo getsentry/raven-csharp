@@ -95,7 +95,7 @@ namespace SharpRaven
         public IScrubber LogScrubber { get; set; }
 
         /// <summary>
-        /// Logger. Default is "root"
+        /// The name of the logger. The default logger name is "root".
         /// </summary>
         public string Logger { get; set; }
 
