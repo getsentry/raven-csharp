@@ -160,7 +160,7 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
-        private string Send(JsonPacket packet, Dsn dsn)
+        protected virtual string Send(JsonPacket packet, Dsn dsn)
         {
             packet.Logger = Logger;
 
