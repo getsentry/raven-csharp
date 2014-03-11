@@ -29,11 +29,13 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace SharpRaven.Data
 {
     /// <summary>
-    /// A default implementation of <see cref="IJsonPacketFactory"/>.
+    /// A default implementation of <see cref="IJsonPacketFactory"/>. Override the <see cref="OnCreate"/>
+    /// method to adjust the values of the <see cref="JsonPacket"/> before it is sent to Sentry.
     /// </summary>
     public class JsonPacketFactory : IJsonPacketFactory
     {
@@ -43,12 +45,29 @@ namespace SharpRaven.Data
         /// <paramref name="project" />.
         /// </summary>
         /// <param name="project">The project.</param>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message" />. Default <see cref="ErrorLevel.Info" />.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="message" />.</param>
         /// <returns>
         /// A new instance of <see cref="JsonPacket" /> for the specified <paramref name="project" />.
         /// </returns>
-        public virtual JsonPacket Create(string project)
+        public JsonPacket Create(string project,
+                                 SentryMessage message,
+                                 ErrorLevel level = ErrorLevel.Info,
+                                 IDictionary<string, string> tags = null,
+                                 object extra = null)
         {
-            return new JsonPacket(project);
+            var json = new JsonPacket(project)
+            {
+                Message = message != null ? message.ToString() : null,
+                MessageObject = message,
+                Level = level,
+                Tags = tags,
+                Extra = extra
+            };
+
+            return OnCreate(json);
         }
 
 
@@ -60,17 +79,49 @@ namespace SharpRaven.Data
         /// <paramref name="exception" />.
         /// </summary>
         /// <param name="project">The project.</param>
-        /// <param name="exception">The exception.</param>
+        /// <param name="exception">The <see cref="Exception" /> to capture.</param>
+        /// <param name="message">The optional messge to capture. Default: <see cref="Exception.Message" />.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error" />.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
-        /// A new instance of 
-        /// <see cref="JsonPacket" /> for the specified 
+        /// A new instance of
+        /// <see cref="JsonPacket" /> for the specified
         /// <paramref name="project" />, with the
-        /// given  
+        /// given
         /// <paramref name="exception" />.
         /// </returns>
-        public JsonPacket Create(string project, Exception exception)
+        public JsonPacket Create(string project,
+                                 Exception exception,
+                                 SentryMessage message = null,
+                                 ErrorLevel level = ErrorLevel.Error,
+                                 IDictionary<string, string> tags = null,
+                                 object extra = null)
         {
-            return new JsonPacket(project, exception);
+            var json = new JsonPacket(project, exception)
+            {
+                Message = message != null ? message.ToString() : exception.Message,
+                MessageObject = message,
+                Level = level,
+                Tags = tags,
+                Extra = extra
+            };
+
+            return OnCreate(json);
+        }
+
+
+        /// <summary>
+        /// Called when the <see cref="JsonPacket"/> has been created. Can be overridden to
+        /// adjust the values of the <paramref name="jsonPacket"/> before it is sent to Sentry.
+        /// </summary>
+        /// <param name="jsonPacket">The json packet.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket"/>.
+        /// </returns>
+        protected virtual JsonPacket OnCreate(JsonPacket jsonPacket)
+        {
+            return jsonPacket;
         }
     }
 }

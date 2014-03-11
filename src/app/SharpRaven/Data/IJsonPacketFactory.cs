@@ -29,11 +29,17 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace SharpRaven.Data
 {
     /// <summary>
-    /// Factory interface for creating <see cref="JsonPacket"/>s.
+    /// Factory interface for creating 
+    /// <see cref="JsonPacket" />s. To simply adjust the values of a
+    /// packet before it is sent to Sentry, inherit 
+    /// <see cref="JsonPacketFactory" /> and override
+    /// its 
+    /// <see cref="JsonPacketFactory.OnCreate" /> method.
     /// </summary>
     public interface IJsonPacketFactory
     {
@@ -43,10 +49,18 @@ namespace SharpRaven.Data
         /// <paramref name="project" />.
         /// </summary>
         /// <param name="project">The project.</param>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message" />. Default <see cref="ErrorLevel.Info" />.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="message" />.</param>
         /// <returns>
         /// A new instance of <see cref="JsonPacket" /> for the specified <paramref name="project" />.
         /// </returns>
-        JsonPacket Create(string project);
+        JsonPacket Create(string project,
+                          SentryMessage message,
+                          ErrorLevel level = ErrorLevel.Info,
+                          IDictionary<string, string> tags = null,
+                          object extra = null);
 
 
         /// <summary>
@@ -57,14 +71,23 @@ namespace SharpRaven.Data
         /// <paramref name="exception" />.
         /// </summary>
         /// <param name="project">The project.</param>
-        /// <param name="exception">The exception.</param>
+        /// <param name="exception">The <see cref="Exception" /> to capture.</param>
+        /// <param name="message">The optional messge to capture. Default: <see cref="Exception.Message" />.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error" />.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
-        /// A new instance of 
-        /// <see cref="JsonPacket" /> for the specified 
+        /// A new instance of
+        /// <see cref="JsonPacket" /> for the specified
         /// <paramref name="project" />, with the
-        /// given  
+        /// given
         /// <paramref name="exception" />.
         /// </returns>
-        JsonPacket Create(string project, Exception exception);
+        JsonPacket Create(string project,
+                          Exception exception,
+                          SentryMessage message = null,
+                          ErrorLevel level = ErrorLevel.Error,
+                          IDictionary<string, string> tags = null,
+                          object extra = null);
     }
 }
