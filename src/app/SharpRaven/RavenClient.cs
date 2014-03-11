@@ -181,8 +181,9 @@ namespace SharpRaven
                     // Compress and encode.
                     //string data = Utilities.GzipUtil.CompressEncode(packet.Serialize());
                     // Write to the JSON script when ready.
-                    string data = packet.ToString(Formatting.Indented);
-                    Console.WriteLine(data);
+                    /*string data = packet.ToString(Formatting.Indented);
+                    Console.WriteLine(data);*/
+                    string data = packet.ToString(Formatting.None);
                     if (LogScrubber != null)
                         data = LogScrubber.Scrub(data);
 
