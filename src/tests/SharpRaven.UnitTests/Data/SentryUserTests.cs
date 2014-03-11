@@ -56,7 +56,15 @@ namespace SharpRaven.UnitTests.Data
         [Test]
         public void Constructor_NullPrincipal_DoesNotThrow()
         {
-            var user = new SentryUser(null);
+            var user = new SentryUser((IPrincipal)null);
+            Assert.That(user.Username, Is.Null);
+        }
+
+
+        [Test]
+        public void Constructor_NullUsername_DoesNotThrow()
+        {
+            var user = new SentryUser((string)null);
             Assert.That(user.Username, Is.Null);
         }
     }
