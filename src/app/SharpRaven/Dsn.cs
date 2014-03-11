@@ -55,22 +55,26 @@ namespace SharpRaven
             if (String.IsNullOrWhiteSpace(dsn))
                 throw new ArgumentNullException("dsn");
 
-            this.uri = GetUri(dsn);
-
-            // Set all info
-            this.privateKey = GetPrivateKey(this.uri);
-            this.publicKey = GetPublicKey(this.uri);
-            this.port = this.uri.Port;
-            this.projectID = GetProjectID(this.uri);
-            this.path = GetPath(this.uri);
-
-            string sentryUriString = String.Format("{0}://{1}:{2}{3}/api/{4}/store/",
-                                                   this.uri.Scheme,
-                                                   this.uri.DnsSafeHost,
-                                                   Port,
-                                                   Path,
-                                                   ProjectID);
-            this.sentryUri = new Uri(sentryUriString);
+            try
+            {
+                this.uri = new Uri(dsn);
+                this.privateKey = GetPrivateKey(this.uri);
+                this.publicKey = GetPublicKey(this.uri);
+                this.port = this.uri.Port;
+                this.projectID = GetProjectID(this.uri);
+                this.path = GetPath(this.uri);
+                var sentryUriString = String.Format("{0}://{1}:{2}{3}/api/{4}/store/",
+                                                    this.uri.Scheme,
+                                                    this.uri.DnsSafeHost,
+                                                    Port,
+                                                    Path,
+                                                    ProjectID);
+                this.sentryUri = new Uri(sentryUriString);
+            }
+            catch (Exception exception)
+            {
+                throw new ArgumentException("Invalid DSN", "dsn", exception);
+            }
         }
 
 
@@ -186,19 +190,6 @@ namespace SharpRaven
         private static string GetPublicKey(Uri uri)
         {
             return uri.UserInfo.Split(':')[0];
-        }
-
-
-        private static Uri GetUri(string dsn)
-        {
-            try
-            {
-                return new Uri(dsn);
-            }
-            catch (Exception exception)
-            {
-                throw new ArgumentException("Invalid DSN", "dsn", exception);
-            }
         }
     }
 }

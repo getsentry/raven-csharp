@@ -94,6 +94,14 @@ namespace SharpRaven.UnitTests
 
 
         [Test]
+        public void Constructor_ValidUriButInvalidDsn_ThrowsArgumentException()
+        {
+            var exception = Assert.Throws<ArgumentException>(() => new Dsn("http://example.com/"));
+            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+        }
+
+
+        [Test]
         public void ToString_ReturnsStringEqualToDsn()
         {
             var dsn = new Dsn(TestHelper.DsnUri);
