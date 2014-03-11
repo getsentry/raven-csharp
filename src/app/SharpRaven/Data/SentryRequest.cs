@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
+using System.Security.Principal;
 
 using Newtonsoft.Json;
 
@@ -159,7 +160,7 @@ namespace SharpRaven.Data
             if (!HasHttpContext)
                 return null;
 
-            return new SentryUser(this.httpContext.User)
+            return new SentryUser((IPrincipal)this.httpContext.User)
             {
                 IpAddress = this.httpContext.Request.UserHostAddress
             };
