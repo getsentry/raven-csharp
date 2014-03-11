@@ -47,28 +47,33 @@ namespace SharpRaven
     public class RavenClient : IRavenClient
     {
         private readonly Dsn currentDsn;
+        private readonly IJsonPacketFactory jsonPacketFactory;
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RavenClient"/> class.
+        /// Initializes a new instance of the <see cref="RavenClient" /> class.
         /// </summary>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
-        public RavenClient(string dsn)
-            : this(new Dsn(dsn))
+        /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
+        public RavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null)
+            : this(new Dsn(dsn), jsonPacketFactory)
         {
         }
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RavenClient"/> class.
+        /// Initializes a new instance of the <see cref="RavenClient" /> class.
         /// </summary>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
-        public RavenClient(Dsn dsn)
+        /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
+        /// <exception cref="System.ArgumentNullException">dsn</exception>
+        public RavenClient(Dsn dsn, IJsonPacketFactory jsonPacketFactory = null)
         {
             if (dsn == null)
                 throw new ArgumentNullException("dsn");
 
             this.currentDsn = dsn;
+            this.jsonPacketFactory = jsonPacketFactory ?? new JsonPacketFactory();
             Logger = "root";
         }
 
@@ -117,15 +122,12 @@ namespace SharpRaven
                                        IDictionary<string, string> tags = null,
                                        object extra = null)
         {
-            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, exception)
-            {
-                Message = message != null ? message.ToString() : exception.Message,
-                MessageObject = message,
-                Level = level,
-                Tags = tags,
-                Extra = extra
-            };
-
+            JsonPacket packet = this.jsonPacketFactory.Create(this.currentDsn.ProjectID,
+                                                              exception,
+                                                              message,
+                                                              level,
+                                                              tags,
+                                                              extra);
             return Send(packet, CurrentDsn);
         }
 
@@ -145,15 +147,7 @@ namespace SharpRaven
                                      Dictionary<string, string> tags = null,
                                      object extra = null)
         {
-            JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID)
-            {
-                Message = message != null ? message.ToString() : null,
-                MessageObject = message,
-                Level = level,
-                Tags = tags,
-                Extra = extra
-            };
-
+            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
             return Send(packet, CurrentDsn);
         }
 
