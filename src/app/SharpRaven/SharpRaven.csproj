@@ -43,8 +43,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\JsonPacketFactory.cs" />
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
+    <Compile Include="Data\IJsonPacketFactory.cs" />
     <Compile Include="Data\SentryMessage.cs" />
     <Compile Include="Data\SentryModule.cs" />
     <Compile Include="Data\SentryException.cs" />
