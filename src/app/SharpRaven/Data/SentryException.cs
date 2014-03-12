@@ -42,14 +42,17 @@ namespace SharpRaven.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="SentryException"/> class.
         /// </summary>
-        /// <param name="e">The <see cref="Exception"/>.</param>
-        public SentryException(Exception e)
+        /// <param name="exception">The <see cref="Exception"/>.</param>
+        public SentryException(Exception exception)
         {
-            Module = e.Source;
-            Type = e.Message;
-            Value = e.Message;
+            if (exception == null)
+                return;
 
-            Stacktrace = new SentryStacktrace(e);
+            Module = exception.Source;
+            Type = exception.GetType().FullName;
+            Value = exception.Message;
+
+            Stacktrace = new SentryStacktrace(exception);
             if (Stacktrace.Frames == null || Stacktrace.Frames.Length == 0)
                 Stacktrace = null;
         }

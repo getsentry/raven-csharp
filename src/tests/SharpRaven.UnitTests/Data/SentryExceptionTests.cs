@@ -33,12 +33,37 @@ using System;
 using NUnit.Framework;
 
 using SharpRaven.Data;
+using SharpRaven.UnitTests.Utilities;
 
 namespace SharpRaven.UnitTests.Data
 {
+    internal class PrivateException : ApplicationException
+    {
+    }
+
     [TestFixture]
     public class SentryExceptionTests
     {
+        [Test]
+        public void Constructor_DivideByZeroException_ModuleEqualsUnitTests()
+        {
+            var exception = TestHelper.GetException();
+            var sentryException = new SentryException(exception);
+
+            Assert.That(sentryException.Module, Is.EqualTo("SharpRaven.UnitTests"));
+        }
+
+
+        [Test]
+        public void Constructor_DivideByZeroException_StackTraceIsNotNull()
+        {
+            var exception = TestHelper.GetException();
+            var sentryException = new SentryException(exception);
+
+            Assert.That(sentryException.Stacktrace, Is.Not.Null);
+        }
+
+
         [Test]
         public void Constructor_InvalidOperationException_TypeIsInvalidOperationException()
         {
@@ -46,6 +71,17 @@ namespace SharpRaven.UnitTests.Data
             var sentryException = new SentryException(exception);
 
             Assert.That(sentryException.Type, Is.EqualTo("System.InvalidOperationException"));
+        }
+
+
+        [Test]
+        public void Constructor_InvalidOperationException_ValueIsEqualToMessage()
+        {
+            const string message = "Invalid";
+            var exception = new InvalidOperationException(message);
+            var sentryException = new SentryException(exception);
+
+            Assert.That(sentryException.Value, Is.EqualTo(message));
         }
 
 
@@ -58,6 +94,16 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(sentryException.Value, Is.Null);
             Assert.That(sentryException.Module, Is.Null);
             Assert.That(sentryException.Stacktrace, Is.Null);
+        }
+
+
+        [Test]
+        public void Constructor_PrivateException_TypeIsPrivateException()
+        {
+            var exception = new PrivateException();
+            var sentryException = new SentryException(exception);
+
+            Assert.That(sentryException.Type, Is.EqualTo("SharpRaven.UnitTests.Data.PrivateException"));
         }
     }
 }
