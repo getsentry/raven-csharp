@@ -37,6 +37,7 @@ using Newtonsoft.Json.Schema;
 using NUnit.Framework;
 
 using SharpRaven.Data;
+using SharpRaven.UnitTests.Utilities;
 
 namespace SharpRaven.UnitTests
 {

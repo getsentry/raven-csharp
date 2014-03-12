@@ -30,7 +30,7 @@
 
 using System;
 
-namespace SharpRaven.UnitTests
+namespace SharpRaven.UnitTests.Utilities
 {
     public static class TestHelper
     {

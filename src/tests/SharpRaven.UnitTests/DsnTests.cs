@@ -32,6 +32,8 @@ using System;
 
 using NUnit.Framework;
 
+using SharpRaven.UnitTests.Utilities;
+
 namespace SharpRaven.UnitTests
 {
     [TestFixture]
