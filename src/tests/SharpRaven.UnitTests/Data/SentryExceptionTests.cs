@@ -105,5 +105,21 @@ namespace SharpRaven.UnitTests.Data
 
             Assert.That(sentryException.Type, Is.EqualTo("SharpRaven.UnitTests.Data.PrivateException"));
         }
+
+
+        [Test]
+        public void ToString_StringIsEqualTo_ExceptionToString()
+        {
+            var exception = TestHelper.GetException();
+            var sentryException = new SentryException(exception);
+            string exceptionString = exception.ToString();
+            string stacktraceString = sentryException.ToString();
+
+            Console.WriteLine(exceptionString);
+            Console.WriteLine();
+            Console.WriteLine(stacktraceString);
+
+            Assert.That(stacktraceString, Is.EqualTo(exceptionString));
+        }
     }
 }

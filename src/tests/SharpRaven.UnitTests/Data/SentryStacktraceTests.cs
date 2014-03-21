@@ -60,21 +60,5 @@ namespace SharpRaven.UnitTests.Data
 
             Assert.That(stacktrace.Frames, Is.Null);
         }
-
-
-        [Test]
-        public void ToString_StringIsEqualTo_ExceptionToString()
-        {
-            var exception = TestHelper.GetException();
-            SentryStacktrace stacktrace = new SentryStacktrace(exception);
-            string exceptionString = exception.ToString();
-            string stacktraceString = stacktrace.ToString();
-
-            Console.WriteLine(exceptionString);
-            Console.WriteLine();
-            Console.WriteLine(stacktraceString);
-
-            Assert.That(stacktraceString, Is.EqualTo(exceptionString));
-        }
     }
 }
