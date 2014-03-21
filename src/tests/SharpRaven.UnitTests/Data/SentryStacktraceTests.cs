@@ -28,6 +28,8 @@
 
 #endregion
 
+using System;
+
 using NUnit.Framework;
 
 using SharpRaven.Data;
@@ -44,7 +46,10 @@ namespace SharpRaven.UnitTests.Data
             var exception = TestHelper.GetException();
             SentryStacktrace stacktrace = new SentryStacktrace(exception);
 
+            Console.WriteLine(exception);
+
             Assert.That(stacktrace.Frames, Is.Not.Null);
+            Assert.That(stacktrace.Frames, Has.Length.EqualTo(2));
         }
 
 
@@ -54,6 +59,18 @@ namespace SharpRaven.UnitTests.Data
             SentryStacktrace stacktrace = new SentryStacktrace(null);
 
             Assert.That(stacktrace.Frames, Is.Null);
+        }
+
+
+        [Test]
+        public void ToString_StringIsEqualTo_ExceptionToString()
+        {
+            var exception = TestHelper.GetException();
+            SentryStacktrace stacktrace = new SentryStacktrace(exception);
+            string exceptionString = exception.ToString();
+            string stacktraceString = stacktrace.ToString();
+
+            Assert.That(stacktraceString, Is.EqualTo(exceptionString));
         }
     }
 }
