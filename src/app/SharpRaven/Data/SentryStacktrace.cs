@@ -93,6 +93,7 @@ namespace SharpRaven.Data
 
             foreach (var frame in Frames)
             {
+                sb.Append("   at ");
                 sb.Append(frame);
                 sb.AppendLine();
             }

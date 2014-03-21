@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Text;
 
 using Newtonsoft.Json;
 
@@ -39,6 +40,9 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryException
     {
+        private readonly string message;
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SentryException"/> class.
         /// </summary>
@@ -48,6 +52,7 @@ namespace SharpRaven.Data
             if (exception == null)
                 return;
 
+            this.message = exception.Message;
             Module = exception.Source;
             Type = exception.GetType().FullName;
             Value = exception.Message;
@@ -81,5 +86,34 @@ namespace SharpRaven.Data
         /// </summary>
         [JsonProperty(PropertyName = "value")]
         public string Value { get; set; }
+
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (Type != null)
+                sb.Append(Type);
+
+            if (this.message != null)
+            {
+                if (sb.Length > 0)
+                    sb.Append(": ");
+
+                sb.Append(this.message);
+                sb.AppendLine();
+            }
+
+            if (Stacktrace != null)
+                sb.Append(Stacktrace);
+
+            return sb.ToString().TrimEnd();
+        }
     }
 }

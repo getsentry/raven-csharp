@@ -179,7 +179,29 @@ namespace SharpRaven.Data
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.Append(Function);
+            if (Module != null)
+            {
+                sb.Append(Module);
+                sb.Append('.');
+            }
+
+            if (Function != null)
+            {
+                sb.Append(Function);
+                sb.Append("()");
+            }
+
+            if (Filename != null)
+            {
+                sb.Append(" in ");
+                sb.Append(Filename);
+            }
+
+            if (LineNumber > -1)
+            {
+                sb.Append(":line ");
+                sb.Append(LineNumber);
+            }
 
             return sb.ToString();
         }
