@@ -64,7 +64,7 @@ namespace SharpRaven.UnitTests.Integration
         #endregion
 
         private const string DsnUrl =
-            "https://f0e2ac2ca63d422ca49f02799579d9f7:47813308fcda4520abcef21b2a5a95e3@app.getsentry.com/13235";
+            "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
 
         private IRavenClient ravenClient;
 
