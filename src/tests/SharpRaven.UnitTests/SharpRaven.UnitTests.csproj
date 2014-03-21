@@ -53,6 +53,7 @@
     <Compile Include="Data\SentryExceptionTests.cs" />
     <Compile Include="Data\SentryMessageTests.cs" />
     <Compile Include="Data\SentryRequestTests.cs" />
+    <Compile Include="Data\SentryStacktraceTests.cs" />
     <Compile Include="Data\SentryUserTests.cs" />
     <Compile Include="DsnTests.cs" />
     <Compile Include="Logging\LogScrubberTests.cs" />

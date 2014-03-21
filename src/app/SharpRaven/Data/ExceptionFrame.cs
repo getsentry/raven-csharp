@@ -37,6 +37,7 @@ namespace SharpRaven.Data
     /// <summary>
     /// Represents Sentry's version of <see cref="System.Diagnostics.StackFrame" />.
     /// </summary>
+    // TODO: Rename this class to SentryExceptionFrame for consistency. -asbjornu
     public class ExceptionFrame
     {
         /// <summary>
