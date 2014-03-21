@@ -29,6 +29,8 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
 
 using Newtonsoft.Json;
 
@@ -40,6 +42,33 @@ namespace SharpRaven.Data
     // TODO: Rename this class to SentryExceptionFrame for consistency. -asbjornu
     public class ExceptionFrame
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionFrame"/> class.
+        /// </summary>
+        /// <param name="frame">The <see cref="StackFrame"/>.</param>
+        public ExceptionFrame(StackFrame frame)
+        {
+            if (frame == null)
+                return;
+
+            int lineNo = frame.GetFileLineNumber();
+
+            if (lineNo == 0)
+            {
+                //The pdb files aren't currently available
+                lineNo = frame.GetILOffset();
+            }
+
+            var method = frame.GetMethod();
+            Filename = frame.GetFileName();
+            Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null;
+            Function = method.Name;
+            Source = method.ToString();
+            LineNumber = lineNo;
+            ColumnNumber = frame.GetFileColumnNumber();
+        }
+
+
         /// <summary>
         /// Gets or sets the absolute path.
         /// </summary>
@@ -138,5 +167,21 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "vars")]
         public Dictionary<string, string> Vars { get; set; }
+
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append(Function);
+
+            return sb.ToString();
+        }
     }
 }

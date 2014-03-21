@@ -70,6 +70,10 @@ namespace SharpRaven.UnitTests.Data
             string exceptionString = exception.ToString();
             string stacktraceString = stacktrace.ToString();
 
+            Console.WriteLine(exceptionString);
+            Console.WriteLine();
+            Console.WriteLine(stacktraceString);
+
             Assert.That(stacktraceString, Is.EqualTo(exceptionString));
         }
     }

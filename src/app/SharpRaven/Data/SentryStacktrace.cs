@@ -59,11 +59,11 @@ namespace SharpRaven.Data
 
             int length = frames.Length;
             Frames = new ExceptionFrame[length];
-            
+
             for (int i = 0; i < length; i++)
             {
                 StackFrame frame = trace.GetFrame(i);
-                Frames[i] = BuildExceptionFrame(frame);
+                Frames[i] = new ExceptionFrame(frame);
             }
         }
 
@@ -98,29 +98,6 @@ namespace SharpRaven.Data
             }
 
             return sb.ToString();
-        }
-
-
-        private static ExceptionFrame BuildExceptionFrame(StackFrame frame)
-        {
-            int lineNo = frame.GetFileLineNumber();
-
-            if (lineNo == 0)
-            {
-                //The pdb files aren't currently available
-                lineNo = frame.GetILOffset();
-            }
-
-            var method = frame.GetMethod();
-            return new ExceptionFrame
-            {
-                Filename = frame.GetFileName(),
-                Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null,
-                Function = method.Name,
-                Source = method.ToString(),
-                LineNumber = lineNo,
-                ColumnNumber = frame.GetFileColumnNumber()
-            };
         }
     }
 }
