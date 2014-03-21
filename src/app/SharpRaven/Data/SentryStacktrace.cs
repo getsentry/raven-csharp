@@ -43,10 +43,13 @@ namespace SharpRaven.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="SentryStacktrace"/> class.
         /// </summary>
-        /// <param name="e">The decimal.</param>
-        public SentryStacktrace(Exception e)
+        /// <param name="exception">The <see cref="Exception"/>.</param>
+        public SentryStacktrace(Exception exception)
         {
-            StackTrace trace = new StackTrace(e, true);
+            if (exception == null)
+                return;
+
+            StackTrace trace = new StackTrace(exception, true);
 
             if (trace.GetFrames() != null)
             {
