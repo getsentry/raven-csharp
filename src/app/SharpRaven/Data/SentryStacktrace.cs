@@ -30,6 +30,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 using Newtonsoft.Json;
 
@@ -50,16 +52,18 @@ namespace SharpRaven.Data
                 return;
 
             StackTrace trace = new StackTrace(exception, true);
+            var frames = trace.GetFrames();
 
-            if (trace.GetFrames() != null)
+            if (frames == null)
+                return;
+
+            int length = frames.Length;
+            Frames = new ExceptionFrame[length];
+            
+            for (int i = 0; i < length; i++)
             {
-                int length = trace.GetFrames().Length;
-                Frames = new ExceptionFrame[length];
-                for (int i = 0; i < length; i++)
-                {
-                    StackFrame frame = trace.GetFrame(length - i - 1);
-                    Frames[i] = BuildExceptionFrame(frame);
-                }
+                StackFrame frame = trace.GetFrame(i);
+                Frames[i] = BuildExceptionFrame(frame);
             }
         }
 
@@ -72,6 +76,29 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "frames")]
         public ExceptionFrame[] Frames { get; set; }
+
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            if (Frames == null || !Frames.Any())
+                return String.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var frame in Frames)
+            {
+                sb.Append(frame);
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
 
 
         private static ExceptionFrame BuildExceptionFrame(StackFrame frame)
