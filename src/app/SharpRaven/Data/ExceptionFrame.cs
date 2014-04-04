@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -29,6 +29,8 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
 
 using Newtonsoft.Json;
 
@@ -37,8 +39,36 @@ namespace SharpRaven.Data
     /// <summary>
     /// Represents Sentry's version of <see cref="System.Diagnostics.StackFrame" />.
     /// </summary>
+    // TODO: Rename this class to SentryExceptionFrame for consistency. -asbjornu
     public class ExceptionFrame
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionFrame"/> class.
+        /// </summary>
+        /// <param name="frame">The <see cref="StackFrame"/>.</param>
+        public ExceptionFrame(StackFrame frame)
+        {
+            if (frame == null)
+                return;
+
+            int lineNo = frame.GetFileLineNumber();
+
+            if (lineNo == 0)
+            {
+                //The pdb files aren't currently available
+                lineNo = frame.GetILOffset();
+            }
+
+            var method = frame.GetMethod();
+            Filename = frame.GetFileName();
+            Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null;
+            Function = method.Name;
+            Source = method.ToString();
+            LineNumber = lineNo;
+            ColumnNumber = frame.GetFileColumnNumber();
+        }
+
+
         /// <summary>
         /// Gets or sets the absolute path.
         /// </summary>
@@ -47,6 +77,15 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "abs_path")]
         public string AbsolutePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the column number.
+        /// </summary>
+        /// <value>
+        /// The column number.
+        /// </value>
+        [JsonProperty(PropertyName = "colno")]
+        public int ColumnNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the filename.
@@ -58,15 +97,6 @@ namespace SharpRaven.Data
         public string Filename { get; set; }
 
         /// <summary>
-        /// Gets or sets the module.
-        /// </summary>
-        /// <value>
-        /// The module.
-        /// </value>
-        [JsonProperty(PropertyName = "module")]
-        public string Module { get; set; }
-
-        /// <summary>
         /// Gets or sets the function.
         /// </summary>
         /// <value>
@@ -76,13 +106,40 @@ namespace SharpRaven.Data
         public string Function { get; set; }
 
         /// <summary>
-        /// Gets or sets the vars.
+        /// Gets or sets a value indicating whether [information application].
         /// </summary>
         /// <value>
-        /// The vars.
+        /// <c>true</c> if [information application]; otherwise, <c>false</c>.
         /// </value>
-        [JsonProperty(PropertyName = "vars")]
-        public Dictionary<string, string> Vars { get; set; }
+        [JsonProperty(PropertyName = "in_app")]
+        public bool InApp { get; set; }
+
+        /// <summary>
+        /// Gets or sets the line number.
+        /// </summary>
+        /// <value>
+        /// The line number.
+        /// </value>
+        [JsonProperty(PropertyName = "lineno")]
+        public int LineNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the module.
+        /// </summary>
+        /// <value>
+        /// The module.
+        /// </value>
+        [JsonProperty(PropertyName = "module")]
+        public string Module { get; set; }
+
+        /// <summary>
+        /// Gets or sets the post context.
+        /// </summary>
+        /// <value>
+        /// The post context.
+        /// </value>
+        [JsonProperty(PropertyName = "post_context")]
+        public List<string> PostContext { get; set; }
 
         /// <summary>
         /// Gets or sets the preference context.
@@ -103,39 +160,50 @@ namespace SharpRaven.Data
         public string Source { get; set; }
 
         /// <summary>
-        /// Gets or sets the line number.
+        /// Gets or sets the vars.
         /// </summary>
         /// <value>
-        /// The line number.
+        /// The vars.
         /// </value>
-        [JsonProperty(PropertyName = "lineno")]
-        public int LineNumber { get; set; }
+        [JsonProperty(PropertyName = "vars")]
+        public Dictionary<string, string> Vars { get; set; }
+
 
         /// <summary>
-        /// Gets or sets the column number.
+        /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
-        /// <value>
-        /// The column number.
-        /// </value>
-        [JsonProperty(PropertyName = "colno")]
-        public int ColumnNumber { get; set; }
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
 
-        /// <summary>
-        /// Gets or sets a value indicating whether [information application].
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if [information application]; otherwise, <c>false</c>.
-        /// </value>
-        [JsonProperty(PropertyName = "in_app")]
-        public bool InApp { get; set; }
+            if (Module != null)
+            {
+                sb.Append(Module);
+                sb.Append('.');
+            }
 
-        /// <summary>
-        /// Gets or sets the post context.
-        /// </summary>
-        /// <value>
-        /// The post context.
-        /// </value>
-        [JsonProperty(PropertyName = "post_context")]
-        public List<string> PostContext { get; set; }
+            if (Function != null)
+            {
+                sb.Append(Function);
+                sb.Append("()");
+            }
+
+            if (Filename != null)
+            {
+                sb.Append(" in ");
+                sb.Append(Filename);
+            }
+
+            if (LineNumber > -1)
+            {
+                sb.Append(":line ");
+                sb.Append(LineNumber);
+            }
+
+            return sb.ToString();
+        }
     }
 }

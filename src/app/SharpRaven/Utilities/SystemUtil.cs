@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -28,7 +28,11 @@
 
 #endregion
 
-using System.Reflection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using SharpRaven.Data;
 
 namespace SharpRaven.Utilities
 {
@@ -43,12 +47,15 @@ namespace SharpRaven.Utilities
         /// <returns>
         /// All loaded modules.
         /// </returns>
-        public static Module[] GetModules()
+        public static IEnumerable<SentryModule> GetModules()
         {
-            // Get primary module.
-            Assembly curAssembly = Assembly.GetExecutingAssembly();
-            // Return all module names.
-            return curAssembly.GetModules();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            return assemblies.Select(a => a.GetName()).OrderBy(a => a.Name).Select(a => new SentryModule
+            {
+                Name = a.Name,
+                Version = a.Version.ToString()
+            });
         }
     }
 }

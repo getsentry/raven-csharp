@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -49,10 +49,8 @@ namespace SharpRaven.Utilities
 
             using (MemoryStream memory = new MemoryStream())
             {
-                using (DeflateStream gzip = new DeflateStream(memory, CompressionMode.Compress))
-                {
+                using (GZipStream gzip = new GZipStream(memory, CompressionMode.Compress))
                     gzip.Write(data, 0, data.Length);
-                }
 
                 return Convert.ToBase64String(memory.ToArray());
             }

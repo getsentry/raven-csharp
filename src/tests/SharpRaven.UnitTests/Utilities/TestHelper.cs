@@ -28,22 +28,35 @@
 
 #endregion
 
-using System.Text.RegularExpressions;
+using System;
 
-namespace SharpRaven.Logging.Filters
+namespace SharpRaven.UnitTests.Utilities
 {
-    /// <summary>
-    /// An <see cref="IFilter"/> implementation for masking phone numbers in a logged message
-    /// </summary>
-    public class PhoneNumberFilter : IFilter
+    public static class TestHelper
     {
-        /// <summary>
-        /// An <see cref="IFilter"/> implementation for masking phone numbers in a logged 
-        /// </summary>
-        public string Filter(string input)
+        public const string DsnUri =
+            "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+
+
+        public static Exception GetException()
         {
-            Regex phoneRegex = new Regex(@"1?\W*([2-9][0-8][0-9])\W*([2-9][0-9]{2})\W*([0-9]{4})(\se?x?t?(\d*))?");
-            return phoneRegex.Replace(input, delegate { return "##-PHONE-TRUNC-##"; });
+            try
+            {
+                PerformDivideByZero();
+            }
+            catch (Exception e)
+            {
+                return e;
+            }
+
+            return null;
+        }
+
+
+        private static void PerformDivideByZero()
+        {
+            int i2 = 0;
+            int i = 10 / i2;
         }
     }
 }

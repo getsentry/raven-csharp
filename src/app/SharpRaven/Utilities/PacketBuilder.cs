@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -81,7 +81,7 @@ namespace SharpRaven.Utilities
                                  + ", sentry_secret={4}",
                                  SentryVersion,
                                  UserAgent,
-                                 (long) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds,
+                                 (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds,
                                  dsn.PublicKey,
                                  dsn.PrivateKey);
         }

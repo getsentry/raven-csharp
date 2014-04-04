@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRaven", "app\SharpRaven\SharpRaven.csproj", "{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRaven.UnitTests", "tests\SharpRaven.UnitTests\SharpRaven.UnitTests.csproj", "{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}"
@@ -18,6 +20,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D2B3990A-A048-49F3-A697-A1DAEF82CE7F}"
 EndProject
 Global
+	GlobalSection(CodealikeProperties) = postSolution
+		SolutionGuid = 396ee49d-6693-4f67-ad32-c76effb9d870
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -63,7 +68,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1} = {88CB5CD6-ACFA-441E-9FBB-E1E06F181B89}
-		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31} = {D2B3990A-A048-49F3-A697-A1DAEF82CE7F}
 		{156621FC-2C48-4CDF-A368-9347BABE9089} = {D2B3990A-A048-49F3-A697-A1DAEF82CE7F}
+		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31} = {D2B3990A-A048-49F3-A697-A1DAEF82CE7F}
 	EndGlobalSection
 EndGlobal

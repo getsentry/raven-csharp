@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -30,6 +30,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 using Newtonsoft.Json;
 
@@ -43,20 +45,25 @@ namespace SharpRaven.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="SentryStacktrace"/> class.
         /// </summary>
-        /// <param name="e">The decimal.</param>
-        public SentryStacktrace(Exception e)
+        /// <param name="exception">The <see cref="Exception"/>.</param>
+        public SentryStacktrace(Exception exception)
         {
-            StackTrace trace = new StackTrace(e, true);
+            if (exception == null)
+                return;
 
-            if (trace.GetFrames() != null)
+            StackTrace trace = new StackTrace(exception, true);
+            var frames = trace.GetFrames();
+
+            if (frames == null)
+                return;
+
+            int length = frames.Length;
+            Frames = new ExceptionFrame[length];
+
+            for (int i = 0; i < length; i++)
             {
-                int length = trace.GetFrames().Length;
-                Frames = new ExceptionFrame[length];
-                for (int i = 0; i < length; i++)
-                {
-                    StackFrame frame = trace.GetFrame(length - i - 1);
-                    Frames[i] = BuildExceptionFrame(frame);
-                }
+                StackFrame frame = trace.GetFrame(i);
+                Frames[i] = new ExceptionFrame(frame);
             }
         }
 
@@ -71,26 +78,27 @@ namespace SharpRaven.Data
         public ExceptionFrame[] Frames { get; set; }
 
 
-        private static ExceptionFrame BuildExceptionFrame(StackFrame frame)
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
         {
-            int lineNo = frame.GetFileLineNumber();
+            if (Frames == null || !Frames.Any())
+                return String.Empty;
 
-            if (lineNo == 0)
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var frame in Frames)
             {
-                //The pdb files aren't currently available
-                lineNo = frame.GetILOffset();
+                sb.Append("   at ");
+                sb.Append(frame);
+                sb.AppendLine();
             }
 
-            var method = frame.GetMethod();
-            return new ExceptionFrame
-            {
-                Filename = frame.GetFileName(),
-                Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null,
-                Function = method.Name,
-                Source = method.ToString(),
-                LineNumber = lineNo,
-                ColumnNumber = frame.GetFileColumnNumber()
-            };
+            return sb.ToString();
         }
     }
 }

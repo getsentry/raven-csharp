@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -30,9 +30,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using NUnit.Framework;
 
+using SharpRaven.Data;
 using SharpRaven.Logging;
 
 namespace SharpRaven.UnitTests.Integration
@@ -40,6 +42,8 @@ namespace SharpRaven.UnitTests.Integration
     [TestFixture]
     public class CaptureTests
     {
+        #region Setup/Teardown
+
         [SetUp]
         public void Setup()
         {
@@ -57,11 +61,12 @@ namespace SharpRaven.UnitTests.Integration
             PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
         }
 
+        #endregion
 
         private const string DsnUrl =
             "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
 
-        private RavenClient ravenClient;
+        private IRavenClient ravenClient;
 
 
         private static void SecondLevelException()
@@ -107,39 +112,76 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
-        public void CaptureWithStacktrace_ReturnsValidId()
+        public void CaptureException_WithMessageFormat_ReturnsValidID()
         {
-            Console.WriteLine("Causing division by zero exception.");
+            object[] args = Enumerable.Range(0, 5).Select(i => Guid.NewGuid()).Cast<object>().ToArray();
+            var message = new SentryMessage("A {0:N} B {1:N} C {2:N} D {3:N} F {4:N}.", args);
+            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."), message);
+            //Console.WriteLine("Sent packet: " + id);
+
+            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
+        }
+
+
+        [Test]
+        public void CaptureException_WithStacktrace_ReturnsValidID()
+        {
             try
             {
                 FirstLevelException();
             }
             catch (Exception e)
             {
-                Console.WriteLine("Captured: " + e.Message);
+                //Console.WriteLine("Captured: " + e.Message);
                 Dictionary<string, string> tags = new Dictionary<string, string>();
-                Dictionary<string, string> extras = new Dictionary<string, string>();
+                Dictionary<string, string> extra = new Dictionary<string, string>();
 
                 tags["TAG"] = "TAG1";
-                extras["extra"] = "EXTRA1";
+                extra["extra"] = "EXTRA1";
 
-                var id = this.ravenClient.CaptureException(e, tags, extras);
+                var id = this.ravenClient.CaptureException(e, tags : tags, extra : extra);
 
-                Console.WriteLine("Sent packet: " + id);
+                //Console.WriteLine("Sent packet: " + id);
 
                 Assert.That(id, Is.Not.Null.Or.Empty);
+                Assert.That(Guid.Parse(id), Is.Not.Null);
             }
         }
 
 
         [Test]
-        public void CaptureWithoutStacktrace_ReturnsValidId()
+        public void CaptureException_WithoutStacktrace_ReturnsValidID()
         {
-            Console.WriteLine("Send exception without stacktrace.");
             var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
-            Console.WriteLine("Sent packet: " + id);
+            //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
+        }
+
+
+        [Test]
+        public void CaptureMessage_ReturnsValidID()
+        {
+            var id = this.ravenClient.CaptureMessage("Test");
+            //Console.WriteLine("Sent packet: " + id);
+
+            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
+        }
+
+
+        [Test]
+        public void CaptureMessage_WithFormat_ReturnsValidID()
+        {
+            object[] args = Enumerable.Range(0, 5).Select(i => Guid.NewGuid()).Cast<object>().ToArray();
+            var message = new SentryMessage("Lorem %s ipsum %s dolor %s sit %s amet %s.", args);
+            var id = this.ravenClient.CaptureMessage(message);
+            //Console.WriteLine("Sent packet: " + id);
+
+            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
         }
     }
 }

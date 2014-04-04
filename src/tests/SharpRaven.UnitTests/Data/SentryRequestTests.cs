@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -86,7 +86,7 @@ namespace SharpRaven.UnitTests.Data
             {
                 Assert.That(request.Data, Is.TypeOf<Dictionary<string, string>>());
 
-                var data = (Dictionary<string, string>) request.Data;
+                var data = (Dictionary<string, string>)request.Data;
 
                 Assert.That(data, Has.Count.EqualTo(1));
                 Assert.That(data["Form1"], Is.EqualTo("Value1"));

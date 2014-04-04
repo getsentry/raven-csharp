@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -30,29 +30,37 @@
 
 using System;
 
-namespace SharpRaven.UnitTests
+using NUnit.Framework;
+
+using SharpRaven.Data;
+using SharpRaven.UnitTests.Utilities;
+
+namespace SharpRaven.UnitTests.Data
 {
-    public static class TestHelper
+    [TestFixture]
+    public class SentryStackTracetests
     {
-        private static void PerformDivideByZero()
+        [Test]
+        public void Constructor_ExceptionWithFrames_FramesAreAsExpected()
         {
-            int i2 = 0;
-            int i = 10 / i2;
+            var exception = TestHelper.GetException();
+            SentryStacktrace stacktrace = new SentryStacktrace(exception);
+
+            Console.WriteLine(exception);
+
+            Assert.That(stacktrace.Frames, Is.Not.Null);
+            Assert.That(stacktrace.Frames, Has.Length.EqualTo(2));
+            Assert.That(stacktrace.Frames[0].Function, Is.EqualTo("PerformDivideByZero"));
+            Assert.That(stacktrace.Frames[1].Function, Is.EqualTo("GetException"));
         }
 
 
-        public static Exception GetException()
+        [Test]
+        public void Constructor_NullException_DoesNotThrow()
         {
-            try
-            {
-                PerformDivideByZero();
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+            SentryStacktrace stacktrace = new SentryStacktrace(null);
 
-            return null;
+            Assert.That(stacktrace.Frames, Is.Null);
         }
     }
 }

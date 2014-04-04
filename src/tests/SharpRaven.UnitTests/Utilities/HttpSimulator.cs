@@ -28,44 +28,37 @@ namespace SharpRaven.UnitTests.Utilities
     public class HttpSimulator : IDisposable
     {
         private const string DefaultPhysicalAppPath = @"c:\InetPub\wwwRoot\";
+        private readonly NameValueCollection _cookies = new NameValueCollection();
         private readonly NameValueCollection _formVars = new NameValueCollection();
         private readonly NameValueCollection _headers = new NameValueCollection();
-        private readonly NameValueCollection _cookies = new NameValueCollection();
-        private Uri _referer;
         private string _applicationPath = "/";
         private StringBuilder _builder;
+        private string _currentExecutionPath;
         private string _physicalApplicationPath = DefaultPhysicalAppPath;
         private string _physicalPath = DefaultPhysicalAppPath;
+        private Uri _referer;
         private TextWriter _responseWriter;
         private SimulatedHttpRequest _workerRequest;
-        private string _currentExecutionPath;
-        
+
+
         public HttpSimulator()
             : this("/", DefaultPhysicalAppPath)
         {
         }
+
 
         public HttpSimulator(string applicationPath)
             : this(applicationPath, DefaultPhysicalAppPath)
         {
         }
 
+
         public HttpSimulator(string applicationPath, string physicalApplicationPath)
         {
-            this.ApplicationPath = applicationPath;
-            this.PhysicalApplicationPath = physicalApplicationPath;
+            ApplicationPath = applicationPath;
+            PhysicalApplicationPath = physicalApplicationPath;
         }
 
-        public string Host { get; private set; }
-
-        public string LocalPath { get; private set; }
-
-        public int Port { get; private set; }
-
-        /// <summary>
-        /// Portion of the URL after the application.
-        /// </summary>
-        public string Page { get; private set; }
 
         /// <summary>
         /// The same thing as the IIS Virtual directory. It's 
@@ -80,6 +73,15 @@ namespace SharpRaven.UnitTests.Utilities
                 this._applicationPath = NormalizeSlashes(this._applicationPath);
             }
         }
+
+        public string Host { get; private set; }
+
+        public string LocalPath { get; private set; }
+
+        /// <summary>
+        /// Portion of the URL after the application.
+        /// </summary>
+        public string Page { get; private set; }
 
         /// <summary>
         /// Physical path to the application (used for simulation purposes).
@@ -103,11 +105,7 @@ namespace SharpRaven.UnitTests.Utilities
             get { return this._physicalPath; }
         }
 
-        public TextWriter ResponseWriter
-        {
-            get { return this._responseWriter; }
-            set { this._responseWriter = value; }
-        }
+        public int Port { get; private set; }
 
         /// <summary>
         /// Returns the text from the response to the simulated request.
@@ -117,10 +115,94 @@ namespace SharpRaven.UnitTests.Utilities
             get { return (this._builder ?? new StringBuilder()).ToString(); }
         }
 
+        public TextWriter ResponseWriter
+        {
+            get { return this._responseWriter; }
+            set { this._responseWriter = value; }
+        }
+
         public SimulatedHttpRequest WorkerRequest
         {
             get { return this._workerRequest; }
         }
+
+
+        ///<summary>
+        ///Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///</summary>
+        ///<filterpriority>2</filterpriority>
+        public void Dispose()
+        {
+            if (HttpContext.Current != null)
+                HttpContext.Current = null;
+        }
+
+
+        /// <summary>
+        /// Sets the cookie.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        /// <exception cref="System.InvalidOperationException">Cannot set headers after calling Simulate().</exception>
+        public HttpSimulator SetCookie(string name, string value)
+        {
+            if (this._workerRequest != null)
+                throw new InvalidOperationException("Cannot set headers after calling Simulate().");
+
+            this._cookies.Add(name, value);
+
+            return this;
+        }
+
+
+        /// <summary>
+        /// Sets a form variable.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public HttpSimulator SetFormVariable(string name, string value)
+        {
+            if (this._workerRequest != null)
+                throw new InvalidOperationException("Cannot set form variables after calling Simulate().");
+
+            this._formVars.Add(name, value);
+
+            return this;
+        }
+
+
+        /// <summary>
+        /// Sets a header value.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public HttpSimulator SetHeader(string name, string value)
+        {
+            if (this._workerRequest != null)
+                throw new InvalidOperationException("Cannot set headers after calling Simulate().");
+
+            this._headers.Add(name, value);
+
+            return this;
+        }
+
+
+        /// <summary>
+        /// Sets the referer for the request. Uses a fluent interface.
+        /// </summary>
+        /// <param name="referer"></param>
+        /// <returns></returns>
+        public HttpSimulator SetReferer(Uri referer)
+        {
+            if (this._workerRequest != null)
+                this._workerRequest.SetReferer(referer);
+            this._referer = referer;
+            return this;
+        }
+
 
         /// <summary>
         /// Sets up the HttpContext objects to simulate a GET request.
@@ -133,6 +215,7 @@ namespace SharpRaven.UnitTests.Utilities
             return SimulateRequest(new Uri("http://localhost/"));
         }
 
+
         /// <summary>
         /// Sets up the HttpContext objects to simulate a GET request.
         /// </summary>
@@ -141,6 +224,7 @@ namespace SharpRaven.UnitTests.Utilities
         {
             return SimulateRequest(url, HttpVerb.GET);
         }
+
 
         /// Sets up the HttpContext objects to simulate a request.
         /// </summary>
@@ -151,6 +235,7 @@ namespace SharpRaven.UnitTests.Utilities
             return SimulateRequest(url, httpVerb, null, null);
         }
 
+
         /// <summary>
         /// Sets up the HttpContext objects to simulate a POST request.
         /// </summary>
@@ -160,6 +245,7 @@ namespace SharpRaven.UnitTests.Utilities
         {
             return SimulateRequest(url, HttpVerb.POST, formVariables, null);
         }
+
 
         /// <summary>
         /// Sets up the HttpContext objects to simulate a POST request.
@@ -172,6 +258,7 @@ namespace SharpRaven.UnitTests.Utilities
             return SimulateRequest(url, HttpVerb.POST, formVariables, headers);
         }
 
+
         /// <summary>
         /// Sets up the HttpContext objects to simulate a request.
         /// </summary>
@@ -183,6 +270,24 @@ namespace SharpRaven.UnitTests.Utilities
             return SimulateRequest(url, httpVerb, null, headers);
         }
 
+
+        protected static HostingEnvironment GetHostingEnvironment()
+        {
+            HostingEnvironment environment;
+            try
+            {
+                environment = new HostingEnvironment();
+            }
+            catch (InvalidOperationException)
+            {
+                //Shoot, we need to grab it via reflection.
+                environment = ReflectionHelper.GetStaticFieldValue<HostingEnvironment>("_theHostingEnvironment",
+                                                                                       typeof(HostingEnvironment));
+            }
+            return environment;
+        }
+
+
         /// <summary>
         /// Sets up the HttpContext objects to simulate a request.
         /// </summary>
@@ -190,7 +295,9 @@ namespace SharpRaven.UnitTests.Utilities
         /// <param name="httpVerb"></param>
         /// <param name="formVariables"></param>
         /// <param name="headers"></param>
-        protected virtual HttpSimulator SimulateRequest(Uri url, HttpVerb httpVerb, NameValueCollection formVariables,
+        protected virtual HttpSimulator SimulateRequest(Uri url,
+                                                        HttpVerb httpVerb,
+                                                        NameValueCollection formVariables,
                                                         NameValueCollection headers)
         {
             HttpContext.Current = null;
@@ -208,31 +315,30 @@ namespace SharpRaven.UnitTests.Utilities
             string query = ExtractQueryStringPart(url);
 
             if (formVariables != null)
-            {
                 this._formVars.Add(formVariables);
-            }
 
             if (this._formVars.Count > 0)
-            {
                 httpVerb = HttpVerb.POST; //Need to enforce this.
-            }
 
             if (headers != null)
-            {
                 this._headers.Add(headers);
-            }
 
-            this._workerRequest = new SimulatedHttpRequest(this.ApplicationPath, this.PhysicalApplicationPath, this.PhysicalPath, this.Page, query,
-                                                     this._responseWriter, this.Host, this.Port, httpVerb.ToString());
+            this._workerRequest = new SimulatedHttpRequest(ApplicationPath,
+                                                           PhysicalApplicationPath,
+                                                           PhysicalPath,
+                                                           Page,
+                                                           query,
+                                                           this._responseWriter,
+                                                           Host,
+                                                           Port,
+                                                           httpVerb.ToString());
             this._workerRequest.CurrentExecutionPath = this._currentExecutionPath;
             this._workerRequest.Form.Add(this._formVars);
             this._workerRequest.Headers.Add(this._headers);
             this._workerRequest.Cookies.Add(this._cookies);
 
             if (this._referer != null)
-            {
                 this._workerRequest.SetReferer(this._referer);
-            }
 
             InitializeSession();
             InitializeApplication();
@@ -263,6 +369,16 @@ namespace SharpRaven.UnitTests.Utilities
             return this;
         }
 
+
+        private static string ExtractQueryStringPart(Uri url)
+        {
+            string query = url.Query ?? string.Empty;
+            if (query.StartsWith("?"))
+                return query.Substring(1);
+            return query;
+        }
+
+
         private static void InitializeApplication()
         {
             Type appFactoryType =
@@ -272,131 +388,49 @@ namespace SharpRaven.UnitTests.Utilities
             ReflectionHelper.SetPrivateInstanceFieldValue("_state", appFactory, HttpContext.Current.Application);
         }
 
+
+        private static string RightAfter(string original, string search)
+        {
+            if (search.Length > original.Length || search.Length == 0)
+                return original;
+
+            int searchIndex = original.IndexOf(search, 0, StringComparison.OrdinalIgnoreCase);
+
+            if (searchIndex < 0)
+                return original;
+
+            return original.Substring(original.IndexOf(search) + search.Length);
+        }
+
+
         private void InitializeSession()
         {
             HttpContext.Current = new HttpContext(this._workerRequest);
             HttpContext.Current.Items.Clear();
             var session =
                 (HttpSessionState)
-                ReflectionHelper.Instantiate(typeof(HttpSessionState), new[] { typeof(IHttpSessionState) },
+                ReflectionHelper.Instantiate(typeof(HttpSessionState),
+                                             new[] { typeof(IHttpSessionState) },
                                              new FakeHttpSessionState());
 
             HttpContext.Current.Items.Add("AspSession", session);
         }
 
-        /// <summary>
-        /// Sets the referer for the request. Uses a fluent interface.
-        /// </summary>
-        /// <param name="referer"></param>
-        /// <returns></returns>
-        public HttpSimulator SetReferer(Uri referer)
-        {
-            if (this._workerRequest != null)
-            {
-                this._workerRequest.SetReferer(referer);
-            }
-            this._referer = referer;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets a form variable.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public HttpSimulator SetFormVariable(string name, string value)
-        {
-            if (this._workerRequest != null)
-            {
-                throw new InvalidOperationException("Cannot set form variables after calling Simulate().");
-            }
-
-            this._formVars.Add(name, value);
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets a header value.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public HttpSimulator SetHeader(string name, string value)
-        {
-            if (this._workerRequest != null)
-            {
-                throw new InvalidOperationException("Cannot set headers after calling Simulate().");
-            }
-
-            this._headers.Add(name, value);
-
-            return this;
-        }
-
-
-        /// <summary>
-        /// Sets the cookie.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">Cannot set headers after calling Simulate().</exception>
-        public HttpSimulator SetCookie(string name, string value)
-        {
-            if (this._workerRequest != null)
-            {
-                throw new InvalidOperationException("Cannot set headers after calling Simulate().");
-            }
-
-            this._cookies.Add(name, value);
-
-            return this;
-        }
 
         private void ParseRequestUrl(Uri url)
         {
             if (url == null)
-            {
                 return;
-            }
-            this.Host = url.Host;
-            this.Port = url.Port;
-            this.LocalPath = url.LocalPath;
-            this.Page = StripPrecedingSlashes(RightAfter(url.LocalPath, this.ApplicationPath));
-            this._physicalPath = Path.Combine(this._physicalApplicationPath, this.Page.Replace("/", @"\"));
+            Host = url.Host;
+            Port = url.Port;
+            LocalPath = url.LocalPath;
+            Page = StripPrecedingSlashes(RightAfter(url.LocalPath, ApplicationPath));
+            this._physicalPath = Path.Combine(this._physicalApplicationPath, Page.Replace("/", @"\"));
             this._currentExecutionPath = "/" + StripPrecedingSlashes(url.LocalPath);
         }
 
-        static string RightAfter(string original, string search)
-        {
-            if (search.Length > original.Length || search.Length == 0)
-            {
-                return original;
-            }
 
-            int searchIndex = original.IndexOf(search, 0, StringComparison.OrdinalIgnoreCase);
-
-            if (searchIndex < 0)
-            {
-                return original;
-            }
-
-            return original.Substring(original.IndexOf(search) + search.Length);
-        }
-
-        private static string ExtractQueryStringPart(Uri url)
-        {
-            string query = url.Query ?? string.Empty;
-            if (query.StartsWith("?"))
-            {
-                return query.Substring(1);
-            }
-            return query;
-        }
-
-        void SetHttpRuntimeInternals()
+        private void SetHttpRuntimeInternals()
         {
             //We cheat by using reflection.
 
@@ -404,48 +438,22 @@ namespace SharpRaven.UnitTests.Utilities
             var runtime = ReflectionHelper.GetStaticFieldValue<HttpRuntime>("_theRuntime", typeof(HttpRuntime));
 
             // set app path property value
-            ReflectionHelper.SetPrivateInstanceFieldValue("_appDomainAppPath", runtime, this.PhysicalApplicationPath);
+            ReflectionHelper.SetPrivateInstanceFieldValue("_appDomainAppPath", runtime, PhysicalApplicationPath);
             // set app virtual path property value
-            const string vpathTypeName = "System.Web.VirtualPath, System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
-            object virtualPath = ReflectionHelper.Instantiate(vpathTypeName, new[] { typeof(string) },
-                                                              new object[] { this.ApplicationPath + "/" });
+            const string vpathTypeName =
+                "System.Web.VirtualPath, System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+            object virtualPath = ReflectionHelper.Instantiate(vpathTypeName,
+                                                              new[] { typeof(string) },
+                                                              new object[] { ApplicationPath + "/" });
             ReflectionHelper.SetPrivateInstanceFieldValue("_appDomainAppVPath", runtime, virtualPath);
 
             // set codegen dir property value
-            ReflectionHelper.SetPrivateInstanceFieldValue("_codegenDir", runtime, this.PhysicalApplicationPath);
+            ReflectionHelper.SetPrivateInstanceFieldValue("_codegenDir", runtime, PhysicalApplicationPath);
 
             HostingEnvironment environment = GetHostingEnvironment();
-            ReflectionHelper.SetPrivateInstanceFieldValue("_appPhysicalPath", environment, this.PhysicalApplicationPath);
+            ReflectionHelper.SetPrivateInstanceFieldValue("_appPhysicalPath", environment, PhysicalApplicationPath);
             ReflectionHelper.SetPrivateInstanceFieldValue("_appVirtualPath", environment, virtualPath);
             ReflectionHelper.SetPrivateInstanceFieldValue("_configMapPath", environment, new ConfigMapPath(this));
-        }
-
-        protected static HostingEnvironment GetHostingEnvironment()
-        {
-            HostingEnvironment environment;
-            try
-            {
-                environment = new HostingEnvironment();
-            }
-            catch (InvalidOperationException)
-            {
-                //Shoot, we need to grab it via reflection.
-                environment = ReflectionHelper.GetStaticFieldValue<HostingEnvironment>("_theHostingEnvironment",
-                                                                                       typeof(HostingEnvironment));
-            }
-            return environment;
-        }
-
-        ///<summary>
-        ///Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        ///</summary>
-        ///<filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            if (HttpContext.Current != null)
-            {
-                HttpContext.Current = null;
-            }
         }
 
         #region --- Text Manipulation Methods for slashes ---
@@ -453,9 +461,7 @@ namespace SharpRaven.UnitTests.Utilities
         protected static string NormalizeSlashes(string s)
         {
             if (String.IsNullOrEmpty(s) || s == "/")
-            {
                 return "/";
-            }
 
             s = s.Replace(@"\", "/");
 
@@ -468,23 +474,24 @@ namespace SharpRaven.UnitTests.Utilities
             return "/" + normalized;
         }
 
+
         protected static string StripPrecedingSlashes(string s)
         {
             return Regex.Replace(s, "^/*(.*)", "$1");
         }
 
-        protected static string StripTrailingSlashes(string s)
-        {
-            return Regex.Replace(s, "(.*)/*$", "$1", RegexOptions.RightToLeft);
-        }
 
         protected static string StripTrailingBackSlashes(string s)
         {
             if (String.IsNullOrEmpty(s))
-            {
                 return string.Empty;
-            }
             return Regex.Replace(s, @"(.*)\\*$", "$1", RegexOptions.RightToLeft);
+        }
+
+
+        protected static string StripTrailingSlashes(string s)
+        {
+            return Regex.Replace(s, "(.*)/*$", "$1", RegexOptions.RightToLeft);
         }
 
         #endregion
@@ -495,6 +502,7 @@ namespace SharpRaven.UnitTests.Utilities
         {
             private readonly HttpSimulator _requestSimulation;
 
+
             public ConfigMapPath(HttpSimulator simulation)
             {
                 this._requestSimulation = simulation;
@@ -502,30 +510,35 @@ namespace SharpRaven.UnitTests.Utilities
 
             #region IConfigMapPath Members
 
-            public string GetMachineConfigFilename()
+            public string GetAppPathForPath(string siteID, string path)
             {
-                throw new NotImplementedException();
+                return this._requestSimulation.ApplicationPath;
             }
 
-            public string GetRootWebConfigFilename()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void GetPathConfigFilename(string siteID, string path, out string directory, out string baseName)
-            {
-                throw new NotImplementedException();
-            }
 
             public void GetDefaultSiteNameAndID(out string siteName, out string siteID)
             {
                 throw new NotImplementedException();
             }
 
-            public void ResolveSiteArgument(string siteArgument, out string siteName, out string siteID)
+
+            public string GetMachineConfigFilename()
             {
                 throw new NotImplementedException();
             }
+
+
+            public void GetPathConfigFilename(string siteID, string path, out string directory, out string baseName)
+            {
+                throw new NotImplementedException();
+            }
+
+
+            public string GetRootWebConfigFilename()
+            {
+                throw new NotImplementedException();
+            }
+
 
             public string MapPath(string siteID, string path)
             {
@@ -533,9 +546,10 @@ namespace SharpRaven.UnitTests.Utilities
                 return Path.Combine(this._requestSimulation.PhysicalApplicationPath, page.Replace("/", @"\"));
             }
 
-            public string GetAppPathForPath(string siteID, string path)
+
+            public void ResolveSiteArgument(string siteArgument, out string siteName, out string siteID)
             {
-                return this._requestSimulation.ApplicationPath;
+                throw new NotImplementedException();
             }
 
             #endregion
@@ -547,194 +561,13 @@ namespace SharpRaven.UnitTests.Utilities
 
         public class FakeHttpSessionState : NameObjectCollectionBase, IHttpSessionState
         {
+            private readonly string sessionID = Guid.NewGuid().ToString();
+            private readonly HttpStaticObjectsCollection staticObjects = new HttpStaticObjectsCollection();
+            private readonly object syncRoot = new Object();
             private bool isNewSession = true;
-            private string sessionID = Guid.NewGuid().ToString();
-            private HttpStaticObjectsCollection staticObjects = new HttpStaticObjectsCollection();
-            private object syncRoot = new Object();
             private int timeout = 30; //minutes
 
             #region IHttpSessionState Members
-
-            ///<summary>
-            ///Ends the current session.
-            ///</summary>
-            ///
-            public void Abandon()
-            {
-                BaseClear();
-            }
-
-            ///<summary>
-            ///Adds a new item to the session-state collection.
-            ///</summary>
-            ///
-            ///<param name="name">The name of the item to add to the session-state collection. </param>
-            ///<param name="value">The value of the item to add to the session-state collection. </param>
-            public void Add(string name, object value)
-            {
-                BaseAdd(name, value);
-            }
-
-            ///<summary>
-            ///Deletes an item from the session-state item collection.
-            ///</summary>
-            ///
-            ///<param name="name">The name of the item to delete from the session-state item collection. </param>
-            public void Remove(string name)
-            {
-                BaseRemove(name);
-            }
-
-            ///<summary>
-            ///Deletes an item at a specified index from the session-state item collection.
-            ///</summary>
-            ///
-            ///<param name="index">The index of the item to remove from the session-state collection. </param>
-            public void RemoveAt(int index)
-            {
-                BaseRemoveAt(index);
-            }
-
-            ///<summary>
-            ///Clears all values from the session-state item collection.
-            ///</summary>
-            ///
-            public void Clear()
-            {
-                BaseClear();
-            }
-
-            ///<summary>
-            ///Clears all values from the session-state item collection.
-            ///</summary>
-            ///
-            public void RemoveAll()
-            {
-                BaseClear();
-            }
-
-            ///<summary>
-            ///Copies the collection of session-state item values to a one-dimensional array, starting at the specified index in the array.
-            ///</summary>
-            ///
-            ///<param name="array">The <see cref="T:System.Array"></see> that receives the session values. </param>
-            ///<param name="index">The index in array where copying starts. </param>
-            public void CopyTo(Array array, int index)
-            {
-                throw new NotImplementedException();
-            }
-
-            ///<summary>
-            ///Gets the unique session identifier for the session.
-            ///</summary>
-            ///
-            ///<returns>
-            ///The session ID.
-            ///</returns>
-            ///
-            public string SessionID
-            {
-                get { return this.sessionID; }
-            }
-
-            ///<summary>
-            ///Gets and sets the time-out period (in minutes) allowed between requests before the session-state provider terminates the session.
-            ///</summary>
-            ///
-            ///<returns>
-            ///The time-out period, in minutes.
-            ///</returns>
-            ///
-            public int Timeout
-            {
-                get { return this.timeout; }
-                set { this.timeout = value; }
-            }
-
-            ///<summary>
-            ///Gets a value indicating whether the session was created with the current request.
-            ///</summary>
-            ///
-            ///<returns>
-            ///true if the session was created with the current request; otherwise, false.
-            ///</returns>
-            ///
-            public bool IsNewSession
-            {
-                get { return this.isNewSession; }
-            }
-
-            ///<summary>
-            ///Gets the current session-state mode.
-            ///</summary>
-            ///
-            ///<returns>
-            ///One of the <see cref="T:System.Web.SessionState.SessionStateMode"></see> values.
-            ///</returns>
-            ///
-            public SessionStateMode Mode
-            {
-                get { return SessionStateMode.InProc; }
-            }
-
-            ///<summary>
-            ///Gets a value indicating whether the session ID is embedded in the URL or stored in an HTTP cookie.
-            ///</summary>
-            ///
-            ///<returns>
-            ///true if the session is embedded in the URL; otherwise, false.
-            ///</returns>
-            ///
-            public bool IsCookieless
-            {
-                get { return false; }
-            }
-
-            ///<summary>
-            ///Gets a value that indicates whether the application is configured for cookieless sessions.
-            ///</summary>
-            ///
-            ///<returns>
-            ///One of the <see cref="T:System.Web.HttpCookieMode"></see> values that indicate whether the application is configured for cookieless sessions. The default is <see cref="F:System.Web.HttpCookieMode.UseCookies"></see>.
-            ///</returns>
-            ///
-            public HttpCookieMode CookieMode
-            {
-                get { return HttpCookieMode.UseCookies; }
-            }
-
-            ///<summary>
-            ///Gets or sets the locale identifier (LCID) of the current session.
-            ///</summary>
-            ///
-            ///<returns>
-            ///A <see cref="T:System.Globalization.CultureInfo"></see> instance that specifies the culture of the current session.
-            ///</returns>
-            ///
-            public int LCID { get; set; }
-
-            ///<summary>
-            ///Gets or sets the code-page identifier for the current session.
-            ///</summary>
-            ///
-            ///<returns>
-            ///The code-page identifier for the current session.
-            ///</returns>
-            ///
-            public int CodePage { get; set; }
-
-            ///<summary>
-            ///Gets a collection of objects declared by &lt;object Runat="Server" Scope="Session"/&gt; tags within the ASP.NET application file Global.asax.
-            ///</summary>
-            ///
-            ///<returns>
-            ///An <see cref="T:System.Web.HttpStaticObjectsCollection"></see> containing objects declared in the Global.asax file.
-            ///</returns>
-            ///
-            public HttpStaticObjectsCollection StaticObjects
-            {
-                get { return this.staticObjects; }
-            }
 
             ///<summary>
             ///Gets or sets a session-state item value by name.
@@ -767,6 +600,116 @@ namespace SharpRaven.UnitTests.Utilities
             }
 
             ///<summary>
+            ///Gets or sets the code-page identifier for the current session.
+            ///</summary>
+            ///
+            ///<returns>
+            ///The code-page identifier for the current session.
+            ///</returns>
+            ///
+            public int CodePage { get; set; }
+
+            ///<summary>
+            ///Gets a value that indicates whether the application is configured for cookieless sessions.
+            ///</summary>
+            ///
+            ///<returns>
+            ///One of the <see cref="T:System.Web.HttpCookieMode"></see> values that indicate whether the application is configured for cookieless sessions. The default is <see cref="F:System.Web.HttpCookieMode.UseCookies"></see>.
+            ///</returns>
+            ///
+            public HttpCookieMode CookieMode
+            {
+                get { return HttpCookieMode.UseCookies; }
+            }
+
+            ///<summary>
+            ///Gets a value indicating whether the session ID is embedded in the URL or stored in an HTTP cookie.
+            ///</summary>
+            ///
+            ///<returns>
+            ///true if the session is embedded in the URL; otherwise, false.
+            ///</returns>
+            ///
+            public bool IsCookieless
+            {
+                get { return false; }
+            }
+
+            ///<summary>
+            ///Gets a value indicating whether the session was created with the current request.
+            ///</summary>
+            ///
+            ///<returns>
+            ///true if the session was created with the current request; otherwise, false.
+            ///</returns>
+            ///
+            public bool IsNewSession
+            {
+                get { return this.isNewSession; }
+            }
+
+            ///<summary>
+            ///Gets a value indicating whether access to the collection of session-state values is synchronized (thread safe).
+            ///</summary>
+            ///<returns>
+            ///true if access to the collection is synchronized (thread safe); otherwise, false.
+            ///</returns>
+            ///
+            public bool IsSynchronized
+            {
+                get { return true; }
+            }
+
+            ///<summary>
+            ///Gets or sets the locale identifier (LCID) of the current session.
+            ///</summary>
+            ///
+            ///<returns>
+            ///A <see cref="T:System.Globalization.CultureInfo"></see> instance that specifies the culture of the current session.
+            ///</returns>
+            ///
+            public int LCID { get; set; }
+
+            ///<summary>
+            ///Gets the current session-state mode.
+            ///</summary>
+            ///
+            ///<returns>
+            ///One of the <see cref="T:System.Web.SessionState.SessionStateMode"></see> values.
+            ///</returns>
+            ///
+            public SessionStateMode Mode
+            {
+                get { return SessionStateMode.InProc; }
+            }
+
+            ///<summary>
+            ///Gets the unique session identifier for the session.
+            ///</summary>
+            ///
+            ///<returns>
+            ///The session ID.
+            ///</returns>
+            ///
+            public string SessionID
+            {
+                get { return this.sessionID; }
+            }
+
+            ///<summary>
+            ///Gets a collection of objects declared by &lt;object Runat="Server" Scope="Session"/&gt; tags within the ASP.NET application file Global.asax.
+            ///</summary>
+            ///
+            ///<returns>
+            ///An <see cref="T:System.Web.HttpStaticObjectsCollection"></see> containing objects declared in the Global.asax file.
+            ///</returns>
+            ///
+            public HttpStaticObjectsCollection StaticObjects
+            {
+                get { return this.staticObjects; }
+            }
+
+            ///<summary>
             ///Gets an object that can be used to synchronize access to the collection of session-state values.
             ///</summary>
             ///
@@ -779,17 +722,18 @@ namespace SharpRaven.UnitTests.Utilities
                 get { return this.syncRoot; }
             }
 
-
             ///<summary>
-            ///Gets a value indicating whether access to the collection of session-state values is synchronized (thread safe).
+            ///Gets and sets the time-out period (in minutes) allowed between requests before the session-state provider terminates the session.
             ///</summary>
+            ///
             ///<returns>
-            ///true if access to the collection is synchronized (thread safe); otherwise, false.
+            ///The time-out period, in minutes.
             ///</returns>
             ///
-            public bool IsSynchronized
+            public int Timeout
             {
-                get { return true; }
+                get { return this.timeout; }
+                set { this.timeout = value; }
             }
 
             ///<summary>
@@ -805,10 +749,85 @@ namespace SharpRaven.UnitTests.Utilities
                 get { return true; }
             }
 
+
+            ///<summary>
+            ///Ends the current session.
+            ///</summary>
+            ///
+            public void Abandon()
+            {
+                BaseClear();
+            }
+
+
+            ///<summary>
+            ///Adds a new item to the session-state collection.
+            ///</summary>
+            ///
+            ///<param name="name">The name of the item to add to the session-state collection. </param>
+            ///<param name="value">The value of the item to add to the session-state collection. </param>
+            public void Add(string name, object value)
+            {
+                BaseAdd(name, value);
+            }
+
+
+            ///<summary>
+            ///Clears all values from the session-state item collection.
+            ///</summary>
+            ///
+            public void Clear()
+            {
+                BaseClear();
+            }
+
+
+            ///<summary>
+            ///Copies the collection of session-state item values to a one-dimensional array, starting at the specified index in the array.
+            ///</summary>
+            ///
+            ///<param name="array">The <see cref="T:System.Array"></see> that receives the session values. </param>
+            ///<param name="index">The index in array where copying starts. </param>
+            public void CopyTo(Array array, int index)
+            {
+                throw new NotImplementedException();
+            }
+
+
+            ///<summary>
+            ///Deletes an item from the session-state item collection.
+            ///</summary>
+            ///
+            ///<param name="name">The name of the item to delete from the session-state item collection. </param>
+            public void Remove(string name)
+            {
+                BaseRemove(name);
+            }
+
+
+            ///<summary>
+            ///Clears all values from the session-state item collection.
+            ///</summary>
+            ///
+            public void RemoveAll()
+            {
+                BaseClear();
+            }
+
+
+            ///<summary>
+            ///Deletes an item at a specified index from the session-state item collection.
+            ///</summary>
+            ///
+            ///<param name="index">The index of the item to remove from the session-state collection. </param>
+            public void RemoveAt(int index)
+            {
+                BaseRemoveAt(index);
+            }
+
             #endregion
         }
 
         #endregion
-
     }
 }

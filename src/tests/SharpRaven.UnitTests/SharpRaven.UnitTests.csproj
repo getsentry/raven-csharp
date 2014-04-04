@@ -48,11 +48,18 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\JsonPacketFactoryTests.cs" />
+    <Compile Include="Data\JsonPacketTests.cs" />
+    <Compile Include="Data\SentryExceptionTests.cs" />
+    <Compile Include="Data\SentryMessageTests.cs" />
     <Compile Include="Data\SentryRequestTests.cs" />
+    <Compile Include="Data\SentryStacktraceTests.cs" />
     <Compile Include="Data\SentryUserTests.cs" />
+    <Compile Include="DsnTests.cs" />
     <Compile Include="Logging\LogScrubberTests.cs" />
     <Compile Include="Integration\NuGetTests.cs" />
     <Compile Include="Integration\CaptureTests.cs" />
+    <Compile Include="RavenClientTests.cs" />
     <Compile Include="Utilities\HttpSimulator.cs" />
     <Compile Include="Utilities\PacketBuilderTests.cs" />
     <Compile Include="Utilities\ReflectionHelper.cs" />
@@ -66,7 +73,7 @@
     <Compile Include="SerializationTests.cs" />
     <Compile Include="SchemaTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestHelper.cs" />
+    <Compile Include="Utilities\TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -30,10 +30,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Newtonsoft.Json;
 
 using SharpRaven.Serialization;
+using SharpRaven.Utilities;
 
 namespace SharpRaven.Data
 {
@@ -46,38 +48,41 @@ namespace SharpRaven.Data
         /// Initializes a new instance of the <see cref="JsonPacket"/> class.
         /// </summary>
         /// <param name="project">The project.</param>
-        public JsonPacket(string project)
+        /// <param name="exception">The <see cref="Exception"/>.</param>
+        public JsonPacket(string project, Exception exception)
+            : this(project)
         {
-            // Get assemblies.
-            /*Modules = new List<Module>();
-            foreach (System.Reflection.Module m in Utilities.SystemUtil.GetModules()) {
-                Modules.Add(new Module() {
-                    Name = m.ScopeName,
-                    Version = m.ModuleVersionId.ToString()
-                });
-            }*/
-            // The current hostname
-            ServerName = Environment.MachineName;
-            // Create timestamp
-            TimeStamp = DateTime.UtcNow;
-            // Default logger.
-            Logger = "root";
-            // Default error level.
-            Level = ErrorLevel.Error;
-            // Create a guid.
-            EventID = Guid.NewGuid().ToString().Replace("-", String.Empty);
-            // Project
-            Project = "default";
-            // Platform
-            Platform = "csharp";
+            if (exception == null)
+                throw new ArgumentNullException("exception");
 
-            // Get data from the HTTP request
-            Request = SentryRequest.GetRequest();
-            // Get the user data from the HTTP request
-            if (Request != null)
-                User = Request.GetUser();
+            Message = exception.Message;
 
-            Project = project;
+            if (exception.TargetSite != null)
+            {
+                // ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
+                Culprit = String.Format("{0} in {1}",
+                                        ((exception.TargetSite.ReflectedType == null)
+                                             ? "<dynamic type>"
+                                             : exception.TargetSite.ReflectedType.FullName),
+                                        exception.TargetSite.Name);
+                // ReSharper restore ConditionIsAlwaysTrueOrFalse
+            }
+
+            Exceptions = new List<SentryException>();
+
+            for (Exception currentException = exception;
+                currentException != null;
+                currentException = currentException.InnerException)
+            {
+                SentryException sentryException = new SentryException(currentException)
+                {
+                    Module = currentException.Source,
+                    Type = currentException.GetType().Name,
+                    Value = currentException.Message
+                };
+
+                Exceptions.Add(sentryException);
+            }
         }
 
 
@@ -85,65 +90,54 @@ namespace SharpRaven.Data
         /// Initializes a new instance of the <see cref="JsonPacket"/> class.
         /// </summary>
         /// <param name="project">The project.</param>
-        /// <param name="e">The decimal.</param>
-        public JsonPacket(string project, Exception e)
+        public JsonPacket(string project)
+            : this()
         {
-            Message = e.Message;
-
-            if (e.TargetSite != null)
-            {
-// ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
-                Culprit = String.Format("{0} in {1}",
-                                        ((e.TargetSite.ReflectedType == null)
-                                             ? "<dynamic type>"
-                                             : e.TargetSite.ReflectedType.FullName),
-                                        e.TargetSite.Name);
-// ReSharper restore ConditionIsAlwaysTrueOrFalse
-            }
+            if (project == null)
+                throw new ArgumentNullException("project");
 
             Project = project;
-            ServerName = Environment.MachineName;
-            Level = ErrorLevel.Error;
-
-            Exceptions = new List<SentryException>();
-
-            for (Exception currentException = e;
-                 currentException != null;
-                 currentException = currentException.InnerException)
-            {
-                SentryException sentryException = new SentryException(currentException);
-                sentryException.Module = currentException.Source;
-                sentryException.Type = currentException.GetType().Name;
-                sentryException.Value = currentException.Message;
-                Exceptions.Add(sentryException);
-            }
         }
 
 
         /// <summary>
-        /// An arbitrary mapping of additional metadata to store with the event.
+        /// Prevents a default instance of the <see cref="JsonPacket"/> class from being created.
         /// </summary>
-        [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
-        public object Extra { get; set; }
+        private JsonPacket()
+        {
+            // Get assemblies.
+            Modules = SystemUtil.GetModules().ToList();
 
-        /// <summary>
-        /// A map or list of tags for this event.
-        /// </summary>
-        [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, string> Tags { get; set; }
+            // The current hostname
+            ServerName = Environment.MachineName;
 
+            // Create timestamp
+            TimeStamp = DateTime.UtcNow;
 
-        /// <summary>
-        /// Hexadecimal string representing a uuid4 value.
-        /// </summary>
-        [JsonProperty(PropertyName = "event_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string EventID { get; set; }
+            // Default logger.
+            Logger = "root";
 
-        /// <summary>
-        /// String value representing the project
-        /// </summary>
-        [JsonProperty(PropertyName = "project", NullValueHandling = NullValueHandling.Ignore)]
-        public string Project { get; set; }
+            // Default error level.
+            Level = ErrorLevel.Error;
+
+            // Create a guid.
+            EventID = Guid.NewGuid().ToString("n");
+
+            // Project
+            Project = "default";
+
+            // Platform
+            Platform = "csharp";
+
+            // Get data from the HTTP request
+            Request = SentryRequest.GetRequest();
+
+            // Get the user data from the HTTP context or environment
+            User = Request != null
+                       ? Request.GetUser()
+                       : new SentryUser(Environment.UserName);
+        }
+
 
         /// <summary>
         /// Function call which was the primary perpetrator of this event.
@@ -153,57 +147,10 @@ namespace SharpRaven.Data
         public string Culprit { get; set; }
 
         /// <summary>
-        /// The record severity.
-        /// Defaults to error.
+        /// Hexadecimal string representing a uuid4 value.
         /// </summary>
-        [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore, Required = Required.Always)]
-        [JsonConverter(typeof(ErrorLevelConverter))]
-        public ErrorLevel Level { get; set; }
-
-        /// <summary>
-        /// Indicates when the logging record was created (in the Sentry client).
-        /// Defaults to DateTime.UtcNow()
-        /// </summary>
-        [JsonProperty(PropertyName = "timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime TimeStamp { get; set; }
-
-        /// <summary>
-        /// The name of the logger which created the record.
-        /// If missing, defaults to the string root.
-        /// 
-        /// Ex: "my.logger.name"
-        /// </summary>
-        [JsonProperty(PropertyName = "logger", NullValueHandling = NullValueHandling.Ignore)]
-        public string Logger { get; set; }
-
-        /// <summary>
-        /// A string representing the platform the client is submitting from. 
-        /// This will be used by the Sentry interface to customize various components in the interface.
-        /// </summary>
-        [JsonProperty(PropertyName = "platform", NullValueHandling = NullValueHandling.Ignore)]
-        public string Platform { get; set; }
-
-        /// <summary>
-        /// User-readable representation of this event
-        /// </summary>
-        [JsonProperty(PropertyName = "message", NullValueHandling = NullValueHandling.Ignore)]
-        public string Message { get; set; }
-
-        /// <summary>
-        /// Identifies the host client from which the event was recorded.
-        /// </summary>
-        [JsonProperty(PropertyName = "server_name", NullValueHandling = NullValueHandling.Ignore)]
-        public string ServerName { get; set; }
-
-        /// <summary>
-        /// A list of relevant modules (libraries) and their versions.
-        /// Automated to report all modules currently loaded in project.
-        /// </summary>
-        /// <value>
-        /// The modules.
-        /// </value>
-        [JsonProperty(PropertyName = "modules", NullValueHandling = NullValueHandling.Ignore)]
-        public List<Module> Modules { get; set; }
+        [JsonProperty(PropertyName = "event_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string EventID { get; set; }
 
         /// <summary>
         /// Gets or sets the exceptions.
@@ -215,6 +162,64 @@ namespace SharpRaven.Data
         public List<SentryException> Exceptions { get; set; }
 
         /// <summary>
+        /// An arbitrary mapping of additional metadata to store with the event.
+        /// </summary>
+        [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
+        public object Extra { get; set; }
+
+        /// <summary>
+        /// The record severity.
+        /// Defaults to error.
+        /// </summary>
+        [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore, Required = Required.Always)]
+        [JsonConverter(typeof(ErrorLevelConverter))]
+        public ErrorLevel Level { get; set; }
+
+        /// <summary>
+        /// The name of the logger which created the record.
+        /// If missing, defaults to the string root.
+        /// 
+        /// Ex: "my.logger.name"
+        /// </summary>
+        [JsonProperty(PropertyName = "logger", NullValueHandling = NullValueHandling.Ignore)]
+        public string Logger { get; set; }
+
+        /// <summary>
+        /// User-readable representation of this event
+        /// </summary>
+        [JsonProperty(PropertyName = "message", NullValueHandling = NullValueHandling.Ignore)]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// Optional Message with arguments.
+        /// </summary>
+        [JsonProperty(PropertyName = "sentry.interfaces.Message", NullValueHandling = NullValueHandling.Ignore)]
+        public SentryMessage MessageObject { get; set; }
+
+        /// <summary>
+        /// A list of relevant modules (libraries) and their versions.
+        /// Automated to report all modules currently loaded in project.
+        /// </summary>
+        /// <value>
+        /// The modules.
+        /// </value>
+        [JsonProperty(PropertyName = "modules", NullValueHandling = NullValueHandling.Ignore)]
+        public List<SentryModule> Modules { get; set; }
+
+        /// <summary>
+        /// A string representing the platform the client is submitting from. 
+        /// This will be used by the Sentry interface to customize various components in the interface.
+        /// </summary>
+        [JsonProperty(PropertyName = "platform", NullValueHandling = NullValueHandling.Ignore)]
+        public string Platform { get; set; }
+
+        /// <summary>
+        /// String value representing the project
+        /// </summary>
+        [JsonProperty(PropertyName = "project", NullValueHandling = NullValueHandling.Ignore)]
+        public string Project { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="SentryRequest"/> object, containing information about the HTTP request.
         /// </summary>
         /// <value>
@@ -222,6 +227,25 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "request", NullValueHandling = NullValueHandling.Ignore)]
         public SentryRequest Request { get; set; }
+
+        /// <summary>
+        /// Identifies the host client from which the event was recorded.
+        /// </summary>
+        [JsonProperty(PropertyName = "server_name", NullValueHandling = NullValueHandling.Ignore)]
+        public string ServerName { get; set; }
+
+        /// <summary>
+        /// A map or list of tags for this event.
+        /// </summary>
+        [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
+        public IDictionary<string, string> Tags { get; set; }
+
+        /// <summary>
+        /// Indicates when the logging record was created (in the Sentry client).
+        /// Defaults to DateTime.UtcNow()
+        /// </summary>
+        [JsonProperty(PropertyName = "timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime TimeStamp { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="SentryUser"/> object, which describes the authenticated User for a request.
@@ -234,6 +258,19 @@ namespace SharpRaven.Data
 
 
         /// <summary>
+        /// Converts the <see cref="JsonPacket" /> into a JSON string.
+        /// </summary>
+        /// <param name="formatting">The formatting.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket" /> as a JSON string.
+        /// </returns>
+        public virtual string ToString(Formatting formatting)
+        {
+            return JsonConvert.SerializeObject(this, formatting);
+        }
+
+
+        /// <summary>
         /// Converts the <see cref="JsonPacket"/> into a JSON string.
         /// </summary>
         /// <returns>
@@ -242,8 +279,6 @@ namespace SharpRaven.Data
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
-
-            //return @"{""project"": ""SharpRaven"",""event_id"": ""fc6d8c0c43fc4630ad850ee518f1b9d0"",""culprit"": ""my.module.function_name"",""timestamp"": ""2012-11-11T17:41:36"",""message"": ""SyntaxError: Wattttt!"",""sentry.interfaces.Exception"": {""type"": ""SyntaxError"",""value"": ""Wattttt!"",""module"": ""__builtins__""}""}";
         }
     }
 }
