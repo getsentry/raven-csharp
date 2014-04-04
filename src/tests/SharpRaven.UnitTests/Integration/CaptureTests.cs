@@ -173,6 +173,17 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
+        public void CaptureMessage_WithCompression_ReturnsValidID()
+        {
+            this.ravenClient.Compression = true;
+            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
+
+            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
+        }
+
+
+        [Test]
         public void CaptureMessage_WithFormat_ReturnsValidID()
         {
             object[] args = Enumerable.Range(0, 5).Select(i => Guid.NewGuid()).Cast<object>().ToArray();
