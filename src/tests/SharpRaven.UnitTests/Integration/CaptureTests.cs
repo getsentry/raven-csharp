@@ -178,7 +178,7 @@ namespace SharpRaven.UnitTests.Integration
             this.ravenClient.Compression = true;
             var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
 
-            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(id, Is.Not.Null);
             Assert.That(Guid.Parse(id), Is.Not.Null);
         }
 

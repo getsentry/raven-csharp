@@ -174,15 +174,13 @@ namespace SharpRaven
 
                 if (Compression)
                 {
-                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "deflate");
+                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
                     request.AutomaticDecompression = DecompressionMethods.Deflate;
                     request.ContentType = "application/octet-stream";
                 }
                 else
-                {
                     request.ContentType = "application/json; charset=utf-8";
-                }
-                
+
                 /*string data = packet.ToString(Formatting.Indented);
                 Console.WriteLine(data);*/
 
@@ -193,12 +191,14 @@ namespace SharpRaven
 
                 // Write the messagebody.
                 using (Stream s = request.GetRequestStream())
-                using (StreamWriter sw = new StreamWriter(s))
                 {
                     if (Compression)
-                        data = GzipUtil.CompressEncode(data);
-
-                    sw.Write(data);
+                        GzipUtil.Write(data, s);
+                    else
+                    {
+                        using (StreamWriter sw = new StreamWriter(s))
+                            sw.Write(data);
+                    }
                 }
 
                 using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
