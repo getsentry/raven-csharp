@@ -42,6 +42,10 @@ CaptureException(Exception e, IDictionary<string, string> tags = null, object ex
 CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, Dictionary<string, string> tags = null, object extra = null)
 ```
 
+Get it!
+-------
+You can clone and build SharpRaven yourself, but for those of us who are happy with prebuilt binaries, there's [a NuGet package](https://www.nuget.org/packages/SharpRaven).
+
 Resources
 ---------
 * [Build Status](http://teamcity.codebetter.com/project.html?projectId=project344&tab=projectOverview) (requires registration)
