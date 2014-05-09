@@ -1,7 +1,6 @@
 Usage
 =====
 Instantiate the client with your DSN:
-
 ```csharp
 var ravenClient = new RavenClient("http://public:secret@example.com/project-id");
 ```
