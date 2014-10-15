@@ -169,7 +169,6 @@ namespace SharpRaven
                 request.Method = "POST";
                 request.Accept = "application/json";
                 request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
                 request.UserAgent = PacketBuilder.UserAgent;
 
                 if (Compression)
