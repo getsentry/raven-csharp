@@ -105,9 +105,7 @@ namespace SharpRaven.UnitTests
                            return json;
                        });
 
-            string id = ravenClient.CaptureMessage(message);
-            Guid guid = Guid.Parse(id);
-            Assert.That(guid, Is.Not.Null);
+            ravenClient.CaptureMessage(message);
 
             // Verify that we actually received a Scrub() call:
             ravenClient.LogScrubber.Received().Scrub(Arg.Any<string>());
