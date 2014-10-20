@@ -20,9 +20,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D2B3990A-A048-49F3-A697-A1DAEF82CE7F}"
 EndProject
 Global
-	GlobalSection(CodealikeProperties) = postSolution
-		SolutionGuid = 396ee49d-6693-4f67-ad32-c76effb9d870
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
