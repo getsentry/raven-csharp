@@ -19,6 +19,6 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Release\SharpRaven.*" target="lib" />
+        <file src="bin\Release\SharpRaven.*" target="lib/net40" />
     </files>
 </package>
