@@ -8,7 +8,7 @@
         <owners>jsk, asbjornu, gmaclellan</owners>
         <licenseUrl>https://github.com/getsentry/raven-csharp/blob/master/LICENSE</licenseUrl>
         <projectUrl>https://github.com/getsentry/raven-csharp</projectUrl>
-        <iconUrl>https://www.getsentry.com/_static/getsentry/images/favicon.png</iconUrl>
+        <iconUrl>https://avatars1.githubusercontent.com/u/1396951</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Raven is a C# client for Sentry (getsentry.com and github.com/getsentry/sentry)</description>
         <releaseNotes>$releaseNotes$</releaseNotes>
