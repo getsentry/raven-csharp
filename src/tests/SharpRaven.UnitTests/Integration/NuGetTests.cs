@@ -46,7 +46,8 @@ namespace SharpRaven.UnitTests.Integration
     {
         private static string MakeAbsolute(string relativePath)
         {
-            string absolutePath = Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\..\", relativePath);
+            string absolutePath = Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\..\..\", relativePath);
+
             return new DirectoryInfo(absolutePath).FullName;
         }
 
@@ -78,7 +79,7 @@ namespace SharpRaven.UnitTests.Integration
                 Assert.That(process.Start(), Is.True, "The NuGet process couldn't start.");
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                process.WaitForExit(2000);
+                process.WaitForExit(3000);
                 Assert.That(process.ExitCode, Is.EqualTo(0), "The NuGet process exited with an unexpected code.");
             }
         }
