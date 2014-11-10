@@ -37,7 +37,7 @@ using System.Runtime.InteropServices;
 [assembly : AssemblyConfiguration("")]
 [assembly : AssemblyCompany("Sentry")]
 [assembly : AssemblyProduct("SharpRaven")]
-[assembly : AssemblyCopyright("Copyright © Sentry 2013")]
+[assembly : AssemblyCopyright("Copyright © Sentry 2014")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]
 [assembly : ComVisible(false)]
