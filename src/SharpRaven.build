@@ -5,7 +5,7 @@
         <SolutionFile>SharpRaven.sln</SolutionFile>
     </PropertyGroup>
 
-    <Target Name="BuildAll" DependsOnTargets="CompileNET45;CompileNET40" />
+    <Target Name="Build" DependsOnTargets="CompileNET45;CompileNET40" />
 
     <Target Name="CompileNET45">
         <Message Text="=== COMPILING Release 4.5 configuration ===" />
