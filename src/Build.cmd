@@ -14,7 +14,7 @@ echo =====================
 echo ===   GitVersion  ===
 echo =====================
 echo.
-packages\GitVersion.CommandLine.1.3.3\Tools\GitVersion.exe /output json /updateassemblyinfo true /l gitversion.log
+packages\GitVersion.CommandLine.1.3.3\Tools\GitVersion.exe /output json /updateassemblyinfo false /l gitversion.log
 echo.
 echo.
 echo.
