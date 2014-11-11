@@ -75,7 +75,7 @@ namespace SharpRaven
             this.currentDsn = dsn;
             this.jsonPacketFactory = jsonPacketFactory ?? new JsonPacketFactory();
             Logger = "root";
-            Timeout = ReadWriteTimeout = 5 * 1000;
+            Timeout = TimeSpan.FromSeconds(5);
         }
 
 
@@ -105,22 +105,12 @@ namespace SharpRaven
         public string Logger { get; set; }
 
         /// <summary>
-        /// Gets or sets the timeout value in milliseconds for the <see cref="System.Net.HttpWebRequest.GetResponse()" />
-        /// and <see cref="System.Net.HttpWebRequest.GetRequestStream()" /> methods.
+        /// Gets or sets the timeout value in milliseconds for the HTTP communication with Sentry.
         /// </summary>
         /// <value>
         /// The number of milliseconds to wait before the request times out. The default is 5,000 milliseconds (5 seconds).
-        /// Valid values: a nonnegative integer or <see cref="System.Threading.Timeout.Infinite" />
         /// </value>
-        public int Timeout { get; set; }
-
-        /// <summary>
-        /// Gets or sets a timeout in milliseconds when writing to or reading from the response stream.
-        /// </summary>
-        /// <value>
-        /// The number of milliseconds before the writing or reading times out. The default value is 5,000 milliseconds (5 seconds).
-        /// </value>
-        public int ReadWriteTimeout { get; set; }
+        public TimeSpan Timeout { get; set; }
 
 
         /// <summary>
@@ -185,8 +175,8 @@ namespace SharpRaven
             try
             {
                 var request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
-                request.Timeout = Timeout;
-                request.ReadWriteTimeout = ReadWriteTimeout;
+                request.Timeout = Timeout.Milliseconds;
+                request.ReadWriteTimeout = Timeout.Milliseconds;
                 request.Method = "POST";
                 request.Accept = "application/json";
                 request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
