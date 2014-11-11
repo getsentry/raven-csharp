@@ -28,10 +28,16 @@
 
 #endregion
 
+using System.Collections;
+#if !(net40)
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+
+  using System.Net.Http;
+  using System.Net.Http.Headers;
+  using System.Threading.Tasks;
 
 using Newtonsoft.Json;
 
@@ -44,85 +50,8 @@ namespace SharpRaven
     /// <summary>
     /// The Raven Client, responsible for capturing exceptions and sending them to Sentry.
     /// </summary>
-    public partial class RavenClient : IRavenClient
+    public partial class RavenClient
     {
-        private readonly Dsn currentDsn;
-        private readonly IJsonPacketFactory jsonPacketFactory;
-
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RavenClient" /> class.
-        /// </summary>
-        /// <param name="dsn">The Data Source Name in Sentry.</param>
-        /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
-        public RavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null)
-            : this(new Dsn(dsn), jsonPacketFactory)
-        {
-        }
-
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RavenClient" /> class.
-        /// </summary>
-        /// <param name="dsn">The Data Source Name in Sentry.</param>
-        /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
-        /// <exception cref="System.ArgumentNullException">dsn</exception>
-        public RavenClient(Dsn dsn, IJsonPacketFactory jsonPacketFactory = null)
-        {
-            if (dsn == null)
-                throw new ArgumentNullException("dsn");
-
-            this.currentDsn = dsn;
-            this.jsonPacketFactory = jsonPacketFactory ?? new JsonPacketFactory();
-            Logger = "root";
-            Timeout = ReadWriteTimeout = 5 * 1000;
-        }
-
-
-        /// <summary>
-        /// Enable Gzip Compression?
-        /// Defaults to <c>false</c>.
-        /// </summary>
-        public bool Compression { get; set; }
-
-        /// <summary>
-        /// The Dsn currently being used to log exceptions.
-        /// </summary>
-        public Dsn CurrentDsn
-        {
-            get { return this.currentDsn; }
-        }
-
-        /// <summary>
-        /// Interface for providing a 'log scrubber' that removes 
-        /// sensitive information from exceptions sent to sentry.
-        /// </summary>
-        public IScrubber LogScrubber { get; set; }
-
-        /// <summary>
-        /// The name of the logger. The default logger name is "root".
-        /// </summary>
-        public string Logger { get; set; }
-
-        /// <summary>
-        /// Gets or sets the timeout value in milliseconds for the <see cref="System.Net.HttpWebRequest.GetResponse()" />
-        /// and <see cref="System.Net.HttpWebRequest.GetRequestStream()" /> methods.
-        /// </summary>
-        /// <value>
-        /// The number of milliseconds to wait before the request times out. The default is 5,000 milliseconds (5 seconds).
-        /// Valid values: a nonnegative integer or <see cref="System.Threading.Timeout.Infinite" />
-        /// </value>
-        public int Timeout { get; set; }
-
-        /// <summary>
-        /// Gets or sets a timeout in milliseconds when writing to or reading from the response stream.
-        /// </summary>
-        /// <value>
-        /// The number of milliseconds before the writing or reading times out. The default value is 5,000 milliseconds (5 seconds).
-        /// </value>
-        public int ReadWriteTimeout { get; set; }
-
-
         /// <summary>
         /// Captures the <see cref="Exception" />.
         /// </summary>
@@ -134,7 +63,7 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
         /// </returns>
-        public string CaptureException(Exception exception,
+        public async Task<string> CaptureExceptionAsync(Exception exception,
                                        SentryMessage message = null,
                                        ErrorLevel level = ErrorLevel.Error,
                                        IDictionary<string, string> tags = null,
@@ -146,7 +75,7 @@ namespace SharpRaven
                                                               level,
                                                               tags,
                                                               extra);
-            return Send(packet, CurrentDsn);
+            return await SendAsync(packet, CurrentDsn);
         }
 
 
@@ -160,13 +89,13 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="message" />, or <c>null</c> if it fails.
         /// </returns>
-        public string CaptureMessage(SentryMessage message,
+        public async Task<string> CaptureMessageAsync(SentryMessage message,
                                      ErrorLevel level = ErrorLevel.Info,
                                      Dictionary<string, string> tags = null,
                                      object extra = null)
         {
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
-            return Send(packet, CurrentDsn);
+            return await SendAsync(packet, CurrentDsn);
         }
 
 
@@ -178,13 +107,18 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
-        protected virtual string Send(JsonPacket packet, Dsn dsn)
+        protected async virtual Task<string> SendAsync(JsonPacket packet, Dsn dsn)
         {
             packet.Logger = Logger;
 
             try
             {
-                var request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
+                using (HttpClient client = new HttpClient())
+                {
+                    // TODO: Implement the below with HttpClient.
+                }
+                
+                var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
                 request.Timeout = Timeout;
                 request.ReadWriteTimeout = ReadWriteTimeout;
                 request.Method = "POST";
@@ -201,8 +135,6 @@ namespace SharpRaven
                 else
                     request.ContentType = "application/json; charset=utf-8";
 
-                /*string data = packet.ToString(Formatting.Indented);
-                Console.WriteLine(data);*/
 
                 string data = packet.ToString(Formatting.None);
 
@@ -221,7 +153,7 @@ namespace SharpRaven
                     }
                 }
 
-                using (HttpWebResponse wr = (HttpWebResponse) request.GetResponse())
+                using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
                 using (Stream responseStream = wr.GetResponseStream())
                 {
                     if (responseStream == null)
@@ -261,40 +193,7 @@ namespace SharpRaven
 
             return null;
         }
-
-        #region Deprecated Methods
-
-        /*
-         *  These methods have been deprectaed in favour of the ones
-         *  that have the same names as the other sentry clients, this
-         *  is purely for the sake of consistency
-         */
-
-
-        /// <summary>
-        /// Captures the event.
-        /// </summary>
-        /// <param name="e">The <see cref="Exception" /> to capture.</param>
-        /// <returns></returns>
-        [Obsolete("The more common CaptureException method should be used")]
-        public string CaptureEvent(Exception e)
-        {
-            return CaptureException(e);
-        }
-
-
-        /// <summary>
-        /// Captures the event.
-        /// </summary>
-        /// <param name="e">The <see cref="Exception" /> to capture.</param>
-        /// <param name="tags">The tags to annotate the captured exception with.</param>
-        /// <returns></returns>
-        [Obsolete("The more common CaptureException method should be used")]
-        public string CaptureEvent(Exception e, Dictionary<string, string> tags)
-        {
-            return CaptureException(e, tags: tags);
-        }
-
-        #endregion
     }
 }
+
+#endif
