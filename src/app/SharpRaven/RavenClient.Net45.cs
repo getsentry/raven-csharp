@@ -28,22 +28,13 @@
 
 #endregion
 
-using System.Collections;
 #if !(net40)
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-
-  using System.Net.Http;
-  using System.Net.Http.Headers;
-  using System.Threading.Tasks;
-
-using Newtonsoft.Json;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 using SharpRaven.Data;
-using SharpRaven.Logging;
-using SharpRaven.Utilities;
 
 namespace SharpRaven
 {
@@ -64,10 +55,10 @@ namespace SharpRaven
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
         /// </returns>
         public async Task<string> CaptureExceptionAsync(Exception exception,
-                                       SentryMessage message = null,
-                                       ErrorLevel level = ErrorLevel.Error,
-                                       IDictionary<string, string> tags = null,
-                                       object extra = null)
+                                                        SentryMessage message = null,
+                                                        ErrorLevel level = ErrorLevel.Error,
+                                                        IDictionary<string, string> tags = null,
+                                                        object extra = null)
         {
             JsonPacket packet = this.jsonPacketFactory.Create(this.currentDsn.ProjectID,
                                                               exception,
@@ -90,9 +81,9 @@ namespace SharpRaven
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="message" />, or <c>null</c> if it fails.
         /// </returns>
         public async Task<string> CaptureMessageAsync(SentryMessage message,
-                                     ErrorLevel level = ErrorLevel.Info,
-                                     Dictionary<string, string> tags = null,
-                                     object extra = null)
+                                                      ErrorLevel level = ErrorLevel.Info,
+                                                      Dictionary<string, string> tags = null,
+                                                      object extra = null)
         {
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
             return await SendAsync(packet, CurrentDsn);
@@ -107,7 +98,7 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
-        protected async virtual Task<string> SendAsync(JsonPacket packet, Dsn dsn)
+        protected virtual async Task<string> SendAsync(JsonPacket packet, Dsn dsn)
         {
             packet.Logger = Logger;
 
@@ -116,79 +107,11 @@ namespace SharpRaven
                 using (HttpClient client = new HttpClient())
                 {
                     // TODO: Implement the below with HttpClient.
-                }
-                
-                var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
-                request.Timeout = Timeout;
-                request.ReadWriteTimeout = ReadWriteTimeout;
-                request.Method = "POST";
-                request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
-                request.UserAgent = PacketBuilder.UserAgent;
-
-                if (Compression)
-                {
-                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
-                    request.AutomaticDecompression = DecompressionMethods.Deflate;
-                    request.ContentType = "application/octet-stream";
-                }
-                else
-                    request.ContentType = "application/json; charset=utf-8";
-
-
-                string data = packet.ToString(Formatting.None);
-
-                if (LogScrubber != null)
-                    data = LogScrubber.Scrub(data);
-
-                // Write the messagebody.
-                using (Stream s = request.GetRequestStream())
-                {
-                    if (Compression)
-                        GzipUtil.Write(data, s);
-                    else
-                    {
-                        using (StreamWriter sw = new StreamWriter(s))
-                            sw.Write(data);
-                    }
-                }
-
-                using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
-                using (Stream responseStream = wr.GetResponseStream())
-                {
-                    if (responseStream == null)
-                        return null;
-
-                    using (StreamReader sr = new StreamReader(responseStream))
-                    {
-                        string content = sr.ReadToEnd();
-                        var response = JsonConvert.DeserializeObject<dynamic>(content);
-                        return response.id;
-                    }
+                    client.Timeout = Timeout;
                 }
             }
             catch (Exception exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("[ERROR] ");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(exception);
-
-                WebException webException = exception as WebException;
-                if (webException != null && webException.Response != null)
-                {
-                    string messageBody;
-                    using (Stream stream = webException.Response.GetResponseStream())
-                    {
-                        if (stream == null)
-                            return null;
-
-                        using (StreamReader sw = new StreamReader(stream))
-                            messageBody = sw.ReadToEnd();
-                    }
-
-                    Console.WriteLine("[MESSAGE BODY] " + messageBody);
-                }
             }
 
             return null;
