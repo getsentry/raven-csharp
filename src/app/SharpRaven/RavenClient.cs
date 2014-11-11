@@ -175,8 +175,8 @@ namespace SharpRaven
             try
             {
                 var request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
-                request.Timeout = Timeout.Milliseconds;
-                request.ReadWriteTimeout = Timeout.Milliseconds;
+                request.Timeout = (int)Timeout.TotalMilliseconds;
+                request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
                 request.Method = "POST";
                 request.Accept = "application/json";
                 request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
