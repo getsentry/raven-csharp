@@ -106,9 +106,7 @@ namespace SharpRaven.Data
         private JsonPacket()
         {
             // Get assemblies.
-            Modules = SystemUtil
-                .GetModules()
-                .ToDictionary(k => k.Name, v => v.Version);
+            Modules = SystemUtil.GetModules();
 
             // The current hostname
             ServerName = Environment.MachineName;
