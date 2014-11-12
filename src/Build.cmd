@@ -29,6 +29,6 @@ echo =====================
 echo ===  NuGet Pack   ===
 echo =====================
 echo.
-NuGet pack app\SharpRaven\SharpRaven.nuspec -Properties ReleaseInfo='Test'
+NuGet pack app\SharpRaven\SharpRaven.csproj -Properties ReleaseNotes='Test'
 echo.
 ENDLOCAL
