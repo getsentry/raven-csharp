@@ -106,7 +106,7 @@ namespace SharpRaven.Data
         private JsonPacket()
         {
             // Get assemblies.
-            Modules = SystemUtil.GetModules().ToList();
+            Modules = SystemUtil.GetModules();
 
             // The current hostname
             ServerName = Environment.MachineName;
@@ -204,7 +204,7 @@ namespace SharpRaven.Data
         /// The modules.
         /// </value>
         [JsonProperty(PropertyName = "modules", NullValueHandling = NullValueHandling.Ignore)]
-        public List<SentryModule> Modules { get; set; }
+        public IDictionary<string, string> Modules { get; set; }
 
         /// <summary>
         /// A string representing the platform the client is submitting from. 
