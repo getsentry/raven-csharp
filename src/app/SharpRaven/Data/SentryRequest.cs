@@ -42,7 +42,7 @@ namespace SharpRaven.Data
     /// <summary>
     /// The Request information is stored in the Http interface. Two arguments are required: url and method.
     /// </summary>
-    public class SentryRequest
+    public class SentryRequest : ISentryRequest
     {
         private readonly dynamic httpContext;
 

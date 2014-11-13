@@ -71,9 +71,11 @@
       <HintPath>..\..\packages\Newtonsoft.Json.6.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Net.Http" Condition="$(Configuration) == 'Release 4.5' Or $(Configuration) == 'Debug 4.5'" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\ISentryRequest.cs" />
     <Compile Include="Data\JsonPacketFactory.cs" />
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenClient.cs" />
     <Compile Include="Serialization\ErrorLevelConverter.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Utilities\GzipUtil.cs" />
     <Compile Include="Utilities\PacketBuilder.cs" />
     <Compile Include="Utilities\SystemUtil.cs" />
