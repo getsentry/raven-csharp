@@ -1,13 +1,6 @@
 ﻿using Nancy;
 using SharpRaven.Data;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using NancyIO = Nancy.IO;
 
 namespace SharpRaven.Nancy
 {
@@ -43,10 +36,10 @@ namespace SharpRaven.Nancy
         {
             // looking for NancyContext
             this.httpContext = this.httpContext ?? Thread.GetData(
-                Thread.GetNamedDataSlot("SharpRaven.Nancy.NancyContext")) as NancyContext;
+                Thread.GetNamedDataSlot(Configuration.Settings.NancyContextDataSlot)) as NancyContext;
 
             // get SentryRequest
-            ISentryRequest sentryRequest = Nancy.Data.SentryRequest.GetRequest(this.httpContext);
+            ISentryRequest sentryRequest = SharpRaven.Nancy.Data.SentryRequest.GetRequest(this.httpContext);
 
             // patch JsonPacket.Request with data on NancyContext
             packet.Request = sentryRequest;

@@ -14,7 +14,7 @@ namespace SharpRaven.Nancy
                 Configuration.Settings.PipelineName.Value, (context, exception) =>
                 {
                     Thread.SetData(
-                       Thread.GetNamedDataSlot("SharpRaven.Nancy.NancyContext"),
+                       Thread.GetNamedDataSlot(Configuration.Settings.NancyContextDataSlot),
                        context);
 
                     if (Configuration.Settings.CaptureExceptionOnError.Value)

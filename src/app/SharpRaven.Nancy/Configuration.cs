@@ -12,16 +12,27 @@ namespace SharpRaven.Nancy
 
         public static Configuration Settings
         {
-            get
-            {
-                return settings;
+            get 
+            { 
+                return settings; 
+            }
+        }
+
+        public string NancyContextDataSlot
+        {
+            get 
+            { 
+                return "SharpRaven.Nancy.NancyContext"; 
             }
         }
 
         [ConfigurationProperty(pipelineNameKey, IsKey = true)]
         public PipelineNameElement PipelineName
         {
-            get { return (PipelineNameElement)base[pipelineNameKey]; }
+            get 
+            { 
+                return (PipelineNameElement)base[pipelineNameKey]; 
+            }
         }
 
         public class PipelineNameElement : ConfigurationElement
@@ -43,7 +54,10 @@ namespace SharpRaven.Nancy
         [ConfigurationProperty(captureExceptionOnErrorKey, IsKey = true)]
         public CaptureExceptionOnErrorElement CaptureExceptionOnError
         {
-            get { return (CaptureExceptionOnErrorElement)base[captureExceptionOnErrorKey]; }
+            get 
+            { 
+                return (CaptureExceptionOnErrorElement)base[captureExceptionOnErrorKey]; 
+            }
         }
 
         public class CaptureExceptionOnErrorElement : ConfigurationElement
