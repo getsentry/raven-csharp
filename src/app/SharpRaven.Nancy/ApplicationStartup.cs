@@ -40,23 +40,21 @@ namespace SharpRaven.Nancy
     {
         public void Initialize(IPipelines pipelines)
         {
-            var sharpRaven = new PipelineItem<Func<NancyContext, Exception, Response>>(
-                Configuration.Settings.PipelineName.Value,
-                (context, exception) =>
+            var value = Configuration.Settings.PipelineName.Value;
+            var sharpRaven = new PipelineItem<Func<NancyContext, Exception, Response>>(value, (context, exception) =>
+            {
+                var nancyContextDataSlot = Configuration.Settings.NancyContextDataSlot;
+                var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
+                Thread.SetData(localDataStoreSlot, context);
+
+                if (Configuration.Settings.CaptureExceptionOnError.Value)
                 {
-                    Thread.SetData(
-                        Thread.GetNamedDataSlot(Configuration.Settings.NancyContextDataSlot),
-                        context);
+                    IRavenClient client = new RavenClient(context);
+                    client.CaptureException(exception);
+                }
 
-                    if (Configuration.Settings.CaptureExceptionOnError.Value)
-                    {
-                        IRavenClient client = new RavenClient(context);
-
-                        client.CaptureException(exception);
-                    }
-
-                    return null;
-                });
+                return null;
+            });
 
             pipelines.OnError.AddItemToStartOfPipeline(sharpRaven);
         }
