@@ -33,6 +33,9 @@ using System.Configuration;
 
 namespace SharpRaven.Nancy
 {
+    /// <summary>
+    /// Nancy-specific configuration for SharpRaven.
+    /// </summary>
     public class Configuration : SharpRaven.Configuration
     {
         private const string PipelineNameKey = "pipelineName";
@@ -41,30 +44,63 @@ namespace SharpRaven.Nancy
         private static readonly Configuration settings =
             ConfigurationManager.GetSection("sharpRaven") as Configuration;
 
+        /// <summary>
+        /// Gets the &lt;sharpRaven/&gt; configuration element.
+        /// </summary>
+        /// <value>
+        /// The the &lt;sharpRaven/&gt; configuration element.
+        /// </value>
         public new static Configuration Settings
         {
             get { return settings; }
         }
 
+        /// <summary>
+        /// Gets the nancy context data slot.
+        /// </summary>
+        /// <value>
+        /// The nancy context data slot.
+        /// </value>
         public string NancyContextDataSlot
         {
             get { return "SharpRaven.Nancy.NancyContext"; }
         }
 
+        /// <summary>
+        /// Gets the &lt;pipelineName /&gt; configuration element.
+        /// </summary>
+        /// <value>
+        /// The &lt;pipelineName /&gt; configuration element.
+        /// </value>
         [ConfigurationProperty(PipelineNameKey, IsKey = true)]
         public PipelineNameElement PipelineName
         {
             get { return (PipelineNameElement) base[PipelineNameKey]; }
         }
 
+        /// <summary>
+        /// Gets the &lt;captureExceptionOnError /&gt; configuration element.
+        /// </summary>
+        /// <value>
+        /// The &lt;captureExceptionOnError /&gt; configuration element.
+        /// </value>
         [ConfigurationProperty(CaptureExceptionOnErrorKey, IsKey = true)]
         public CaptureExceptionOnErrorElement CaptureExceptionOnError
         {
             get { return (CaptureExceptionOnErrorElement) base[CaptureExceptionOnErrorKey]; }
         }
 
+        /// <summary>
+        /// The &lt;captureExceptionOnError /&gt; configuration element.
+        /// </summary>
         public class CaptureExceptionOnErrorElement : ConfigurationElement
         {
+            /// <summary>
+            /// Gets or sets the value of the the &lt;captureExceptionOnError /&gt; configuration element.
+            /// </summary>
+            /// <value>
+            ///   <c>true</c> if exceptions should be captured by SharpRaven; otherwise, <c>false</c>.
+            /// </value>
             [ConfigurationProperty("value", DefaultValue = "true")]
             public bool Value
             {
@@ -73,8 +109,17 @@ namespace SharpRaven.Nancy
             }
         }
 
+        /// <summary>
+        /// The &lt;pipelineName /&gt; configuration element.
+        /// </summary>
         public class PipelineNameElement : ConfigurationElement
         {
+            /// <summary>
+            /// Gets or sets the value of the &lt;pipelineName /&gt; configuration element.
+            /// </summary>
+            /// <value>
+            /// The value of the the &lt;pipelineName /&gt; configuration element.
+            /// </value>
             [ConfigurationProperty("value", DefaultValue = "SharpRaven.Nancy")]
             public String Value
             {
