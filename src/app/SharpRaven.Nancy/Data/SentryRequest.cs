@@ -28,19 +28,18 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Reflection;
-using System.Security.Principal;
-using Newtonsoft.Json;
-using System.Text;
-using System.Threading;
 using System.IO;
-using NancyIO = Nancy.IO;
+using System.Linq;
+using System.Text;
+
 using Nancy;
+
+using Newtonsoft.Json;
+
 using SharpRaven.Data;
+
+using NancyIO = Nancy.IO;
 
 namespace SharpRaven.Nancy.Data
 {
@@ -51,11 +50,6 @@ namespace SharpRaven.Nancy.Data
     {
         private readonly NancyContext httpContext;
 
-        [JsonIgnore]
-        private bool HasHttpContext
-        {
-            get { return this.httpContext != null; }
-        }
 
         internal SentryRequest(NancyContext httpContext)
         {
@@ -67,8 +61,8 @@ namespace SharpRaven.Nancy.Data
             }
 
             // Url and Method
-            this.Url = this.httpContext.Request.Url.ToString();
-            this.Method = this.httpContext.Request.Method;
+            Url = this.httpContext.Request.Url.ToString();
+            Method = this.httpContext.Request.Method;
 
             // Data
             NancyIO.RequestStream requestStream = this.httpContext.Request.Body;
@@ -81,7 +75,7 @@ namespace SharpRaven.Nancy.Data
                 StreamReader reader = new StreamReader(requestStream);
 
                 // read data
-                this.Data = reader.ReadToEnd();
+                Data = reader.ReadToEnd();
             }
 
             // QueryString
@@ -91,27 +85,36 @@ namespace SharpRaven.Nancy.Data
                 qs += item + "=" + this.httpContext.Request.Query[item] + "&";
             }
 
-            this.QueryString = qs.TrimEnd(new char[] { '&' });
+            QueryString = qs.TrimEnd(new char[] { '&' });
 
             // Cookies
-            this.Cookies = this.httpContext.Request.Cookies;
+            Cookies = this.httpContext.Request.Cookies;
 
             // Headers
-            this.Headers = this.httpContext.Request.Headers
-                .Select(s => new
-                {
-                    Key = s.Key,
-                    Value = s.Value.Aggregate(new StringBuilder(), (stringBuilder, argument) =>
-                    {
-                        stringBuilder.Append(argument + " ");
+            Headers = this.httpContext.Request.Headers
+                          .Select(s => new
+                          {
+                              Key = s.Key,
+                              Value = s.Value.Aggregate(new StringBuilder(),
+                                                        (stringBuilder, argument) =>
+                                                        {
+                                                            stringBuilder.Append(argument + " ");
 
-                        return stringBuilder;
-                    })
-                    .ToString()
-                    .TrimEnd(new char[] { ' ' })
-                })
-                .ToDictionary(k => k.Key, v => v.Value);
+                                                            return stringBuilder;
+                                                        })
+                                       .ToString()
+                                       .TrimEnd(new char[] { ' ' })
+                          })
+                          .ToDictionary(k => k.Key, v => v.Value);
         }
+
+
+        [JsonIgnore]
+        private bool HasHttpContext
+        {
+            get { return this.httpContext != null; }
+        }
+
 
         /// <summary>
         /// Gets or sets the cookies.
@@ -177,6 +180,7 @@ namespace SharpRaven.Nancy.Data
         [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
 
+
         /// <summary>
         /// Gets the user.
         /// </summary>
@@ -195,6 +199,7 @@ namespace SharpRaven.Nancy.Data
                 IpAddress = this.httpContext.Request.UserHostAddress
             };
         }
+
 
         /// <summary>
         /// Gets the request.
