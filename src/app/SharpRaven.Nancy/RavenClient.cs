@@ -69,8 +69,9 @@ namespace SharpRaven.Nancy
         protected override string Send(JsonPacket packet, Dsn dsn)
         {
             // looking for NancyContext
-            this.httpContext = this.httpContext ?? Thread.GetData(
-                Thread.GetNamedDataSlot(Configuration.Settings.NancyContextDataSlot)) as NancyContext;
+            var nancyContextDataSlot = Configuration.Settings.NancyContextDataSlot;
+            var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
+            this.httpContext = this.httpContext ?? Thread.GetData(localDataStoreSlot) as NancyContext;
 
             // get SentryRequest
             ISentryRequest sentryRequest = Data.SentryRequest.GetRequest(this.httpContext);
