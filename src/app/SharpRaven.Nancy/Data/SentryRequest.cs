@@ -46,7 +46,7 @@ namespace SharpRaven.Nancy.Data
     /// <summary>
     /// The Request information is stored in the Http interface. Two arguments are required: url and method.
     /// </summary>
-    public class SentryRequest : ISentryRequest
+    internal class SentryRequest : ISentryRequest
     {
         private readonly NancyContext httpContext;
 
