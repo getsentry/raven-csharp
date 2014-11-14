@@ -41,7 +41,7 @@ namespace SharpRaven.Nancy
         private static readonly Configuration settings =
             ConfigurationManager.GetSection("sharpRaven") as Configuration;
 
-        public static Configuration Settings
+        public new static Configuration Settings
         {
             get { return settings; }
         }
