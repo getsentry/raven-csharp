@@ -51,6 +51,10 @@ namespace SharpRaven.Nancy.Data
         private readonly NancyContext httpContext;
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SentryRequest"/> class.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context.</param>
         internal SentryRequest(NancyContext httpContext)
         {
             this.httpContext = httpContext;
@@ -91,21 +95,16 @@ namespace SharpRaven.Nancy.Data
             Cookies = this.httpContext.Request.Cookies;
 
             // Headers
-            Headers = this.httpContext.Request.Headers
-                          .Select(s => new
-                          {
-                              Key = s.Key,
-                              Value = s.Value.Aggregate(new StringBuilder(),
-                                                        (stringBuilder, argument) =>
-                                                        {
-                                                            stringBuilder.Append(argument + " ");
-
-                                                            return stringBuilder;
-                                                        })
-                                       .ToString()
-                                       .TrimEnd(new char[] { ' ' })
-                          })
-                          .ToDictionary(k => k.Key, v => v.Value);
+            Headers = this.httpContext.Request.Headers.Select(s => new
+            {
+                Key = s.Key,
+                Value = s.Value.Aggregate(new StringBuilder(), (stringBuilder, argument) =>
+                {
+                    stringBuilder.Append(argument);
+                    stringBuilder.Append(" ");
+                    return stringBuilder;
+                }).ToString().TrimEnd(new[] { ' ' })
+            }).ToDictionary(k => k.Key, v => v.Value);
         }
 
 
