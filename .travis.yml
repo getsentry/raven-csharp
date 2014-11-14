@@ -1,5 +1,5 @@
 language: c
 install:
- - sudo apt-get install -qq mono-devel
+ - sudo apt-get install -qq mono-devel nunit-console
 script:
  - make test
