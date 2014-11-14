@@ -35,8 +35,8 @@ namespace SharpRaven.Nancy
 {
     public class Configuration : SharpRaven.Configuration
     {
-        private const string pipelineNameKey = "pipelineName";
-        private const string captureExceptionOnErrorKey = "captureExceptionOnError";
+        private const string PipelineNameKey = "pipelineName";
+        private const string CaptureExceptionOnErrorKey = "captureExceptionOnError";
 
         private static readonly Configuration settings =
             ConfigurationManager.GetSection("sharpRaven") as Configuration;
@@ -51,16 +51,16 @@ namespace SharpRaven.Nancy
             get { return "SharpRaven.Nancy.NancyContext"; }
         }
 
-        [ConfigurationProperty(pipelineNameKey, IsKey = true)]
+        [ConfigurationProperty(PipelineNameKey, IsKey = true)]
         public PipelineNameElement PipelineName
         {
-            get { return (PipelineNameElement) base[pipelineNameKey]; }
+            get { return (PipelineNameElement) base[PipelineNameKey]; }
         }
 
-        [ConfigurationProperty(captureExceptionOnErrorKey, IsKey = true)]
+        [ConfigurationProperty(CaptureExceptionOnErrorKey, IsKey = true)]
         public CaptureExceptionOnErrorElement CaptureExceptionOnError
         {
-            get { return (CaptureExceptionOnErrorElement) base[captureExceptionOnErrorKey]; }
+            get { return (CaptureExceptionOnErrorElement) base[CaptureExceptionOnErrorKey]; }
         }
 
         public class CaptureExceptionOnErrorElement : ConfigurationElement
