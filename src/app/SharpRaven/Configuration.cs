@@ -55,10 +55,10 @@ namespace SharpRaven
         }
 
         /// <summary>
-        /// Gets the value of the &lt;dsn/&gt; configuration element.
+        /// Gets the &lt;dsn/&gt; configuration element.
         /// </summary>
         /// <value>
-        /// The value of the &lt;dsn/&gt; configuration element.
+        /// The &lt;dsn/&gt; configuration element.
         /// </value>
         [ConfigurationProperty(DsnKey, IsKey = true)]
         public DsnElement Dsn
