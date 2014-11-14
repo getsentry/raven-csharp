@@ -36,8 +36,16 @@ using Nancy.Bootstrapper;
 
 namespace SharpRaven.Nancy
 {
+    /// <summary>
+    /// SharpRaven's <see cref="IApplicationStartup"/> implementation.
+    /// Used to register exception handling to the start of the error handling pipeline.
+    /// </summary>
     public class ApplicationStartup : IApplicationStartup
     {
+        /// <summary>
+        /// Perform any initialisation tasks
+        /// </summary>
+        /// <param name="pipelines">Application pipelines</param>
         public void Initialize(IPipelines pipelines)
         {
             var value = Configuration.Settings.PipelineName.Value;
