@@ -11,3 +11,4 @@ obj/
 *.nupkg
 /src/packages/*
 !/src/packages/repositories.config
+/TestResult.xml
