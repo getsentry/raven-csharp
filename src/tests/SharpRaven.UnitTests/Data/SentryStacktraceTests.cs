@@ -38,7 +38,7 @@ using SharpRaven.UnitTests.Utilities;
 namespace SharpRaven.UnitTests.Data
 {
     [TestFixture]
-    public class SentryStackTracetests
+    public class SentryStackTraceTests
     {
         [Test]
         public void Constructor_ExceptionWithFrames_FramesAreAsExpected()
