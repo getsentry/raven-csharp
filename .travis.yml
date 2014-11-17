@@ -3,4 +3,3 @@ install:
  - sudo apt-get install -qq mono-devel nunit-console
 script:
  - make test
- - nunit-console4 ./src/tests/SharpRaven.UnitTests/bin/Release/net45/SharpRaven.UnitTests.dll -exclude=NuGet,NoMono -nodots
