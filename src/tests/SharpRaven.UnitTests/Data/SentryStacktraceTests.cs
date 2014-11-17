@@ -49,7 +49,7 @@ namespace SharpRaven.UnitTests.Data
             Console.WriteLine(exception);
 
             Assert.That(stacktrace.Frames, Is.Not.Null);
-            Assert.That(stacktrace.Frames, Has.Length.EqualTo(1).Or.EqualTo(2));
+            Assert.That(stacktrace.Frames, Has.Length.EqualTo(1).Or.Length.EqualTo(2));
 
             if (stacktrace.Frames.Length == 1)
             {
