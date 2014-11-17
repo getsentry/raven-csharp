@@ -49,9 +49,15 @@ namespace SharpRaven.UnitTests.Data
             Console.WriteLine(exception);
 
             Assert.That(stacktrace.Frames, Is.Not.Null);
+
+#if DEBUG
             Assert.That(stacktrace.Frames, Has.Length.EqualTo(2));
             Assert.That(stacktrace.Frames[0].Function, Is.EqualTo("PerformDivideByZero"));
             Assert.That(stacktrace.Frames[1].Function, Is.EqualTo("GetException"));
+#else
+            Assert.That(stacktrace.Frames, Has.Length.EqualTo(1));
+            Assert.That(stacktrace.Frames[0].Function, Is.EqualTo("GetException"));
+#endif
         }
 
 
