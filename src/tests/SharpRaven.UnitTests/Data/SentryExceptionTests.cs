@@ -108,6 +108,7 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        [Category("NoMono")]
         public void ToString_StringIsEqualTo_ExceptionToString()
         {
             var exception = TestHelper.GetException();
