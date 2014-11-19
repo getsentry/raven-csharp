@@ -160,7 +160,7 @@ namespace SharpRaven.Data
             if (!HasHttpContext)
                 return null;
 
-            return new SentryUser((IPrincipal)this.httpContext.User)
+            return new SentryUser(this.httpContext.User as IPrincipal)
             {
                 IpAddress = this.httpContext.Request.UserHostAddress
             };
@@ -169,26 +169,34 @@ namespace SharpRaven.Data
 
         private static dynamic GetHttpContext()
         {
-            var systemWeb = AppDomain.CurrentDomain
-                                     .GetAssemblies()
-                                     .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
+            try
+            {
+                var systemWeb = AppDomain.CurrentDomain
+                                         .GetAssemblies()
+                                         .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
 
-            if (systemWeb == null)
+                if (systemWeb == null)
+                    return null;
+
+                var httpContextType = systemWeb.GetExportedTypes()
+                                               .FirstOrDefault(type => type.Name == "HttpContext");
+
+                if (httpContextType == null)
+                    return null;
+
+                var currentHttpContextProperty = httpContextType.GetProperty("Current",
+                                                                             BindingFlags.Static | BindingFlags.Public);
+
+                if (currentHttpContextProperty == null)
+                    return null;
+
+                return currentHttpContextProperty.GetValue(null, null);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("An error occurred while retrieving the HTTP context: {0}", exception);
                 return null;
-
-            var httpContextType = systemWeb.GetExportedTypes()
-                                           .FirstOrDefault(type => type.Name == "HttpContext");
-
-            if (httpContextType == null)
-                return null;
-
-            var currentHttpContextProperty = httpContextType.GetProperty("Current",
-                                                                         BindingFlags.Static | BindingFlags.Public);
-
-            if (currentHttpContextProperty == null)
-                return null;
-
-            return currentHttpContextProperty.GetValue(null, null);
+            }
         }
 
 
