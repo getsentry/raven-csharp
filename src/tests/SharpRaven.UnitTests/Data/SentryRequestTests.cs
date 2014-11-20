@@ -42,6 +42,14 @@ namespace SharpRaven.UnitTests.Data
     public class SentryRequestTests
     {
         [TearDown]
+        public void SetUp()
+        {
+            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
+            SentryRequest.HttpContext = null;
+        }
+
+
+        [TearDown]
         public void TearDown()
         {
             // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
