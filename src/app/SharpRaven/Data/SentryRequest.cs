@@ -44,25 +44,31 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequest
     {
-        private readonly dynamic httpContext;
-
-
         internal SentryRequest()
         {
             // NOTE: We're using dynamic to not require a reference to System.Web.
-            this.httpContext = GetHttpContext();
+            GetHttpContext();
 
             if (!HasHttpContext)
                 return;
 
-            Url = this.httpContext.Request.Url.ToString();
-            Method = this.httpContext.Request.HttpMethod;
+            Url = HttpContext.Request.Url.ToString();
+            Method = HttpContext.Request.HttpMethod;
             Environment = Convert(x => x.Request.ServerVariables);
             Headers = Convert(x => x.Request.Headers);
             Cookies = Convert(x => x.Request.Cookies);
             Data = Convert(x => x.Request.Form);
-            QueryString = this.httpContext.Request.QueryString.ToString();
+            QueryString = HttpContext.Request.QueryString.ToString();
         }
+
+
+        /// <summary>
+        /// Gets or sets the HTTP context.
+        /// </summary>
+        /// <value>
+        /// The HTTP context.
+        /// </value>
+        internal static dynamic HttpContext { get; set; }
 
 
         /// <summary>
@@ -130,9 +136,9 @@ namespace SharpRaven.Data
         public string Url { get; set; }
 
         [JsonIgnore]
-        private bool HasHttpContext
+        private static bool HasHttpContext
         {
-            get { return this.httpContext != null; }
+            get { return HttpContext != null; }
         }
 
 
@@ -145,7 +151,7 @@ namespace SharpRaven.Data
         public static SentryRequest GetRequest()
         {
             var request = new SentryRequest();
-            return request.HasHttpContext ? request : null;
+            return HasHttpContext ? request : null;
         }
 
 
@@ -160,56 +166,58 @@ namespace SharpRaven.Data
             if (!HasHttpContext)
                 return null;
 
-            return new SentryUser(this.httpContext.User as IPrincipal)
+            return new SentryUser(HttpContext.User as IPrincipal)
             {
-                IpAddress = this.httpContext.Request.UserHostAddress
+                IpAddress = HttpContext.Request.UserHostAddress
             };
         }
 
 
-        private static dynamic GetHttpContext()
+        private static void GetHttpContext()
         {
+            if (HasHttpContext)
+                return;
+
             try
             {
                 var systemWeb = AppDomain.CurrentDomain
                                          .GetAssemblies()
                                          .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
 
-                if (systemWeb == null)
-                    return null;
+                if (HasHttpContext || systemWeb == null)
+                    return;
 
                 var httpContextType = systemWeb.GetExportedTypes()
                                                .FirstOrDefault(type => type.Name == "HttpContext");
 
-                if (httpContextType == null)
-                    return null;
+                if (HasHttpContext || httpContextType == null)
+                    return;
 
                 var currentHttpContextProperty = httpContextType.GetProperty("Current",
                                                                              BindingFlags.Static | BindingFlags.Public);
 
-                if (currentHttpContextProperty == null)
-                    return null;
+                if (HasHttpContext || currentHttpContextProperty == null)
+                    return;
 
-                return currentHttpContextProperty.GetValue(null, null);
+                HttpContext = currentHttpContextProperty.GetValue(null, null);
             }
             catch (Exception exception)
             {
                 Console.WriteLine("An error occurred while retrieving the HTTP context: {0}", exception);
-                return null;
             }
         }
 
 
-        private IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
+        private static IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
         {
-            if (this.httpContext == null)
+            if (!HasHttpContext)
                 return null;
 
             IDictionary<string, string> dictionary = new Dictionary<string, string>();
 
             try
             {
-                var collection = collectionGetter.Invoke(this.httpContext);
+                var collection = collectionGetter.Invoke(HttpContext);
                 var keys = Enumerable.ToArray(collection.AllKeys);
 
                 foreach (object key in keys)
