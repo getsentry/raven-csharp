@@ -38,7 +38,7 @@ using SharpRaven.UnitTests.Utilities;
 namespace SharpRaven.UnitTests.Data
 {
     [TestFixture]
-    public class SentryStackTracetests
+    public class SentryStackTraceTests
     {
         [Test]
         public void Constructor_ExceptionWithFrames_FramesAreAsExpected()
@@ -49,9 +49,21 @@ namespace SharpRaven.UnitTests.Data
             Console.WriteLine(exception);
 
             Assert.That(stacktrace.Frames, Is.Not.Null);
-            Assert.That(stacktrace.Frames, Has.Length.EqualTo(2));
-            Assert.That(stacktrace.Frames[0].Function, Is.EqualTo("PerformDivideByZero"));
-            Assert.That(stacktrace.Frames[1].Function, Is.EqualTo("GetException"));
+            Assert.That(stacktrace.Frames, Has.Length.EqualTo(1).Or.Length.EqualTo(2));
+
+            if (stacktrace.Frames.Length == 1)
+            {
+                // Release
+                Assert.That(stacktrace.Frames, Has.Length.EqualTo(1));
+                Assert.That(stacktrace.Frames[0].Function, Is.EqualTo("GetException"));
+            }
+            else
+            {
+                // Debug
+                Assert.That(stacktrace.Frames, Has.Length.EqualTo(2));
+                Assert.That(stacktrace.Frames[0].Function, Is.EqualTo("PerformDivideByZero"));
+                Assert.That(stacktrace.Frames[1].Function, Is.EqualTo("GetException"));
+            }
         }
 
 
