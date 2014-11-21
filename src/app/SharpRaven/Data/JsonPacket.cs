@@ -226,7 +226,7 @@ namespace SharpRaven.Data
         /// The <see cref="SentryRequest"/> object, containing information about the HTTP request.
         /// </value>
         [JsonProperty(PropertyName = "request", NullValueHandling = NullValueHandling.Ignore)]
-        public SentryRequest Request { get; set; }
+        public ISentryRequest Request { get; set; }
 
         /// <summary>
         /// Identifies the host client from which the event was recorded.

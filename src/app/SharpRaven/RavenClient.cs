@@ -57,6 +57,18 @@ namespace SharpRaven
 
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="RavenClient" /> class. Sentry
+        /// Data Source Name will be read from sharpRaven section in your app.config or
+        /// web.config.
+        /// </summary>
+        /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
+        public RavenClient(IJsonPacketFactory jsonPacketFactory = null)
+            : this(new Dsn(Configuration.Settings.Dsn.Value), jsonPacketFactory)
+        {
+        }
+
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RavenClient" /> class.
         /// </summary>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
