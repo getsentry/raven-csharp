@@ -39,29 +39,45 @@ namespace SharpRaven.Nancy
     using PipelineItem = PipelineItem<Func<NancyContext, Exception, Response>>;
 
     /// <summary>
-    /// SharpRaven's <see cref="IApplicationStartup"/> implementation.
+    /// SharpRaven's <see cref="IRequestStartup"/> implementation.
     /// Used to register exception handling to the start of the error handling pipeline.
     /// </summary>
-    public class ApplicationStartup : IApplicationStartup
+    public class SentryRequestStartup : IRequestStartup
     {
+        private readonly IRavenClient ravenClient;
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SentryRequestStartup"/> class.
+        /// </summary>
+        /// <param name="ravenClient">The raven client.</param>
+        /// <exception cref="System.ArgumentNullException">ravenClient</exception>
+        public SentryRequestStartup(IRavenClient ravenClient)
+        {
+            if (ravenClient == null)
+                throw new ArgumentNullException("ravenClient");
+
+            this.ravenClient = ravenClient;
+        }
+
+
         /// <summary>
         /// Perform any initialisation tasks
         /// </summary>
         /// <param name="pipelines">Application pipelines</param>
-        public void Initialize(IPipelines pipelines)
+        /// <param name="context">The current context</param>
+        public void Initialize(IPipelines pipelines, NancyContext context)
         {
-            var value = Configuration.Settings.PipelineName.Value;
-            var sharpRaven = new PipelineItem(value, (context, exception) =>
+            var name = Configuration.Settings.PipelineName.Value;
+            var sharpRaven = new PipelineItem(name, (nancyContext, exception) =>
             {
                 var nancyContextDataSlot = Configuration.Settings.NancyContextDataSlot;
                 var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
-                Thread.SetData(localDataStoreSlot, context);
+                Thread.SetData(localDataStoreSlot, nancyContext);
 
                 if (Configuration.Settings.CaptureExceptionOnError.Value)
                 {
-                    // TODO: We should retrieve an IRavenClient instance from the application container. @asbjornu
-                    var client = new RavenClient(context);
-                    client.CaptureException(exception);
+                    this.ravenClient.CaptureException(exception);
                 }
 
                 return null;

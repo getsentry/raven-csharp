@@ -53,7 +53,7 @@ namespace SharpRaven.Nancy.WebTest
                 c.ApplicationStartup((container, pipelines) =>
                 {
                     container.Register(ravenClient);
-                    container.AutoRegister(new[] { typeof(ApplicationStartup).Assembly }, type => true);
+                    container.AutoRegister(new[] { typeof(SentryRequestStartup).Assembly }, type => true);
                 });
             });
 
