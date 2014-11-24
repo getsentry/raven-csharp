@@ -32,8 +32,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using SharpRaven.Data;
-
 namespace SharpRaven.Utilities
 {
     /// <summary>
@@ -47,15 +45,24 @@ namespace SharpRaven.Utilities
         /// <returns>
         /// All loaded modules.
         /// </returns>
-        public static IEnumerable<SentryModule> GetModules()
+        public static IDictionary<string, string> GetModules()
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = AppDomain.CurrentDomain
+                                      .GetAssemblies()
+                                      .Select(a => a.GetName())
+                                      .OrderBy(a => a.Name);
 
-            return assemblies.Select(a => a.GetName()).OrderBy(a => a.Name).Select(a => new SentryModule
+            var dictionary = new Dictionary<string, string>();
+
+            foreach (var assembly in assemblies)
             {
-                Name = a.Name,
-                Version = a.Version.ToString()
-            });
+                if (dictionary.ContainsKey(assembly.Name))
+                    continue;
+
+                dictionary.Add(assembly.Name, assembly.Version.ToString());
+            }
+
+            return dictionary;
         }
     }
 }
