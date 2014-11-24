@@ -49,19 +49,14 @@ namespace SharpRaven.Nancy.WebTest
             var browser = new Browser(c =>
             {
                 c.Module<DefaultModule>();
-
-                c.ApplicationStartup((container, pipelines) =>
-                {
-                    container.Register(ravenClient);
-                    container.AutoRegister(new[] { typeof(SentryRequestStartup).Assembly }, type => true);
-                });
+                c.ApplicationStartup((container, pipelines) => container.Register(ravenClient));
             });
-            
+
             TestDelegate throwing = () => browser.Post("/");
-            
+
             var exception = Assert.Throws<Exception>(throwing);
             Assert.That(exception.InnerException, Is.Not.Null);
-            
+
             var divideByZeroException = exception.InnerException.InnerException;
 
             Assert.That(divideByZeroException, Is.Not.Null);
