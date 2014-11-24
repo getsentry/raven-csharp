@@ -33,6 +33,9 @@ using System.Collections.Generic;
 
 namespace SharpRaven.Data
 {
+    /// <summary>
+    /// Interface for the <c>request</c> object.
+    /// </summary>
     public interface ISentryRequest
     {
         /// <summary>
