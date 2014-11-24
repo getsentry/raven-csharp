@@ -36,6 +36,8 @@ using Nancy.Bootstrapper;
 
 namespace SharpRaven.Nancy
 {
+    using PipelineItem = PipelineItem<Func<NancyContext, Exception, Response>>;
+
     /// <summary>
     /// SharpRaven's <see cref="IApplicationStartup"/> implementation.
     /// Used to register exception handling to the start of the error handling pipeline.
@@ -49,7 +51,7 @@ namespace SharpRaven.Nancy
         public void Initialize(IPipelines pipelines)
         {
             var value = Configuration.Settings.PipelineName.Value;
-            var sharpRaven = new PipelineItem<Func<NancyContext, Exception, Response>>(value, (context, exception) =>
+            var sharpRaven = new PipelineItem(value, (context, exception) =>
             {
                 var nancyContextDataSlot = Configuration.Settings.NancyContextDataSlot;
                 var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
@@ -58,7 +60,7 @@ namespace SharpRaven.Nancy
                 if (Configuration.Settings.CaptureExceptionOnError.Value)
                 {
                     // TODO: We should retrieve an IRavenClient instance from the application container. @asbjornu
-                    IRavenClient client = new RavenClient(context);
+                    var client = new RavenClient(context);
                     client.CaptureException(exception);
                 }
 
