@@ -68,7 +68,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationStartup.cs" />
+    <Compile Include="SentryRequestStartup.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Data\SentryRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
