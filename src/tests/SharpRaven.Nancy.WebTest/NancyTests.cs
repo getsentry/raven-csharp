@@ -56,15 +56,18 @@ namespace SharpRaven.Nancy.WebTest
                     container.AutoRegister(new[] { typeof(SentryRequestStartup).Assembly }, type => true);
                 });
             });
-
-
+            
             TestDelegate throwing = () => browser.Post("/");
             
             var exception = Assert.Throws<Exception>(throwing);
             Assert.That(exception.InnerException, Is.Not.Null);
-            Assert.That(exception.InnerException.Message, Is.StringContaining("Oh noes!"));
+            
+            var divideByZeroException = exception.InnerException.InnerException;
 
-            ravenClient.Received(1).CaptureException(Arg.Any<Exception>());
+            Assert.That(divideByZeroException, Is.Not.Null);
+            Assert.That(divideByZeroException, Is.TypeOf<DivideByZeroException>());
+
+            ravenClient.Received(1).CaptureException(divideByZeroException);
         }
     }
 }
