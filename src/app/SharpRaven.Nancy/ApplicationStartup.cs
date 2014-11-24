@@ -57,6 +57,7 @@ namespace SharpRaven.Nancy
 
                 if (Configuration.Settings.CaptureExceptionOnError.Value)
                 {
+                    // TODO: We should retrieve an IRavenClient instance from the application container. @asbjornu
                     IRavenClient client = new RavenClient(context);
                     client.CaptureException(exception);
                 }
