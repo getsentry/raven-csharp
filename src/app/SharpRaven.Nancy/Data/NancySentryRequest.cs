@@ -46,16 +46,16 @@ namespace SharpRaven.Nancy.Data
     /// <summary>
     /// The Request information is stored in the Http interface. Two arguments are required: url and method.
     /// </summary>
-    internal class SentryRequest : ISentryRequest
+    internal class NancySentryRequest : ISentryRequest
     {
         private readonly NancyContext httpContext;
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SentryRequest"/> class.
+        /// Initializes a new instance of the <see cref="NancySentryRequest"/> class.
         /// </summary>
         /// <param name="httpContext">The HTTP context.</param>
-        internal SentryRequest(NancyContext httpContext)
+        internal NancySentryRequest(NancyContext httpContext)
         {
             this.httpContext = httpContext;
 
@@ -191,11 +191,11 @@ namespace SharpRaven.Nancy.Data
         /// Gets the request.
         /// </summary>
         /// <returns>
-        /// If an HTTP contest is available, an instance of <see cref="SentryRequest"/>, otherwise <c>null</c>.
+        /// If an HTTP contest is available, an instance of <see cref="NancySentryRequest"/>, otherwise <c>null</c>.
         /// </returns>
-        public static SentryRequest GetRequest(NancyContext httpContext)
+        public static NancySentryRequest GetRequest(NancyContext httpContext)
         {
-            var request = new SentryRequest(httpContext);
+            var request = new NancySentryRequest(httpContext);
             return request.HasHttpContext ? request : null;
         }
     }

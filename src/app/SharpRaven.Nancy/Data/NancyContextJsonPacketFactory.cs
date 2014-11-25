@@ -58,7 +58,7 @@ namespace SharpRaven.Nancy.Data
             if (nancyContext == null)
                 return jsonPacket;
 
-            var sentryRequest = SentryRequest.GetRequest(nancyContext);
+            var sentryRequest = NancySentryRequest.GetRequest(nancyContext);
 
             if (sentryRequest == null)
                 return jsonPacket;

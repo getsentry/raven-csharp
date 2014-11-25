@@ -74,7 +74,7 @@
     </Compile>
     <Compile Include="SentryRequestStartup.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="Data\SentryRequest.cs" />
+    <Compile Include="Data\NancySentryRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
