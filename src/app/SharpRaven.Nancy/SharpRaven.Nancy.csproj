@@ -69,6 +69,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\NancyContextJsonPacketFactory.cs" />
+    <Compile Include="SentryRegistrations.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SentryRequestStartup.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Data\SentryRequest.cs" />
