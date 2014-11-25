@@ -33,6 +33,8 @@ using System;
 using Nancy;
 using Nancy.Testing;
 
+using NSubstitute;
+
 using NUnit.Framework;
 
 using SharpRaven.Data;
@@ -61,6 +63,27 @@ namespace SharpRaven.Nancy.WebTest
                 dynamic data = packet.Request.Data;
                 return data["GUID"];
             }
+        }
+
+
+        [Test]
+        public void Post_InvokesRavenClient()
+        {
+            var ravenClient = Substitute.For<IRavenClient>();
+
+            var browser = new Browser(c =>
+            {
+                c.Module<DefaultModule>();
+                c.ApplicationStartup((container, pipelines) => container.Register(ravenClient));
+            });
+
+            TestDelegate throwing = () => browser.Post("/");
+
+            var exception = Assert.Throws<Exception>(throwing);
+            Assert.That(exception.InnerException, Is.TypeOf<RequestExecutionException>());
+            Assert.That(exception.InnerException.InnerException, Is.TypeOf<DivideByZeroException>());
+
+            ravenClient.Received(1).CaptureException(exception.InnerException.InnerException);
         }
 
 
