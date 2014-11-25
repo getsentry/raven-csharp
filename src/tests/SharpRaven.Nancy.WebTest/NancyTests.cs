@@ -30,39 +30,71 @@
 
 using System;
 
+using Nancy;
 using Nancy.Testing;
 
-using NSubstitute;
-
 using NUnit.Framework;
+
+using SharpRaven.Data;
 
 namespace SharpRaven.Nancy.WebTest
 {
     [TestFixture]
     public class NancyTests
     {
-        [Test]
-        public void Post_InvokesRavenClient()
+        private class TestableRavenClient : RavenClient
         {
-            var ravenClient = Substitute.For<IRavenClient>();
+            public TestableRavenClient(IJsonPacketFactory jsonPacketFactory)
+                : base(jsonPacketFactory)
+            {
+                // This constructor must exist so Nancy can inject the NancyContextJsonPacketFactory
+                // that is registered in SentryRegistrations. @asbjornu
+            }
 
+
+            protected override string Send(JsonPacket packet, Dsn dsn)
+            {
+                // Retrieving the GUID from the JsonPacket verifies that
+                // NancyContextJsonPacketFactory.OnCreate() has been invoked,
+                // since it will copy the request data from the NancyContext.
+                // @asbjornu
+                dynamic data = packet.Request.Data;
+                return data["GUID"];
+            }
+        }
+
+
+        [Test]
+        public void Post_InvokesRavenClientWithNancyContextJsonPacketFactory()
+        {
+            var guid = Guid.NewGuid().ToString();
             var browser = new Browser(c =>
             {
                 c.Module<DefaultModule>();
-                c.ApplicationStartup((container, pipelines) => container.Register(ravenClient));
+                c.ApplicationStartup((container, pipelines) =>
+                {
+                    // Override the IRavenClient implementation so we don't perform
+                    // any HTTP request and can retrieve the GUID so we can later
+                    // assert that it is the same we sent in. @asbjornu
+                    container.Register<IRavenClient, TestableRavenClient>();
+                });
             });
 
-            TestDelegate throwing = () => browser.Post("/");
+            TestDelegate throwing = () => browser.Post("/", with =>
+            {
+                // Set the GUID which should be transferred to the SentryRequest
+                // object in the NancyContextJsonPacketFactory.OnCreate() method.
+                // @asbjornu
+                with.FormValue("GUID", guid);
+            });
 
             var exception = Assert.Throws<Exception>(throwing);
-            Assert.That(exception.InnerException, Is.Not.Null);
+            Assert.That(exception.InnerException, Is.TypeOf<RequestExecutionException>());
+            Assert.That(exception.InnerException.InnerException, Is.TypeOf<DivideByZeroException>());
 
-            var divideByZeroException = exception.InnerException.InnerException;
-
-            Assert.That(divideByZeroException, Is.Not.Null);
-            Assert.That(divideByZeroException, Is.TypeOf<DivideByZeroException>());
-
-            ravenClient.Received(1).CaptureException(divideByZeroException);
+            // SentryRequestStartup.Initialize() should set the GUID in Exception.Data. @asbjornu
+            var loggedGuid = exception.InnerException.InnerException.Data[Configuration.Settings.SentryEventGuid];
+            Assert.That(loggedGuid, Is.EqualTo(guid));
         }
     }
 }
