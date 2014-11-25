@@ -36,13 +36,13 @@ namespace SharpRaven.Nancy
     /// <summary>
     /// Nancy-specific configuration for SharpRaven.
     /// </summary>
-    public class Configuration : SharpRaven.Configuration
+    public class NancyConfiguration : SharpRaven.Configuration
     {
         private const string PipelineNameKey = "pipelineName";
         private const string CaptureExceptionOnErrorKey = "captureExceptionOnError";
 
-        private static readonly Configuration settings =
-            ConfigurationManager.GetSection("sharpRaven") as Configuration;
+        private static readonly NancyConfiguration settings =
+            ConfigurationManager.GetSection("sharpRaven") as NancyConfiguration;
 
         /// <summary>
         /// Gets the &lt;sharpRaven/&gt; configuration element.
@@ -50,7 +50,7 @@ namespace SharpRaven.Nancy
         /// <value>
         /// The the &lt;sharpRaven/&gt; configuration element.
         /// </value>
-        public new static Configuration Settings
+        public new static NancyConfiguration Settings
         {
             get { return settings; }
         }

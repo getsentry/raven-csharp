@@ -73,7 +73,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="SentryRequestStartup.cs" />
-    <Compile Include="Configuration.cs" />
+    <Compile Include="NancyConfiguration.cs" />
     <Compile Include="Data\NancySentryRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

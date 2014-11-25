@@ -116,7 +116,7 @@ namespace SharpRaven.Nancy.WebTest
             Assert.That(exception.InnerException.InnerException, Is.TypeOf<DivideByZeroException>());
 
             // SentryRequestStartup.Initialize() should set the GUID in Exception.Data. @asbjornu
-            var loggedGuid = exception.InnerException.InnerException.Data[Configuration.Settings.SentryEventGuid];
+            var loggedGuid = exception.InnerException.InnerException.Data[NancyConfiguration.Settings.SentryEventGuid];
             Assert.That(loggedGuid, Is.EqualTo(guid));
         }
     }

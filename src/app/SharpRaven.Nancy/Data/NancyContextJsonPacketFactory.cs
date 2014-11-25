@@ -51,7 +51,7 @@ namespace SharpRaven.Nancy.Data
         /// </returns>
         protected override JsonPacket OnCreate(JsonPacket jsonPacket)
         {
-            var nancyContextDataSlot = Configuration.Settings.NancyContextDataSlot;
+            var nancyContextDataSlot = NancyConfiguration.Settings.NancyContextDataSlot;
             var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
             var nancyContext = Thread.GetData(localDataStoreSlot) as NancyContext;
 

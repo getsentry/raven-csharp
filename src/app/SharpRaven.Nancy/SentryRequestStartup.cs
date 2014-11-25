@@ -68,21 +68,21 @@ namespace SharpRaven.Nancy
         /// <param name="context">The current context</param>
         public void Initialize(IPipelines pipelines, NancyContext context)
         {
-            var name = Configuration.Settings.PipelineName.Value;
+            var name = NancyConfiguration.Settings.PipelineName.Value;
             var sharpRaven = new PipelineItem(name, (nancyContext, exception) =>
             {
-                var nancyContextDataSlot = Configuration.Settings.NancyContextDataSlot;
+                var nancyContextDataSlot = NancyConfiguration.Settings.NancyContextDataSlot;
                 var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
                 Thread.SetData(localDataStoreSlot, nancyContext);
 
-                if (Configuration.Settings.CaptureExceptionOnError.Value)
+                if (NancyConfiguration.Settings.CaptureExceptionOnError.Value)
                 {
                     var guid = this.ravenClient.CaptureException(exception);
 
                     if (guid != null)
                     {
-                        context.Items.Add(Configuration.Settings.SentryEventGuid, guid);
-                        exception.Data.Add(Configuration.Settings.SentryEventGuid, guid);
+                        context.Items.Add(NancyConfiguration.Settings.SentryEventGuid, guid);
+                        exception.Data.Add(NancyConfiguration.Settings.SentryEventGuid, guid);
                     }
                 }
 

@@ -85,7 +85,7 @@ namespace SharpRaven.Nancy
                     //new InstanceRegistration(typeof(Dsn), new Dsn(Configuration.Settings.Dsn.Value)),
                     // TODO: I don't like to register the concrete instance like this, see the above TODO. @asbjornu
                     new InstanceRegistration(typeof(IRavenClient),
-                                             new RavenClient(new Dsn(Configuration.Settings.Dsn.Value),
+                                             new RavenClient(new Dsn(NancyConfiguration.Settings.Dsn.Value),
                                                              new NancyContextJsonPacketFactory())),
                 };
             }
