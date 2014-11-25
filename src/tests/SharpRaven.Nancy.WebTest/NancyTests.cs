@@ -71,10 +71,10 @@ namespace SharpRaven.Nancy.WebTest
         {
             var ravenClient = Substitute.For<IRavenClient>();
 
-            var browser = new Browser(c =>
+            var browser = new Browser(cfg =>
             {
-                c.Module<DefaultModule>();
-                c.ApplicationStartup((container, pipelines) => container.Register(ravenClient));
+                cfg.Module<DefaultModule>();
+                cfg.ApplicationStartup((container, pipelines) => container.Register(ravenClient));
             });
 
             TestDelegate throwing = () => browser.Post("/");
@@ -91,10 +91,10 @@ namespace SharpRaven.Nancy.WebTest
         public void Post_InvokesRavenClientWithNancyContextJsonPacketFactory()
         {
             var guid = Guid.NewGuid().ToString();
-            var browser = new Browser(c =>
+            var browser = new Browser(cfg =>
             {
-                c.Module<DefaultModule>();
-                c.ApplicationStartup((container, pipelines) =>
+                cfg.Module<DefaultModule>();
+                cfg.ApplicationStartup((container, pipelines) =>
                 {
                     // Override the IRavenClient implementation so we don't perform
                     // any HTTP request and can retrieve the GUID so we can later
