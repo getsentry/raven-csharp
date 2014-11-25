@@ -32,6 +32,9 @@ using Nancy.Testing;
 
 using NUnit.Framework;
 
+using SharpRaven.Data;
+using SharpRaven.Nancy.Data;
+
 namespace SharpRaven.Nancy.WebTest
 {
     [TestFixture]
@@ -48,6 +51,15 @@ namespace SharpRaven.Nancy.WebTest
             })).Get("/");
 
             return instance;
+        }
+
+
+        [Test]
+        public void NancyContextJsonPacketFactoryIsRegistered()
+        {
+            var jsonPacketFactory = Resolve<IJsonPacketFactory>();
+
+            Assert.That(jsonPacketFactory, Is.TypeOf<NancyContextJsonPacketFactory>());
         }
 
 
