@@ -68,11 +68,11 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\NancyContextJsonPacketFactory.cs" />
     <Compile Include="SentryRequestStartup.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Data\SentryRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RavenClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SharpRaven\SharpRaven.csproj">
