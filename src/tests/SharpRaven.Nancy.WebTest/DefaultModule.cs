@@ -30,7 +30,7 @@
 
 using Nancy;
 
-namespace SharpRaven.Nancy.WebTest
+namespace SharpRaven.Nancy.UnitTest
 {
     public class DefaultModule : NancyModule
     {

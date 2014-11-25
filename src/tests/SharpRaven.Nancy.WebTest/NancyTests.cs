@@ -39,7 +39,7 @@ using NUnit.Framework;
 
 using SharpRaven.Data;
 
-namespace SharpRaven.Nancy.WebTest
+namespace SharpRaven.Nancy.UnitTest
 {
     [TestFixture]
     public class NancyTests

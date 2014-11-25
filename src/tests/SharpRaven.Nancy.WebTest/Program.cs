@@ -1,11 +1,8 @@
-﻿using Nancy.Hosting.Self;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
-namespace SharpRaven.Nancy.WebTest
+using Nancy.Hosting.Self;
+
+namespace SharpRaven.Nancy.UnitTest
 {
     class Program
     {
