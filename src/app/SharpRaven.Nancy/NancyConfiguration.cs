@@ -36,7 +36,7 @@ namespace SharpRaven.Nancy
     /// <summary>
     /// Nancy-specific configuration for SharpRaven.
     /// </summary>
-    public class NancyConfiguration : SharpRaven.Configuration
+    public class NancyConfiguration : Configuration
     {
         private const string PipelineNameKey = "pipelineName";
         private const string CaptureExceptionOnErrorKey = "captureExceptionOnError";
