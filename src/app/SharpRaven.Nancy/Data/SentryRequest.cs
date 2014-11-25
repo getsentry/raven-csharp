@@ -67,20 +67,7 @@ namespace SharpRaven.Nancy.Data
             // Url and Method
             Url = this.httpContext.Request.Url.ToString();
             Method = this.httpContext.Request.Method;
-
-            // Data
-            NancyIO.RequestStream requestStream = this.httpContext.Request.Body;
-
-            if (requestStream.Length > 0 && requestStream.CanRead && requestStream.CanSeek)
-            {
-                // seek the stream to begin
-                requestStream.Seek(0, SeekOrigin.Begin);
-
-                StreamReader reader = new StreamReader(requestStream);
-
-                // read data
-                Data = reader.ReadToEnd();
-            }
+            Data = this.httpContext.Request.Form;
 
             // QueryString
             string qs = string.Empty;
