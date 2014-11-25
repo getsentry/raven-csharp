@@ -34,55 +34,39 @@ using Nancy;
 
 using SharpRaven.Data;
 
-namespace SharpRaven.Nancy
+namespace SharpRaven.Nancy.Data
 {
     /// <summary>
-    /// The Raven Client, responsible for capturing exceptions and sending them to Sentry.
+    /// <see cref="NancyContext"/>-based implementation of <see cref="IJsonPacketFactory"/>.
     /// </summary>
-    public class RavenClient : SharpRaven.RavenClient
+    public class NancyContextJsonPacketFactory : JsonPacketFactory
     {
-        private NancyContext httpContext;
-
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="RavenClient" /> class. Sentry
-        /// Data Source Name will be read from sharpRaven section in your app.config or
-        /// web.config.
+        /// Called when the <see cref="JsonPacket" /> has been created. Can be overridden to
+        /// adjust the values of the <paramref name="jsonPacket" /> before it is sent to Sentry.
         /// </summary>
-        /// <param name="httpContext">The optional <see cref="NancyContext" /> that will be used to fill <see cref="SentryRequest" /> that will be sent to Sentry.</param>
-        /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
-        public RavenClient(NancyContext httpContext = null, IJsonPacketFactory jsonPacketFactory = null)
-            : base(new Dsn(Configuration.Settings.Dsn.Value), jsonPacketFactory)
-        {
-            this.httpContext = httpContext;
-        }
-
-
-        /// <summary>
-        /// Sends the specified packet to Sentry.
-        /// </summary>
-        /// <param name="packet">The packet to send.</param>
-        /// <param name="dsn">The Data Source Name in Sentry.</param>
+        /// <param name="jsonPacket">The json packet.</param>
         /// <returns>
-        /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket" />.
         /// </returns>
-        protected override string Send(JsonPacket packet, Dsn dsn)
+        protected override JsonPacket OnCreate(JsonPacket jsonPacket)
         {
-            // looking for NancyContext
             var nancyContextDataSlot = Configuration.Settings.NancyContextDataSlot;
             var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
-            this.httpContext = this.httpContext ?? Thread.GetData(localDataStoreSlot) as NancyContext;
+            var nancyContext = Thread.GetData(localDataStoreSlot) as NancyContext;
 
-            // get SentryRequest
-            ISentryRequest sentryRequest = Data.SentryRequest.GetRequest(this.httpContext);
+            if (nancyContext == null)
+                return jsonPacket;
 
-            // patch JsonPacket.Request with data on NancyContext
-            packet.Request = sentryRequest;
+            var sentryRequest = SentryRequest.GetRequest(nancyContext);
 
-            // patch JsonPacket.User with data on NancyContext
-            packet.User = sentryRequest.GetUser();
+            if (sentryRequest == null)
+                return jsonPacket;
 
-            return base.Send(packet, dsn);
+            jsonPacket.Request = sentryRequest;
+            jsonPacket.User = sentryRequest.GetUser();
+
+            return jsonPacket;
         }
     }
 }
