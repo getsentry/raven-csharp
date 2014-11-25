@@ -29,7 +29,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -76,7 +75,7 @@ namespace SharpRaven.Nancy.Data
                 qs += item + "=" + this.httpContext.Request.Query[item] + "&";
             }
 
-            QueryString = qs.TrimEnd(new char[] { '&' });
+            QueryString = qs.TrimEnd(new[] { '&' });
 
             // Cookies
             Cookies = this.httpContext.Request.Cookies;
