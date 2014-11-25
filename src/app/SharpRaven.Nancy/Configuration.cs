@@ -66,6 +66,18 @@ namespace SharpRaven.Nancy
             get { return "SharpRaven.Nancy.NancyContext"; }
         }
 
+
+        /// <summary>
+        /// Gets the key for the GUID returned from Sentry after a successfully logged exception.
+        /// </summary>
+        /// <value>
+        /// The key for the GUID returned from Sentry after a successfully logged exception.
+        /// </value>
+        public string SentryEventGuid
+        {
+            get { return "SharpRaven.Nancy.SentryEventGuid"; }
+        }
+
         /// <summary>
         /// Gets the &lt;pipelineName /&gt; configuration element.
         /// </summary>

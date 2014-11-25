@@ -77,7 +77,13 @@ namespace SharpRaven.Nancy
 
                 if (Configuration.Settings.CaptureExceptionOnError.Value)
                 {
-                    this.ravenClient.CaptureException(exception);
+                    var guid = this.ravenClient.CaptureException(exception);
+
+                    if (guid != null)
+                    {
+                        context.Items.Add(Configuration.Settings.SentryEventGuid, guid);
+                        exception.Data.Add(Configuration.Settings.SentryEventGuid, guid);
+                    }
                 }
 
                 return null;
