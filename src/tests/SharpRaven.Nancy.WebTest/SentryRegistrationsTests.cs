@@ -37,14 +37,24 @@ namespace SharpRaven.Nancy.WebTest
     [TestFixture]
     public class SentryRegistrationsTests
     {
+        private static T Resolve<T>()
+            where T : class
+        {
+            T instance = null;
+
+            new Browser(cfg => cfg.ApplicationStartup((container, pipelines) =>
+            {
+                instance = container.Resolve<T>();
+            })).Get("/");
+
+            return instance;
+        }
+
+
         [Test]
         public void RavenClientIsRegistered()
         {
-            IRavenClient ravenClient = null;
-            new Browser(cfg => cfg.ApplicationStartup((container, pipelines) =>
-            {
-                ravenClient = container.Resolve<IRavenClient>();
-            })).Get("/");
+            var ravenClient = Resolve<IRavenClient>();
 
             Assert.That(ravenClient, Is.TypeOf<RavenClient>());
         }
