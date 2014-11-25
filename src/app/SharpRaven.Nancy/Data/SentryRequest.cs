@@ -59,7 +59,7 @@ namespace SharpRaven.Nancy.Data
         {
             this.httpContext = httpContext;
 
-            if (!HasHttpContext)
+            if (!HasHttpContext || this.httpContext.Request == null)
             {
                 return;
             }
@@ -209,7 +209,6 @@ namespace SharpRaven.Nancy.Data
         public static SentryRequest GetRequest(NancyContext httpContext)
         {
             var request = new SentryRequest(httpContext);
-
             return request.HasHttpContext ? request : null;
         }
     }
