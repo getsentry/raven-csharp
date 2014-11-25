@@ -82,6 +82,7 @@
     <Compile Include="NancyTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SentryRegistrationsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
