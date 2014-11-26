@@ -29,6 +29,9 @@ echo =====================
 echo ===  NuGet Pack   ===
 echo =====================
 echo.
-NuGet pack app\SharpRaven\SharpRaven.csproj -Properties ReleaseNotes='Test'
+NuGet pack app\SharpRaven\SharpRaven.csproj -Properties ReleaseNotes='Test' 
+
+REM TODO: build NuuGet packages with csrproj at the moment getting error "Unable to find 'SharpRaven.Nancy.dll' ..."
+NuGet pack app\SharpRaven.Nancy\SharpRaven.Nancy.nuspec -Properties ReleaseNotes='Test' -Verbosity detailed -Version 1.0.0
 echo.
 ENDLOCAL

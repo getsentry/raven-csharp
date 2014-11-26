@@ -119,5 +119,35 @@ namespace SharpRaven.Nancy.UnitTest
             var loggedGuid = exception.InnerException.InnerException.Data[NancyConfiguration.Settings.SentryEventGuid];
             Assert.That(loggedGuid, Is.EqualTo(guid));
         }
+
+        [Test]
+        public void Get_InvokesRavenClientWithNancyContextJsonPacketFactory()
+        {
+            var guid = Guid.NewGuid().ToString();
+            var browser = new Browser(cfg =>
+            {
+                cfg.Module<LogModule>();
+                cfg.ApplicationStartup((container, pipelines) =>
+                {
+                    // Override the IRavenClient implementation so we don't perform
+                    // any HTTP request and can retrieve the GUID so we can later
+                    // assert that it is the same we sent in. @asbjornu
+                    container.Register<IRavenClient, TestableRavenClient>();
+                });
+            });
+
+            var response = browser.Get("/log", with =>
+            {
+                with.FormValue("GUID", guid);
+            });
+
+            Assert.AreEqual(response.StatusCode, HttpStatusCode.OK);
+
+            response.Body["#message"]
+                .ShouldExistOnce()
+                .And.ShouldContain(
+                    guid,
+                    StringComparison.InvariantCultureIgnoreCase);
+        }
     }
 }

@@ -79,6 +79,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogModule.cs" />
     <Compile Include="DefaultModule.cs" />
     <Compile Include="NancyTests.cs" />
     <Compile Include="Program.cs" />
@@ -90,6 +91,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="log.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="error.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
