@@ -70,11 +70,17 @@ namespace SharpRaven.Nancy
         {
             var nancyContextDataSlot = NancyConfiguration.Settings.NancyContextDataSlot;
             var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
+            // on each request add the NancyContext to the Thread data
             Thread.SetData(localDataStoreSlot, context);
 
             var name = NancyConfiguration.Settings.PipelineName.Value;
             var sharpRaven = new PipelineItem(name, (nancyContext, exception) =>
             {
+                // the error should be throw on a differente tread. Add the
+                // the NancyContext to the Thread data
+                localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
+                Thread.SetData(localDataStoreSlot, nancyContext);
+
                 if (NancyConfiguration.Settings.CaptureExceptionOnError.Value)
                 {
                     var guid = this.ravenClient.CaptureException(exception);
