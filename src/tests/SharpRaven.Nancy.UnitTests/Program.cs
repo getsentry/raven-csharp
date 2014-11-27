@@ -2,7 +2,7 @@
 
 using Nancy.Hosting.Self;
 
-namespace SharpRaven.Nancy.UnitTest
+namespace SharpRaven.Nancy.UnitTests
 {
     class Program
     {
