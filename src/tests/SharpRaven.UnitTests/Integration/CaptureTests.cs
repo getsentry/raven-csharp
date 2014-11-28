@@ -194,5 +194,96 @@ namespace SharpRaven.UnitTests.Integration
             Assert.That(id, Is.Not.Null.Or.Empty);
             Assert.That(Guid.Parse(id), Is.Not.Null);
         }
+
+
+        [Test]
+        public void CaptureException_Doesnt_Fail_On_Error_During_Send()
+        {
+            const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
+            
+            this.ravenClient = new RavenClient(dsnUri);
+
+            PrintInfo("In test client change!");
+            PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
+
+            try
+            {
+                FirstLevelException();
+            }
+            catch (Exception e)
+            {
+                Assert.DoesNotThrow(() => this.ravenClient.CaptureException(e));
+            }
+        }
+
+        [Test]
+        public void CaptureMessage_Doesnt_Fail_On_Error_During_Send()
+        {
+            const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
+            
+            ravenClient = new RavenClient(dsnUri);
+
+            PrintInfo("In test client change!");
+            PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
+
+            Assert.DoesNotThrow(() => ravenClient.CaptureMessage("Test message"));
+        }
+
+        [Test]
+        public void CaptureException_CanLogException_If_Send_Fails()
+        {
+            const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
+
+            Exception hookedException = null;
+
+            this.ravenClient = new RavenClient(dsnUri, null, exp => hookedException = exp);
+
+            PrintInfo("In test client change!");
+            PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
+
+            try
+            {
+                FirstLevelException();
+            }
+            catch (Exception e)
+            {
+                this.ravenClient.CaptureException(e);
+            }
+
+            Assert.NotNull(hookedException);
+        }
+
+        [Test]
+        public void CaptureMessage__CanLogException_If_Send_Fails()
+        {
+            const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
+
+            Exception hookedException = null;
+            
+            ravenClient = new RavenClient(dsnUri, null, exp => hookedException = exp);
+
+            PrintInfo("In test client change!");
+            PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
+
+            ravenClient.CaptureMessage("Test message");
+
+            Assert.NotNull(hookedException);
+        }
     }
 }

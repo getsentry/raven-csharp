@@ -54,6 +54,7 @@ namespace SharpRaven
     {
         private readonly Dsn currentDsn;
         private readonly IJsonPacketFactory jsonPacketFactory;
+        private readonly Action<Exception> exceptionHook;
 
 
         /// <summary>
@@ -61,8 +62,9 @@ namespace SharpRaven
         /// </summary>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
         /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
-        public RavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null)
-            : this(new Dsn(dsn), jsonPacketFactory)
+        /// <param name="exceptionHook">Hook in case of exceptions thrown during send</param>
+        public RavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null, Action<Exception> exceptionHook = null)
+            : this(new Dsn(dsn), jsonPacketFactory, exceptionHook)
         {
         }
 
@@ -72,18 +74,20 @@ namespace SharpRaven
         /// </summary>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
         /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
+        /// <param name="exceptionHook">Hook in case of exceptions thrown during send</param>
         /// <exception cref="System.ArgumentNullException">dsn</exception>
-        public RavenClient(Dsn dsn, IJsonPacketFactory jsonPacketFactory = null)
+        public RavenClient(Dsn dsn, IJsonPacketFactory jsonPacketFactory = null, Action<Exception> exceptionHook = null)
         {
             if (dsn == null)
                 throw new ArgumentNullException("dsn");
 
             this.currentDsn = dsn;
             this.jsonPacketFactory = jsonPacketFactory ?? new JsonPacketFactory();
+            this.exceptionHook = exceptionHook;
+
             Logger = "root";
             Timeout = TimeSpan.FromSeconds(5);
         }
-
 
         /// <summary>
         /// Enable Gzip Compression?
@@ -252,6 +256,11 @@ namespace SharpRaven
                     }
 
                     Console.WriteLine("[MESSAGE BODY] " + messageBody);
+                }
+
+                if (exceptionHook != null)
+                {
+                    exceptionHook(exception);                    
                 }
             }
 
