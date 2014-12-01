@@ -95,6 +95,7 @@
     <Compile Include="Logging\IScrubber.cs" />
     <Compile Include="Logging\LogScrubber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RavenClient.Net45.cs" />
     <Compile Include="RavenClient.cs" />
     <Compile Include="Serialization\ErrorLevelConverter.cs" />
     <Compile Include="Configuration.cs" />

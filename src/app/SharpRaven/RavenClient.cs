@@ -33,12 +33,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 
-#if !(net40)
-  using System.Net.Http;
-  using System.Net.Http.Headers;
-  using System.Threading.Tasks;
-#endif
-
 using Newtonsoft.Json;
 
 using SharpRaven.Data;
@@ -50,7 +44,7 @@ namespace SharpRaven
     /// <summary>
     /// The Raven Client, responsible for capturing exceptions and sending them to Sentry.
     /// </summary>
-    public class RavenClient : IRavenClient
+    public partial class RavenClient : IRavenClient
     {
         private readonly Dsn currentDsn;
         private readonly IJsonPacketFactory jsonPacketFactory;
