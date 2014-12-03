@@ -30,6 +30,7 @@
 
 using System;
 using System.Threading;
+using System.Runtime.Remoting.Messaging;
 
 using Nancy;
 using Nancy.Bootstrapper;
@@ -68,19 +69,13 @@ namespace SharpRaven.Nancy
         /// <param name="context">The current context</param>
         public void Initialize(IPipelines pipelines, NancyContext context)
         {
+            // on each request store the NancyContext to the LogicalCallContext
             var nancyContextDataSlot = NancyConfiguration.Settings.NancyContextDataSlot;
-            var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
-            // on each request add the NancyContext to the Thread data
-            Thread.SetData(localDataStoreSlot, context);
+            CallContext.LogicalSetData(nancyContextDataSlot, context);
 
             var name = NancyConfiguration.Settings.PipelineName.Value;
             var sharpRaven = new PipelineItem(name, (nancyContext, exception) =>
             {
-                // the error should be throw on a differente tread. Add the
-                // the NancyContext to the Thread data
-                localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
-                Thread.SetData(localDataStoreSlot, nancyContext);
-
                 if (NancyConfiguration.Settings.CaptureExceptionOnError.Value)
                 {
                     var guid = this.ravenClient.CaptureException(exception);

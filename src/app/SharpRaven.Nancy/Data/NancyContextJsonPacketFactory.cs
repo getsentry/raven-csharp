@@ -33,6 +33,7 @@ using System.Threading;
 using Nancy;
 
 using SharpRaven.Data;
+using System.Runtime.Remoting.Messaging;
 
 namespace SharpRaven.Nancy.Data
 {
@@ -52,8 +53,7 @@ namespace SharpRaven.Nancy.Data
         protected override JsonPacket OnCreate(JsonPacket jsonPacket)
         {
             var nancyContextDataSlot = NancyConfiguration.Settings.NancyContextDataSlot;
-            var localDataStoreSlot = Thread.GetNamedDataSlot(nancyContextDataSlot);
-            var nancyContext = Thread.GetData(localDataStoreSlot) as NancyContext;
+            var nancyContext = CallContext.LogicalGetData(nancyContextDataSlot) as NancyContext;
 
             if (nancyContext == null)
                 return jsonPacket;
