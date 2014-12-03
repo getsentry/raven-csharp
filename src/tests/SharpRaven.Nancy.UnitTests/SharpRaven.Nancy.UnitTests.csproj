@@ -7,8 +7,8 @@
     <ProjectGuid>{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SharpRaven.Nancy.UnitTest</RootNamespace>
-    <AssemblyName>SharpRaven.Nancy.UnitTest</AssemblyName>
+    <RootNamespace>SharpRaven.Nancy.UnitTests</RootNamespace>
+    <AssemblyName>SharpRaven.Nancy.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
