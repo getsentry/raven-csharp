@@ -30,6 +30,8 @@
 
 using Nancy;
 
+using System.Net.Http;
+
 namespace SharpRaven.Nancy.UnitTests
 {
     public class LogModule : NancyModule
@@ -39,6 +41,20 @@ namespace SharpRaven.Nancy.UnitTests
             Get["/log"] = _ =>
             {
                 string messageId = ravenClient.CaptureMessage("Hello world !!!");
+                return View["log.html", new { MessageId = messageId }];
+            };
+
+            Get["/log-async", runAsync: true] = async (_, token) =>
+            {
+                HttpClient httpClient = new HttpClient();
+                var response = await httpClient.GetAsync("http://www.google.com");
+
+                response.EnsureSuccessStatusCode();
+
+                var result = await response.Content.ReadAsStringAsync();
+
+                string messageId = ravenClient.CaptureMessage("Hello world !!!");
+
                 return View["log.html", new { MessageId = messageId }];
             };
         }
