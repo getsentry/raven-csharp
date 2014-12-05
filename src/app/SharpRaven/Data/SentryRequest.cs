@@ -166,10 +166,40 @@ namespace SharpRaven.Data
             if (!HasHttpContext)
                 return null;
 
-            return new SentryUser(HttpContext.User as IPrincipal)
+            return new SentryUser(GetPrincipal())
             {
-                IpAddress = HttpContext.Request.UserHostAddress
+                IpAddress = GetIpAddress()
             };
+        }
+
+
+        private static IPrincipal GetPrincipal()
+        {
+            try
+            {
+                return HttpContext.User as IPrincipal;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
+        }
+
+
+        private static dynamic GetIpAddress()
+        {
+            try
+            {
+                return HttpContext.Request.UserHostAddress;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
         }
 
 
