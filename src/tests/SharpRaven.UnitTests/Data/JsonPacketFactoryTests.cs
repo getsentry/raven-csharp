@@ -75,7 +75,7 @@ namespace SharpRaven.UnitTests.Data
         {
             var project = Guid.NewGuid().ToString("N");
             var factory = new TestableJsonPacketFactory(project);
-            var json = factory.Create(String.Empty, (SentryMessage)null);
+            var json = factory.Create(String.Empty, (SentryMessage) null);
 
             Assert.That(json.Project, Is.EqualTo(project));
         }
@@ -137,7 +137,7 @@ namespace SharpRaven.UnitTests.Data
         public void Create_Project_EventIDIsValidGuid()
         {
             var project = Guid.NewGuid().ToString();
-            var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
+            var json = this.jsonPacketFactory.Create(project, (SentryMessage) null);
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
             Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
@@ -148,7 +148,7 @@ namespace SharpRaven.UnitTests.Data
         public void Create_Project_ModulesHasCountGreaterThanZero()
         {
             var project = Guid.NewGuid().ToString();
-            var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
+            var json = this.jsonPacketFactory.Create(project, (SentryMessage) null);
 
             Assert.That(json.Modules, Has.Count.GreaterThan(0));
         }
@@ -158,7 +158,7 @@ namespace SharpRaven.UnitTests.Data
         public void Create_Project_ProjectIsEqual()
         {
             var project = Guid.NewGuid().ToString();
-            var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
+            var json = this.jsonPacketFactory.Create(project, (SentryMessage) null);
 
             Assert.That(json.Project, Is.EqualTo(project));
         }
@@ -168,7 +168,7 @@ namespace SharpRaven.UnitTests.Data
         public void Create_Project_ServerNameEqualsMachineName()
         {
             var project = Guid.NewGuid().ToString();
-            var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
+            var json = this.jsonPacketFactory.Create(project, (SentryMessage) null);
 
             Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
         }
