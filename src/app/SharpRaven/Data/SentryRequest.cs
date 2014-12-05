@@ -63,15 +63,6 @@ namespace SharpRaven.Data
 
 
         /// <summary>
-        /// Gets or sets the HTTP context.
-        /// </summary>
-        /// <value>
-        /// The HTTP context.
-        /// </value>
-        internal static dynamic HttpContext { get; set; }
-
-
-        /// <summary>
         /// Gets or sets the cookies.
         /// </summary>
         /// <value>
@@ -135,6 +126,14 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
 
+        /// <summary>
+        /// Gets or sets the HTTP context.
+        /// </summary>
+        /// <value>
+        /// The HTTP context.
+        /// </value>
+        internal static dynamic HttpContext { get; set; }
+
         [JsonIgnore]
         private static bool HasHttpContext
         {
@@ -170,71 +169,6 @@ namespace SharpRaven.Data
             {
                 IpAddress = GetIpAddress()
             };
-        }
-
-
-        private static IPrincipal GetPrincipal()
-        {
-            try
-            {
-                return HttpContext.User as IPrincipal;
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-
-            return null;
-        }
-
-
-        private static dynamic GetIpAddress()
-        {
-            try
-            {
-                return HttpContext.Request.UserHostAddress;
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-
-            return null;
-        }
-
-
-        private static void GetHttpContext()
-        {
-            if (HasHttpContext)
-                return;
-
-            try
-            {
-                var systemWeb = AppDomain.CurrentDomain
-                                         .GetAssemblies()
-                                         .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
-
-                if (HasHttpContext || systemWeb == null)
-                    return;
-
-                var httpContextType = systemWeb.GetExportedTypes()
-                                               .FirstOrDefault(type => type.Name == "HttpContext");
-
-                if (HasHttpContext || httpContextType == null)
-                    return;
-
-                var currentHttpContextProperty = httpContextType.GetProperty("Current",
-                                                                             BindingFlags.Static | BindingFlags.Public);
-
-                if (HasHttpContext || currentHttpContextProperty == null)
-                    return;
-
-                HttpContext = currentHttpContextProperty.GetValue(null, null);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine("An error occurred while retrieving the HTTP context: {0}", exception);
-            }
         }
 
 
@@ -291,6 +225,71 @@ namespace SharpRaven.Data
             }
 
             return dictionary;
+        }
+
+
+        private static void GetHttpContext()
+        {
+            if (HasHttpContext)
+                return;
+
+            try
+            {
+                var systemWeb = AppDomain.CurrentDomain
+                                         .GetAssemblies()
+                                         .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
+
+                if (HasHttpContext || systemWeb == null)
+                    return;
+
+                var httpContextType = systemWeb.GetExportedTypes()
+                                               .FirstOrDefault(type => type.Name == "HttpContext");
+
+                if (HasHttpContext || httpContextType == null)
+                    return;
+
+                var currentHttpContextProperty = httpContextType.GetProperty("Current",
+                                                                             BindingFlags.Static | BindingFlags.Public);
+
+                if (HasHttpContext || currentHttpContextProperty == null)
+                    return;
+
+                HttpContext = currentHttpContextProperty.GetValue(null, null);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("An error occurred while retrieving the HTTP context: {0}", exception);
+            }
+        }
+
+
+        private static dynamic GetIpAddress()
+        {
+            try
+            {
+                return HttpContext.Request.UserHostAddress;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
+        }
+
+
+        private static IPrincipal GetPrincipal()
+        {
+            try
+            {
+                return HttpContext.User as IPrincipal;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
         }
     }
 }

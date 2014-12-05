@@ -140,7 +140,7 @@ namespace SharpRaven.UnitTests.Integration
                 tags["TAG"] = "TAG1";
                 extra["extra"] = "EXTRA1";
 
-                var id = this.ravenClient.CaptureException(e, tags : tags, extra : extra);
+                var id = this.ravenClient.CaptureException(e, tags: tags, extra: extra);
 
                 //Console.WriteLine("Sent packet: " + id);
 
