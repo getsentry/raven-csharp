@@ -115,7 +115,7 @@ namespace SharpRaven.UnitTests
         [Test]
         public void Constructor_NullDsnString_ThrowsArgumentNullException()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string)null));
+            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string) null));
             Assert.That(exception.ParamName, Is.EqualTo("dsn"));
         }
 
@@ -123,7 +123,7 @@ namespace SharpRaven.UnitTests
         [Test]
         public void Constructor_NullDsn_ThrowsArgumentNullException()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn)null));
+            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn) null));
             Assert.That(exception.ParamName, Is.EqualTo("dsn"));
         }
 

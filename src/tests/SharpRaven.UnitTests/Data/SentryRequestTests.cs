@@ -41,6 +41,8 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class SentryRequestTests
     {
+        #region Setup/Teardown
+
         [SetUp]
         public void SetUp()
         {
@@ -56,6 +58,7 @@ namespace SharpRaven.UnitTests.Data
             SentryRequest.HttpContext = null;
         }
 
+        #endregion
 
         private static void SimulateHttpRequest(Action<SentryRequest> test)
         {

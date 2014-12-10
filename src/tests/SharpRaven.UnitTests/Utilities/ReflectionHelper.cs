@@ -49,7 +49,7 @@ namespace SharpRaven.UnitTests.Utilities
                                                         BindingFlags.GetField | BindingFlags.NonPublic |
                                                         BindingFlags.Instance);
             if (field != null)
-                return (T)field.GetValue(source);
+                return (T) field.GetValue(source);
             return default(T);
         }
 
@@ -63,7 +63,7 @@ namespace SharpRaven.UnitTests.Utilities
         {
             FieldInfo field = type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static);
             if (field != null)
-                return (T)field.GetValue(type);
+                return (T) field.GetValue(type);
             return default(T);
         }
 
@@ -78,7 +78,7 @@ namespace SharpRaven.UnitTests.Utilities
             Type type = Type.GetType(typeName, true);
             FieldInfo field = type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static);
             if (field != null)
-                return (T)field.GetValue(type);
+                return (T) field.GetValue(type);
             return default(T);
         }
 
@@ -92,7 +92,7 @@ namespace SharpRaven.UnitTests.Utilities
         {
             PropertyInfo property = type.GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Static);
             if (property != null)
-                return (T)property.GetValue(type, null);
+                return (T) property.GetValue(type, null);
             return default(T);
         }
 
@@ -143,7 +143,7 @@ namespace SharpRaven.UnitTests.Utilities
             if (method == null)
                 throw new ArgumentException("Could not find method " + methodName, "methodName");
 
-            return (TReturn)method.Invoke(null, parameters);
+            return (TReturn) method.Invoke(null, parameters);
         }
 
 
@@ -177,7 +177,7 @@ namespace SharpRaven.UnitTests.Utilities
             if (method == null)
                 throw new ArgumentException("Could not find method " + methodName, "methodName");
 
-            return (TReturn)method.Invoke(source, parameters);
+            return (TReturn) method.Invoke(source, parameters);
         }
 
 
@@ -192,7 +192,7 @@ namespace SharpRaven.UnitTests.Utilities
             if (propertyInfo == null)
                 throw new ArgumentException("Could not find property " + propertyName, "propertyName");
 
-            return (TReturn)propertyInfo.GetValue(source, null);
+            return (TReturn) propertyInfo.GetValue(source, null);
         }
 
 
@@ -213,7 +213,7 @@ namespace SharpRaven.UnitTests.Utilities
             if (propertyInfo == null)
                 throw new ArgumentException("Could not find property " + propertyName, "propertyName");
 
-            return (TReturn)propertyInfo.GetValue(source, null);
+            return (TReturn) propertyInfo.GetValue(source, null);
         }
 
 
