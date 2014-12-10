@@ -244,7 +244,10 @@ namespace SharpRaven.UnitTests.Integration
 
             Exception hookedException = null;
 
-            this.ravenClient = new RavenClient(dsnUri, null, exp => hookedException = exp);
+            this.ravenClient = new RavenClient(dsnUri)
+            {
+                ErrorOnCapture = exp => hookedException = exp
+            };
 
             PrintInfo("In test client change!");
             PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
@@ -272,7 +275,10 @@ namespace SharpRaven.UnitTests.Integration
 
             Exception hookedException = null;
             
-            ravenClient = new RavenClient(dsnUri, null, exp => hookedException = exp);
+            ravenClient = new RavenClient(dsnUri)
+            {
+                ErrorOnCapture = exp => hookedException = exp
+            };
 
             PrintInfo("In test client change!");
             PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
