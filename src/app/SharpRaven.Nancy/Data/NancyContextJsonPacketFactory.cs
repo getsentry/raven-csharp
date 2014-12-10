@@ -28,12 +28,11 @@
 
 #endregion
 
-using System.Threading;
+using System.Runtime.Remoting.Messaging;
 
 using Nancy;
 
 using SharpRaven.Data;
-using System.Runtime.Remoting.Messaging;
 
 namespace SharpRaven.Nancy.Data
 {

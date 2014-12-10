@@ -38,8 +38,8 @@ namespace SharpRaven.Nancy
     /// </summary>
     public class NancyConfiguration : Configuration
     {
-        private const string PipelineNameKey = "pipelineName";
         private const string CaptureExceptionOnErrorKey = "captureExceptionOnError";
+        private const string PipelineNameKey = "pipelineName";
 
         private static readonly NancyConfiguration settings =
             ConfigurationManager.GetSection("sharpRaven") as NancyConfiguration;
@@ -56,6 +56,18 @@ namespace SharpRaven.Nancy
         }
 
         /// <summary>
+        /// Gets the &lt;captureExceptionOnError /&gt; configuration element.
+        /// </summary>
+        /// <value>
+        /// The &lt;captureExceptionOnError /&gt; configuration element.
+        /// </value>
+        [ConfigurationProperty(CaptureExceptionOnErrorKey, IsKey = true)]
+        public CaptureExceptionOnErrorElement CaptureExceptionOnError
+        {
+            get { return (CaptureExceptionOnErrorElement) base[CaptureExceptionOnErrorKey]; }
+        }
+
+        /// <summary>
         /// Gets the nancy context data slot.
         /// </summary>
         /// <value>
@@ -66,17 +78,6 @@ namespace SharpRaven.Nancy
             get { return "SharpRaven.Nancy.NancyContext"; }
         }
 
-
-        /// <summary>
-        /// Gets the key for the GUID returned from Sentry after a successfully logged exception.
-        /// </summary>
-        /// <value>
-        /// The key for the GUID returned from Sentry after a successfully logged exception.
-        /// </value>
-        public string SentryEventGuid
-        {
-            get { return "SharpRaven.Nancy.SentryEventGuid"; }
-        }
 
         /// <summary>
         /// Gets the &lt;pipelineName /&gt; configuration element.
@@ -91,16 +92,17 @@ namespace SharpRaven.Nancy
         }
 
         /// <summary>
-        /// Gets the &lt;captureExceptionOnError /&gt; configuration element.
+        /// Gets the key for the GUID returned from Sentry after a successfully logged exception.
         /// </summary>
         /// <value>
-        /// The &lt;captureExceptionOnError /&gt; configuration element.
+        /// The key for the GUID returned from Sentry after a successfully logged exception.
         /// </value>
-        [ConfigurationProperty(CaptureExceptionOnErrorKey, IsKey = true)]
-        public CaptureExceptionOnErrorElement CaptureExceptionOnError
+        public string SentryEventGuid
         {
-            get { return (CaptureExceptionOnErrorElement) base[CaptureExceptionOnErrorKey]; }
+            get { return "SharpRaven.Nancy.SentryEventGuid"; }
         }
+
+        #region Nested type: CaptureExceptionOnErrorElement
 
         /// <summary>
         /// The &lt;captureExceptionOnError /&gt; configuration element.
@@ -121,6 +123,10 @@ namespace SharpRaven.Nancy
             }
         }
 
+        #endregion
+
+        #region Nested type: PipelineNameElement
+
         /// <summary>
         /// The &lt;pipelineName /&gt; configuration element.
         /// </summary>
@@ -139,5 +145,7 @@ namespace SharpRaven.Nancy
                 set { this["value"] = value; }
             }
         }
+
+        #endregion
     }
 }

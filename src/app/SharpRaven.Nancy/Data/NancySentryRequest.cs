@@ -38,8 +38,6 @@ using Newtonsoft.Json;
 
 using SharpRaven.Data;
 
-using NancyIO = Nancy.IO;
-
 namespace SharpRaven.Nancy.Data
 {
     /// <summary>
@@ -91,13 +89,6 @@ namespace SharpRaven.Nancy.Data
                     return stringBuilder;
                 }).ToString().TrimEnd(new[] { ' ' })
             }).ToDictionary(k => k.Key, v => v.Value);
-        }
-
-
-        [JsonIgnore]
-        private bool HasHttpContext
-        {
-            get { return this.httpContext != null; }
         }
 
 
@@ -165,6 +156,25 @@ namespace SharpRaven.Nancy.Data
         [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
 
+        [JsonIgnore]
+        private bool HasHttpContext
+        {
+            get { return this.httpContext != null; }
+        }
+
+
+        /// <summary>
+        /// Gets the request.
+        /// </summary>
+        /// <returns>
+        /// If an HTTP contest is available, an instance of <see cref="NancySentryRequest"/>, otherwise <c>null</c>.
+        /// </returns>
+        public static NancySentryRequest GetRequest(NancyContext httpContext)
+        {
+            var request = new NancySentryRequest(httpContext);
+            return request.HasHttpContext ? request : null;
+        }
+
 
         /// <summary>
         /// Gets the user.
@@ -183,19 +193,6 @@ namespace SharpRaven.Nancy.Data
             {
                 IpAddress = this.httpContext.Request.UserHostAddress
             };
-        }
-
-
-        /// <summary>
-        /// Gets the request.
-        /// </summary>
-        /// <returns>
-        /// If an HTTP contest is available, an instance of <see cref="NancySentryRequest"/>, otherwise <c>null</c>.
-        /// </returns>
-        public static NancySentryRequest GetRequest(NancyContext httpContext)
-        {
-            var request = new NancySentryRequest(httpContext);
-            return request.HasHttpContext ? request : null;
         }
     }
 }

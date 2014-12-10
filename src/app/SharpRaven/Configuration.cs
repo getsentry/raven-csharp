@@ -66,6 +66,8 @@ namespace SharpRaven
             get { return (DsnElement) base[DsnKey]; }
         }
 
+        #region Nested type: DsnElement
+
         /// <summary>
         /// The &lt;dsn/&gt; configuration element.
         /// </summary>
@@ -84,5 +86,7 @@ namespace SharpRaven
                 set { this["value"] = value; }
             }
         }
+
+        #endregion
     }
 }

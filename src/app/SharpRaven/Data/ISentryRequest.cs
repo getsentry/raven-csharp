@@ -28,7 +28,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 
 namespace SharpRaven.Data
@@ -94,6 +93,7 @@ namespace SharpRaven.Data
         /// The URL of the HTTP request.
         /// </value>
         string Url { get; set; }
+
 
         /// <summary>
         /// Gets the user.

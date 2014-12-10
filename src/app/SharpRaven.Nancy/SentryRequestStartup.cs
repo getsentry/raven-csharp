@@ -29,7 +29,6 @@
 #endregion
 
 using System;
-using System.Threading;
 using System.Runtime.Remoting.Messaging;
 
 using Nancy;

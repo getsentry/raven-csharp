@@ -46,26 +46,6 @@ namespace SharpRaven.Nancy
     public class SentryRegistrations : IRegistrations
     {
         /// <summary>
-        /// Gets the type registrations to register for this startup task
-        /// </summary>
-        public IEnumerable<TypeRegistration> TypeRegistrations
-        {
-            get
-            {
-                return new[]
-                {
-                    new TypeRegistration(typeof(IJsonPacketFactory),
-                                         typeof(NancyContextJsonPacketFactory),
-                                         Lifetime.Singleton),
-                    // TODO: I'd like to register the RavenClient like this so it's more composable and IoC friendly, but I'm seemingly unable to override their registration, which makes testing impossible. @asbjornu
-                    /*new TypeRegistration(typeof(IRavenClient),
-                                         typeof(RavenClient),
-                                         Lifetime.PerRequest),*/
-                };
-            }
-        }
-
-        /// <summary>
         /// Gets the collection registrations to register for this startup task
         /// </summary>
         public IEnumerable<CollectionTypeRegistration> CollectionTypeRegistrations
@@ -87,6 +67,26 @@ namespace SharpRaven.Nancy
                     new InstanceRegistration(typeof(IRavenClient),
                                              new RavenClient(new Dsn(NancyConfiguration.Settings.Dsn.Value),
                                                              new NancyContextJsonPacketFactory())),
+                };
+            }
+        }
+
+        /// <summary>
+        /// Gets the type registrations to register for this startup task
+        /// </summary>
+        public IEnumerable<TypeRegistration> TypeRegistrations
+        {
+            get
+            {
+                return new[]
+                {
+                    new TypeRegistration(typeof(IJsonPacketFactory),
+                                         typeof(NancyContextJsonPacketFactory),
+                                         Lifetime.Singleton),
+                    // TODO: I'd like to register the RavenClient like this so it's more composable and IoC friendly, but I'm seemingly unable to override their registration, which makes testing impossible. @asbjornu
+                    /*new TypeRegistration(typeof(IRavenClient),
+                                         typeof(RavenClient),
+                                         Lifetime.PerRequest),*/
                 };
             }
         }

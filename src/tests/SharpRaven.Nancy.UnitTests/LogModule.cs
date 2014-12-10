@@ -28,9 +28,9 @@
 
 #endregion
 
-using Nancy;
-
 using System.Net.Http;
+
+using Nancy;
 
 namespace SharpRaven.Nancy.UnitTests
 {
