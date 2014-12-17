@@ -197,7 +197,7 @@ namespace SharpRaven.UnitTests.Data
             {
                 Assert.That(json.Request.Data, Is.Not.Null);
                 Assert.That(json.Request.Data, Is.TypeOf<Dictionary<string, string>>());
-                var data = (Dictionary<string, string>)json.Request.Data;
+                var data = (Dictionary<string, string>) json.Request.Data;
                 Assert.That(data, Has.Count.EqualTo(1));
                 Assert.That(data, Has.Member(new KeyValuePair<string, string>("Form1", "Value1")));
             });

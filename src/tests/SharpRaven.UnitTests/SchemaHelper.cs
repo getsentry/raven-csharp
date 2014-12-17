@@ -86,7 +86,7 @@ namespace SharpRaven.UnitTests
 
             if (converterAttribute != null)
             {
-                var converter = (JsonConverter)Activator.CreateInstance(converterAttribute.ConverterType);
+                var converter = (JsonConverter) Activator.CreateInstance(converterAttribute.ConverterType);
                 if (converter.CanConvert(enumType))
                 {
                     foreach (var value in Enum.GetValues(enumType))

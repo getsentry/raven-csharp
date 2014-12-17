@@ -80,6 +80,7 @@ namespace SharpRaven
 
             this.currentDsn = dsn;
             this.jsonPacketFactory = jsonPacketFactory ?? new JsonPacketFactory();
+
             Logger = "root";
             Timeout = TimeSpan.FromSeconds(5);
         }
@@ -120,6 +121,17 @@ namespace SharpRaven
 
 
         /// <summary>
+        /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing
+        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Action"/> to execute if an error occurs when executing
+        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
+        /// </value>
+        public Action<Exception> ErrorOnCapture { get; set; }
+
+
+        /// <summary>
         /// Captures the <see cref="Exception" />.
         /// </summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
@@ -136,13 +148,20 @@ namespace SharpRaven
                                        IDictionary<string, string> tags = null,
                                        object extra = null)
         {
-            JsonPacket packet = this.jsonPacketFactory.Create(this.currentDsn.ProjectID,
-                                                              exception,
-                                                              message,
-                                                              level,
-                                                              tags,
-                                                              extra);
-            return Send(packet, CurrentDsn);
+            try
+            {
+                JsonPacket packet = this.jsonPacketFactory.Create(this.currentDsn.ProjectID,
+                                                                  exception,
+                                                                  message,
+                                                                  level,
+                                                                  tags,
+                                                                  extra);
+                return Send(packet, CurrentDsn);
+            }
+            catch (Exception sendException)
+            {
+                return HandleException(sendException);
+            }
         }
 
 
@@ -161,8 +180,55 @@ namespace SharpRaven
                                      Dictionary<string, string> tags = null,
                                      object extra = null)
         {
-            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
-            return Send(packet, CurrentDsn);
+            try
+            {
+                JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
+                return Send(packet, CurrentDsn);
+            }
+            catch (Exception sendException)
+            {
+                return HandleException(sendException);
+            }
+        }
+
+
+        private string HandleException(Exception exception)
+        {
+            try
+            {
+                if (ErrorOnCapture != null)
+                {
+                    ErrorOnCapture(exception);
+                    return null;
+                }
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("[ERROR] ");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(exception);
+
+                WebException webException = exception as WebException;
+                if (webException == null || webException.Response == null)
+                    return null;
+
+                string messageBody;
+                using (Stream stream = webException.Response.GetResponseStream())
+                {
+                    if (stream == null)
+                        return null;
+
+                    using (StreamReader sw = new StreamReader(stream))
+                        messageBody = sw.ReadToEnd();
+                }
+
+                Console.WriteLine("[MESSAGE BODY] " + messageBody);
+            }
+            catch (Exception onErrorException)
+            {
+                Console.WriteLine(onErrorException);
+            }
+
+            return null;
         }
 
 
@@ -178,84 +244,56 @@ namespace SharpRaven
         {
             packet.Logger = Logger;
 
-            try
-            {
-                var request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
-                request.Timeout = (int)Timeout.TotalMilliseconds;
-                request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
-                request.Method = "POST";
-                request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
-                request.UserAgent = PacketBuilder.UserAgent;
+            var request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
+            request.Timeout = (int) Timeout.TotalMilliseconds;
+            request.ReadWriteTimeout = (int) Timeout.TotalMilliseconds;
+            request.Method = "POST";
+            request.Accept = "application/json";
+            request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
+            request.UserAgent = PacketBuilder.UserAgent;
 
+            if (Compression)
+            {
+                request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
+                request.AutomaticDecompression = DecompressionMethods.Deflate;
+                request.ContentType = "application/octet-stream";
+            }
+            else
+                request.ContentType = "application/json; charset=utf-8";
+
+            /*string data = packet.ToString(Formatting.Indented);
+            Console.WriteLine(data);*/
+
+            string data = packet.ToString(Formatting.None);
+
+            if (LogScrubber != null)
+                data = LogScrubber.Scrub(data);
+
+            // Write the messagebody.
+            using (Stream s = request.GetRequestStream())
+            {
                 if (Compression)
-                {
-                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
-                    request.AutomaticDecompression = DecompressionMethods.Deflate;
-                    request.ContentType = "application/octet-stream";
-                }
+                    GzipUtil.Write(data, s);
                 else
-                    request.ContentType = "application/json; charset=utf-8";
-
-                /*string data = packet.ToString(Formatting.Indented);
-                Console.WriteLine(data);*/
-
-                string data = packet.ToString(Formatting.None);
-
-                if (LogScrubber != null)
-                    data = LogScrubber.Scrub(data);
-
-                // Write the messagebody.
-                using (Stream s = request.GetRequestStream())
                 {
-                    if (Compression)
-                        GzipUtil.Write(data, s);
-                    else
-                    {
-                        using (StreamWriter sw = new StreamWriter(s))
-                            sw.Write(data);
-                    }
-                }
-
-                using (HttpWebResponse wr = (HttpWebResponse) request.GetResponse())
-                using (Stream responseStream = wr.GetResponseStream())
-                {
-                    if (responseStream == null)
-                        return null;
-
-                    using (StreamReader sr = new StreamReader(responseStream))
-                    {
-                        string content = sr.ReadToEnd();
-                        var response = JsonConvert.DeserializeObject<dynamic>(content);
-                        return response.id;
-                    }
+                    using (StreamWriter sw = new StreamWriter(s))
+                        sw.Write(data);
                 }
             }
-            catch (Exception exception)
+
+            using (HttpWebResponse wr = (HttpWebResponse) request.GetResponse())
+            using (Stream responseStream = wr.GetResponseStream())
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("[ERROR] ");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(exception);
+                if (responseStream == null)
+                    return null;
 
-                WebException webException = exception as WebException;
-                if (webException != null && webException.Response != null)
+                using (StreamReader sr = new StreamReader(responseStream))
                 {
-                    string messageBody;
-                    using (Stream stream = webException.Response.GetResponseStream())
-                    {
-                        if (stream == null)
-                            return null;
-
-                        using (StreamReader sw = new StreamReader(stream))
-                            messageBody = sw.ReadToEnd();
-                    }
-
-                    Console.WriteLine("[MESSAGE BODY] " + messageBody);
+                    string content = sr.ReadToEnd();
+                    var response = JsonConvert.DeserializeObject<dynamic>(content);
+                    return response.id;
                 }
             }
-
-            return null;
         }
 
         #region Deprecated Methods
