@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
+using System.Security.Principal;
 
 using Newtonsoft.Json;
 
@@ -43,69 +44,23 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequest
     {
-        private readonly dynamic httpContext;
-
-
         internal SentryRequest()
         {
             // NOTE: We're using dynamic to not require a reference to System.Web.
-            this.httpContext = GetHttpContext();
+            GetHttpContext();
 
             if (!HasHttpContext)
                 return;
 
-            Url = this.httpContext.Request.Url.ToString();
-            Method = this.httpContext.Request.HttpMethod;
+            Url = HttpContext.Request.Url.ToString();
+            Method = HttpContext.Request.HttpMethod;
             Environment = Convert(x => x.Request.ServerVariables);
             Headers = Convert(x => x.Request.Headers);
             Cookies = Convert(x => x.Request.Cookies);
             Data = Convert(x => x.Request.Form);
-            QueryString = this.httpContext.Request.QueryString.ToString();
+            QueryString = HttpContext.Request.QueryString.ToString();
         }
 
-
-        [JsonIgnore]
-        private bool HasHttpContext
-        {
-            get { return this.httpContext != null; }
-        }
-
-
-        /// <summary>
-        /// Gets or sets the URL of the HTTP request.
-        /// </summary>
-        /// <value>
-        /// The URL of the HTTP request.
-        /// </value>
-        [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; set; }
-
-        /// <summary>
-        /// Gets or sets the method of the HTTP request.
-        /// </summary>
-        /// <value>
-        /// The method of the HTTP request.
-        /// </value>
-        [JsonProperty(PropertyName = "method", NullValueHandling = NullValueHandling.Ignore)]
-        public string Method { get; set; }
-
-        /// <summary>
-        /// The data variable should only contain the request body (not the query string). It can either be a dictionary (for standard HTTP requests) or a raw request body.
-        /// </summary>
-        /// <value>
-        /// The data.
-        /// </value>
-        [JsonProperty(PropertyName = "data", NullValueHandling = NullValueHandling.Ignore)]
-        public object Data { get; set; }
-
-        /// <summary>
-        /// Gets or sets the query string.
-        /// </summary>
-        /// <value>
-        /// The query string.
-        /// </value>
-        [JsonProperty(PropertyName = "query_string", NullValueHandling = NullValueHandling.Ignore)]
-        public string QueryString { get; set; }
 
         /// <summary>
         /// Gets or sets the cookies.
@@ -117,13 +72,13 @@ namespace SharpRaven.Data
         public IDictionary<string, string> Cookies { get; set; }
 
         /// <summary>
-        /// Gets or sets the headers.
+        /// The data variable should only contain the request body (not the query string). It can either be a dictionary (for standard HTTP requests) or a raw request body.
         /// </summary>
         /// <value>
-        /// The headers.
+        /// The data.
         /// </value>
-        [JsonProperty(PropertyName = "headers", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, string> Headers { get; set; }
+        [JsonProperty(PropertyName = "data", NullValueHandling = NullValueHandling.Ignore)]
+        public object Data { get; set; }
 
         /// <summary>
         /// The env variable is a compounded dictionary of HTTP headers as well as environment information passed from the webserver.
@@ -135,6 +90,56 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "env", NullValueHandling = NullValueHandling.Ignore)]
         public IDictionary<string, string> Environment { get; set; }
 
+        /// <summary>
+        /// Gets or sets the headers.
+        /// </summary>
+        /// <value>
+        /// The headers.
+        /// </value>
+        [JsonProperty(PropertyName = "headers", NullValueHandling = NullValueHandling.Ignore)]
+        public IDictionary<string, string> Headers { get; set; }
+
+        /// <summary>
+        /// Gets or sets the method of the HTTP request.
+        /// </summary>
+        /// <value>
+        /// The method of the HTTP request.
+        /// </value>
+        [JsonProperty(PropertyName = "method", NullValueHandling = NullValueHandling.Ignore)]
+        public string Method { get; set; }
+
+        /// <summary>
+        /// Gets or sets the query string.
+        /// </summary>
+        /// <value>
+        /// The query string.
+        /// </value>
+        [JsonProperty(PropertyName = "query_string", NullValueHandling = NullValueHandling.Ignore)]
+        public string QueryString { get; set; }
+
+        /// <summary>
+        /// Gets or sets the URL of the HTTP request.
+        /// </summary>
+        /// <value>
+        /// The URL of the HTTP request.
+        /// </value>
+        [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
+        public string Url { get; set; }
+
+        /// <summary>
+        /// Gets or sets the HTTP context.
+        /// </summary>
+        /// <value>
+        /// The HTTP context.
+        /// </value>
+        internal static dynamic HttpContext { get; set; }
+
+        [JsonIgnore]
+        private static bool HasHttpContext
+        {
+            get { return HttpContext != null; }
+        }
+
 
         /// <summary>
         /// Gets the request.
@@ -145,7 +150,7 @@ namespace SharpRaven.Data
         public static SentryRequest GetRequest()
         {
             var request = new SentryRequest();
-            return request.HasHttpContext ? request : null;
+            return HasHttpContext ? request : null;
         }
 
 
@@ -160,23 +165,23 @@ namespace SharpRaven.Data
             if (!HasHttpContext)
                 return null;
 
-            return new SentryUser(this.httpContext.User)
+            return new SentryUser(GetPrincipal())
             {
-                IpAddress = this.httpContext.Request.UserHostAddress
+                IpAddress = GetIpAddress()
             };
         }
 
 
-        private IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
+        private static IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
         {
-            if (this.httpContext == null)
+            if (!HasHttpContext)
                 return null;
 
             IDictionary<string, string> dictionary = new Dictionary<string, string>();
 
             try
             {
-                var collection = collectionGetter.Invoke(this.httpContext);
+                var collection = collectionGetter.Invoke(HttpContext);
                 var keys = Enumerable.ToArray(collection.AllKeys);
 
                 foreach (object key in keys)
@@ -223,28 +228,68 @@ namespace SharpRaven.Data
         }
 
 
-        private static dynamic GetHttpContext()
+        private static void GetHttpContext()
         {
-            var systemWeb = AppDomain.CurrentDomain
-                                     .GetAssemblies()
-                                     .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web"));
+            if (HasHttpContext)
+                return;
 
-            if (systemWeb == null)
-                return null;
+            try
+            {
+                var systemWeb = AppDomain.CurrentDomain
+                                         .GetAssemblies()
+                                         .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
 
-            var httpContextType = systemWeb.GetExportedTypes()
-                                           .FirstOrDefault(type => type.Name == "HttpContext");
+                if (HasHttpContext || systemWeb == null)
+                    return;
 
-            if (httpContextType == null)
-                return null;
+                var httpContextType = systemWeb.GetExportedTypes()
+                                               .FirstOrDefault(type => type.Name == "HttpContext");
 
-            var currentHttpContextProperty = httpContextType.GetProperty("Current",
-                                                                         BindingFlags.Static | BindingFlags.Public);
+                if (HasHttpContext || httpContextType == null)
+                    return;
 
-            if (currentHttpContextProperty == null)
-                return null;
+                var currentHttpContextProperty = httpContextType.GetProperty("Current",
+                                                                             BindingFlags.Static | BindingFlags.Public);
 
-            return currentHttpContextProperty.GetValue(null, null);
+                if (HasHttpContext || currentHttpContextProperty == null)
+                    return;
+
+                HttpContext = currentHttpContextProperty.GetValue(null, null);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("An error occurred while retrieving the HTTP context: {0}", exception);
+            }
+        }
+
+
+        private static dynamic GetIpAddress()
+        {
+            try
+            {
+                return HttpContext.Request.UserHostAddress;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
+        }
+
+
+        private static IPrincipal GetPrincipal()
+        {
+            try
+            {
+                return HttpContext.User as IPrincipal;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
         }
     }
 }

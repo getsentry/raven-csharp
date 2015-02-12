@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -43,6 +43,11 @@ namespace SharpRaven
     public interface IRavenClient
     {
         /// <summary>
+        /// Enable Gzip Compression?
+        /// </summary>
+        bool Compression { get; set; }
+
+        /// <summary>
         /// The Dsn currently being used to log exceptions.
         /// </summary>
         Dsn CurrentDsn { get; }
@@ -54,14 +59,19 @@ namespace SharpRaven
         IScrubber LogScrubber { get; set; }
 
         /// <summary>
-        /// Enable Gzip Compression?
-        /// </summary>
-        bool Compression { get; set; }
-
-        /// <summary>
         /// Logger. Default is "root"
         /// </summary>
         string Logger { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timeout value in milliseconds for the <see cref="System.Net.HttpWebRequest.GetResponse()"/>
+        /// and <see cref="System.Net.HttpWebRequest.GetRequestStream()"/> methods. 
+        /// </summary>
+        /// <value>
+        /// The number of milliseconds to wait before the request times out. The default is 5,000 milliseconds (5 seconds).
+        /// Valid values: a nonnegative integer or <see cref="System.Threading.Timeout.Infinite"/>
+        /// </value>
+        TimeSpan Timeout { get; set; }
 
 
         /// <summary>
@@ -69,14 +79,14 @@ namespace SharpRaven
         /// </summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
         /// <param name="message">The optional messge to capture instead of the default <see cref="Exception.Message" />.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error"/>.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error" />.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
         /// </returns>
         string CaptureException(Exception exception,
-                                string message = null,
+                                SentryMessage message = null,
                                 ErrorLevel level = ErrorLevel.Error,
                                 IDictionary<string, string> tags = null,
                                 object extra = null);
@@ -104,17 +114,18 @@ namespace SharpRaven
         /// Captures the message.
         /// </summary>
         /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message"/>. Default <see cref="ErrorLevel.Info"/>.</param>
-        /// <param name="tags">The tags to annotate the captured <paramref name="message"/> with.</param>
-        /// <param name="extra">The extra metadata to send with the captured <paramref name="message"/>.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message" />. Default <see cref="ErrorLevel.Info" />.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="message" />.</param>
         /// <returns>
-        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="message" />, or <c>null</c> if it fails.
         /// </returns>
-        string CaptureMessage(string message,
+        string CaptureMessage(SentryMessage message,
                               ErrorLevel level = ErrorLevel.Info,
                               Dictionary<string, string> tags = null,
                               object extra = null);
 
+        #region Deprecated Methods
 
 
 		/// <summary>
@@ -149,5 +160,7 @@ namespace SharpRaven
         /// <returns></returns>
         [Obsolete("The more common CaptureException method should be used")]
         string CaptureEvent(Exception e, Dictionary<string, string> tags);
+
+        #endregion
     }
 }

@@ -8,5 +8,7 @@ obj/
 *.manifest
 .DS_Store
 *.suo
+*.nupkg
 /src/packages/*
 !/src/packages/repositories.config
+/TestResult.xml

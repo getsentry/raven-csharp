@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -28,27 +28,35 @@
 
 #endregion
 
-namespace SharpRaven.Data
-{
-    /// <summary>
-    /// A module or library that might be in use and thus could relevant for debugging purposes.
-    /// </summary>
-    public class SentryModule
-    {
-        /// <summary>
-        /// Gets or sets the name of the module (or library).
-        /// </summary>
-        /// <value>
-        /// The name of the module (or library).
-        /// </value>
-        public string Name { get; set; }
+using System;
 
-        /// <summary>
-        /// Gets or sets the version of the module (or library).
-        /// </summary>
-        /// <value>
-        /// The version of the module (or library).
-        /// </value>
-        public string Version { get; set; }
+namespace SharpRaven.UnitTests.Utilities
+{
+    public static class TestHelper
+    {
+        public const string DsnUri =
+            "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+
+
+        public static Exception GetException()
+        {
+            try
+            {
+                PerformDivideByZero();
+            }
+            catch (Exception e)
+            {
+                return e;
+            }
+
+            return null;
+        }
+
+
+        private static void PerformDivideByZero()
+        {
+            int i2 = 0;
+            int i = 10 / i2;
+        }
     }
 }

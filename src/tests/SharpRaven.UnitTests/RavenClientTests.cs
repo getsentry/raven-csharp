@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -34,13 +34,62 @@ using NSubstitute;
 
 using NUnit.Framework;
 
+using SharpRaven.Data;
 using SharpRaven.Logging;
+using SharpRaven.UnitTests.Utilities;
 
 namespace SharpRaven.UnitTests
 {
     [TestFixture]
     public class RavenClientTests
     {
+        private class TestableRavenClient : RavenClient
+        {
+            public TestableRavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null)
+                : base(dsn, jsonPacketFactory)
+            {
+            }
+
+
+            protected override string Send(JsonPacket packet, Dsn dsn)
+            {
+                return packet.Project;
+            }
+        }
+
+        private class TestableJsonPacketFactory : JsonPacketFactory
+        {
+            private readonly string project;
+
+
+            public TestableJsonPacketFactory(string project)
+            {
+                this.project = project;
+            }
+
+
+            protected override JsonPacket OnCreate(JsonPacket jsonPacket)
+            {
+                jsonPacket.Project = this.project;
+                return base.OnCreate(jsonPacket);
+            }
+        }
+
+
+        [Test]
+        public void CaptureMessage_InvokesSend_AndJsonPacketFactoryOnCreate()
+        {
+            const string dsnUri =
+                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+            var project = Guid.NewGuid().ToString();
+            var jsonPacketFactory = new TestableJsonPacketFactory(project);
+            var client = new TestableRavenClient(dsnUri, jsonPacketFactory);
+            var result = client.CaptureMessage("Test");
+
+            Assert.That(result, Is.EqualTo(project));
+        }
+
+
         [Test]
         public void CaptureMessage_ScrubberIsInvoked()
         {
@@ -56,9 +105,7 @@ namespace SharpRaven.UnitTests
                            return json;
                        });
 
-            string id = ravenClient.CaptureMessage(message);
-            Guid guid = Guid.Parse(id);
-            Assert.That(guid, Is.Not.Null);
+            ravenClient.CaptureMessage(message);
 
             // Verify that we actually received a Scrub() call:
             ravenClient.LogScrubber.Received().Scrub(Arg.Any<string>());

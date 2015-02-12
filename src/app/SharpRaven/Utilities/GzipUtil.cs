@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -28,34 +28,29 @@
 
 #endregion
 
-using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 
 namespace SharpRaven.Utilities
 {
+    /// <summary>
+    /// GZip Utilities.
+    /// </summary>
     internal class GzipUtil
     {
         /// <summary>
         /// Compress a JSON string with base-64 encoded gzip compressed string.
         /// </summary>
-        /// <param name="json"></param>
-        /// <returns>json base64 data stream</returns>
-        public static string CompressEncode(string json)
+        /// <param name="json">The JSON to write.</param>
+        /// <param name="stream">The stream.</param>
+        public static void Write(string json, Stream stream)
         {
             // Encode into data byte-stream with UTF8.
             byte[] data = Encoding.UTF8.GetBytes(json);
 
-            using (MemoryStream memory = new MemoryStream())
-            {
-                using (GZipStream gzip = new GZipStream(memory, CompressionMode.Compress))
-                {
-                    gzip.Write(data, 0, data.Length);
-                }
-
-                return Convert.ToBase64String(memory.ToArray());
-            }
+            using (GZipStream gzip = new GZipStream(stream, CompressionMode.Compress))
+                gzip.Write(data, 0, data.Length);
         }
     }
 }

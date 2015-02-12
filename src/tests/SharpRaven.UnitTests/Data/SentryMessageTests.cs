@@ -32,82 +32,91 @@ using System;
 
 using NUnit.Framework;
 
-using SharpRaven.UnitTests.Utilities;
+using SharpRaven.Data;
 
-namespace SharpRaven.UnitTests
+namespace SharpRaven.UnitTests.Data
 {
     [TestFixture]
-    public class DsnTests
+    public class SentryMessageTests
     {
         [Test]
-        public void Constructor_EmptyDsn_ThrowsArgumentNullException()
+        public void Message_IsImplicitlyConvertedTo_String()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new Dsn("      "));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+            string message = new SentryMessage("Hello");
+
+            Assert.That(message, Is.EqualTo("Hello"));
         }
 
 
         [Test]
-        public void Constructor_InvalidDsn_ThrowsArgumentException()
+        public void Message_ReturnsMessage()
         {
-            var exception = Assert.Throws<ArgumentException>(() => new Dsn("oijweofijw$%"));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+            const string format = "Format something {0:N} in here";
+            var arg = Guid.NewGuid();
+            SentryMessage message = new SentryMessage(format, arg);
+
+            Assert.That(message.Message, Is.EqualTo(format));
         }
 
 
         [Test]
-        public void Constructor_NullDsn_ThrowsArgumentNullException()
+        public void NullMessage_IsImplicitlyConvertedTo_NullString()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new Dsn(null));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+            SentryMessage message = null;
+            string stringMessage = message;
+
+            Assert.That(stringMessage, Is.Null);
         }
 
 
         [Test]
-        public void Constructor_ValidHttpUri_SentryUriHasHttpScheme()
+        public void NullString_IsImplicitlyConvertedTo_NullMessage()
         {
-            const string dsnUri =
-                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
-            var dsn = new Dsn(dsnUri);
+            string stringMessage = null;
+            SentryMessage message = stringMessage;
 
-            Assert.That(dsn.SentryUri, Is.Not.Null);
-            Assert.That(dsn.SentryUri.Scheme, Is.EqualTo("http"));
+            Assert.That(message, Is.Null);
         }
 
 
         [Test]
-        public void Constructor_ValidHttpsUri_SentryUriHasHttpsScheme()
+        public void Parameters_ReturnsParameters()
         {
-            var dsn = new Dsn(TestHelper.DsnUri);
+            const string format = "Format something {0:N} in here";
+            var arg = Guid.NewGuid();
+            SentryMessage message = new SentryMessage(format, arg);
 
-            Assert.That(dsn.SentryUri, Is.Not.Null);
-            Assert.That(dsn.SentryUri.Scheme, Is.EqualTo("https"));
+            Assert.That(message.Parameters, Has.Length.EqualTo(1));
+            Assert.That(message.Parameters[0], Is.EqualTo(arg));
         }
 
 
         [Test]
-        public void Constructor_ValidHttpsUri_UriIsEqualToDsn()
+        public void String_IsImplicitlyConvertedTo_Message()
         {
-            var dsn = new Dsn(TestHelper.DsnUri);
+            SentryMessage message = "Hello";
 
-            Assert.That(dsn.Uri, Is.Not.Null);
-            Assert.That(dsn.Uri.ToString(), Is.EqualTo(TestHelper.DsnUri));
+            Assert.That(message.ToString(), Is.EqualTo("Hello"));
         }
 
 
         [Test]
-        public void Constructor_ValidUriButInvalidDsn_ThrowsArgumentException()
+        public void ToString_ReturnsFormattedString()
         {
-            var exception = Assert.Throws<ArgumentException>(() => new Dsn("http://example.com/"));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+            Guid arg = Guid.NewGuid();
+            SentryMessage message = new SentryMessage("Format something {0:N} in here", arg);
+
+            Assert.That(message.ToString(), Is.StringContaining(arg.ToString("N")));
         }
 
 
         [Test]
-        public void ToString_ReturnsStringEqualToDsn()
+        public void ToString_ReturnsMessage()
         {
-            var dsn = new Dsn(TestHelper.DsnUri);
-            Assert.That(dsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
+            string stringMessage = Guid.NewGuid().ToString("N");
+            SentryMessage message = new SentryMessage(stringMessage);
+
+            Assert.That(message.ToString(), Is.EqualTo(stringMessage));
         }
     }
 }

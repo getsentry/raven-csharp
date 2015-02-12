@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -41,6 +41,25 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class SentryRequestTests
     {
+        #region Setup/Teardown
+
+        [SetUp]
+        public void SetUp()
+        {
+            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
+            SentryRequest.HttpContext = null;
+        }
+
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
+            SentryRequest.HttpContext = null;
+        }
+
+        #endregion
+
         private static void SimulateHttpRequest(Action<SentryRequest> test)
         {
             using (var simulator = new HttpSimulator())

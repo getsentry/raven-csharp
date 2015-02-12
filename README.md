@@ -1,7 +1,6 @@
 Usage
 =====
 Instantiate the client with your DSN:
-
 ```csharp
 var ravenClient = new RavenClient("http://public:secret@example.com/project-id");
 ```
@@ -42,9 +41,14 @@ CaptureException(Exception e, IDictionary<string, string> tags = null, object ex
 CaptureMessage(string message, ErrorLevel level = ErrorLevel.info, Dictionary<string, string> tags = null, object extra = null)
 ```
 
+Get it!
+-------
+You can clone and build SharpRaven yourself, but for those of us who are happy with prebuilt binaries, there's [a NuGet package](https://www.nuget.org/packages/SharpRaven).
+
 Resources
 ---------
 * [Build Status](http://teamcity.codebetter.com/project.html?projectId=project344&tab=projectOverview) (requires registration)
 * [Code](http://github.com/getsentry/raven-csharp)
 * [Mailing List](https://groups.google.com/group/getsentry)
 * [IRC](irc://irc.freenode.net/sentry) (irc.freenode.net, #sentry)
+

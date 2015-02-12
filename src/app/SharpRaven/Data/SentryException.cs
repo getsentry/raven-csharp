@@ -1,6 +1,6 @@
 ﻿#region License
 
-// Copyright (c) 2013 The Sentry Team and individual contributors.
+// Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Text;
 
 using Newtonsoft.Json;
 
@@ -39,23 +40,40 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryException
     {
+        private readonly string message;
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SentryException"/> class.
         /// </summary>
-        /// <param name="e">The <see cref="Exception"/>.</param>
-        public SentryException(Exception e)
+        /// <param name="exception">The <see cref="Exception"/>.</param>
+        public SentryException(Exception exception)
         {
-            Module = e.Source;
-            Type = e.Message;
-            Value = e.Message;
+            if (exception == null)
+                return;
 
-            Stacktrace = new SentryStacktrace(e);
+            this.message = exception.Message;
+            Module = exception.Source;
+            Type = exception.GetType().FullName;
+            Value = exception.Message;
+
+            Stacktrace = new SentryStacktrace(exception);
             if (Stacktrace.Frames == null || Stacktrace.Frames.Length == 0)
-            {
                 Stacktrace = null;
-            }
         }
 
+
+        /// <summary>
+        /// The module where the exception happened.
+        /// </summary>
+        [JsonProperty(PropertyName = "module")]
+        public string Module { get; set; }
+
+        /// <summary>
+        /// The stacktrace of the exception.
+        /// </summary>
+        [JsonProperty(PropertyName = "stacktrace")]
+        public SentryStacktrace Stacktrace { get; set; }
 
         /// <summary>
         /// The type of exception.
@@ -69,16 +87,33 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "value")]
         public string Value { get; set; }
 
-        /// <summary>
-        /// The module where the exception happened.
-        /// </summary>
-        [JsonProperty(PropertyName = "module")]
-        public string Module { get; set; }
 
         /// <summary>
-        /// The stacktrace of the exception.
+        /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
-        [JsonProperty(PropertyName = "stacktrace")]
-        public SentryStacktrace Stacktrace { get; set; }
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (Type != null)
+                sb.Append(Type);
+
+            if (this.message != null)
+            {
+                if (sb.Length > 0)
+                    sb.Append(": ");
+
+                sb.Append(this.message);
+                sb.AppendLine();
+            }
+
+            if (Stacktrace != null)
+                sb.Append(Stacktrace);
+
+            return sb.ToString().TrimEnd();
+        }
     }
 }
