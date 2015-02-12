@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
@@ -54,6 +54,8 @@ namespace SharpRaven
         {
             private readonly Dsn currentDsn;
             private readonly IJsonPacketFactory jsonPacketFactory;
+            private readonly ISentryRequestFactory sentryRequestFactory;
+            private readonly ISentryUserFactory sentryUserFactory;
 
 
             /// <summary>
@@ -61,8 +63,10 @@ namespace SharpRaven
             /// </summary>
             /// <param name="dsn">The Data Source Name in Sentry.</param>
             /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
-            public RavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null)
-                : this(new Dsn(dsn), jsonPacketFactory)
+            /// <param name="sentryRequestFactory">The optional factory that will be used to create the <see cref="SentryRequest"/> that will be sent to Sentry.</param>
+            /// <param name="sentryUserFactory">The optional factory that will be used to create the <see cref="SentryUser"/> that will be sent to Sentry.</param>
+            public RavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null, ISentryRequestFactory sentryRequestFactory = null, ISentryUserFactory sentryUserFactory = null)
+                  : this(new Dsn(dsn), jsonPacketFactory, sentryRequestFactory, sentryUserFactory)
             {
             }
 
@@ -72,14 +76,18 @@ namespace SharpRaven
             /// </summary>
             /// <param name="dsn">The Data Source Name in Sentry.</param>
             /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
+            /// <param name="sentryRequestFactory">The optional factory that will be used to create the <see cref="SentryRequest"/> that will be sent to Sentry.</param>
+            /// <param name="sentryUserFactory">The optional factory that will be used to create the <see cref="SentryUser"/> that will be sent to Sentry.</param>
             /// <exception cref="System.ArgumentNullException">dsn</exception>
-            public RavenClient(Dsn dsn, IJsonPacketFactory jsonPacketFactory = null)
+            public RavenClient(Dsn dsn, IJsonPacketFactory jsonPacketFactory = null, ISentryRequestFactory sentryRequestFactory = null, ISentryUserFactory sentryUserFactory = null)
             {
                 if (dsn == null)
                     throw new ArgumentNullException("dsn");
 
                 this.currentDsn = dsn;
                 this.jsonPacketFactory = jsonPacketFactory ?? new JsonPacketFactory();
+                this.sentryRequestFactory = sentryRequestFactory ?? new SentryRequestFactory();
+                this.sentryUserFactory = sentryUserFactory ?? new SentryUserFactory();
 
                 Logger = "root";
                 Timeout = TimeSpan.FromSeconds(5);
@@ -144,22 +152,17 @@ namespace SharpRaven
             /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
             /// </returns>
             public string CaptureException(Exception exception,
-                                           string message = null,
+                                           SentryMessage message = null,
                                            ErrorLevel level = ErrorLevel.Error,
                                            IDictionary<string, string> tags = null,
                                            object extra = null)
             {
-                JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, exception)
-                {
-                    Message = message ?? exception.Message,
-                    Level = level,
-                    Tags = tags,
-                    Extra = extra
-                };
+                JsonPacket packet = jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
 
                 return Send(packet, CurrentDsn);
             }
 
+    #if (!net40)
             /// <summary>
             /// Captures the <see cref="Exception" />.
             /// </summary>
@@ -172,22 +175,16 @@ namespace SharpRaven
             /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
             /// </returns>
             public async Task<string> CaptureExceptionAsync(Exception exception,
-                                           string message = null,
-                                           ErrorLevel level = ErrorLevel.Error,
-                                           IDictionary<string, string> tags = null,
-                                           object extra = null)
+                                                            SentryMessage message = null,
+                                                            ErrorLevel level = ErrorLevel.Error,
+                                                            IDictionary<string, string> tags = null,
+                                                            object extra = null)
             {
-                JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID, exception)
-                {
-                    Message = message ?? exception.Message,
-                    Level = level,
-                    Tags = tags,
-                    Extra = extra
-                };
+                JsonPacket packet = jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
 
                 return await SendAsync(packet, CurrentDsn);
             }
-
+    #endif
 
             /// <summary>
             /// Captures the message.
@@ -199,23 +196,18 @@ namespace SharpRaven
             /// <returns>
             /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
             /// </returns>
-            public string CaptureMessage(string message,
+            public string CaptureMessage(SentryMessage message,
                                          ErrorLevel level = ErrorLevel.Info,
                                          Dictionary<string, string> tags = null,
                                          object extra = null)
             {
-                JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID)
-                {
-                    Message = message,
-                    Level = level,
-                    Tags = tags,
-                    Extra = extra
-                };
+                JsonPacket packet = jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
 
                 return Send(packet, CurrentDsn);
             }
 
 
+    #if (!net40)
             /// <summary>
             /// Captures the message.
             /// </summary>
@@ -226,21 +218,16 @@ namespace SharpRaven
             /// <returns>
             /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
             /// </returns>
-            public async Task<string> CaptureMessageAsync(string message,
-                                         ErrorLevel level = ErrorLevel.Info,
-                                         Dictionary<string, string> tags = null,
-                                         object extra = null)
+            public async Task<string> CaptureMessageAsync(SentryMessage message,
+                                                          ErrorLevel level = ErrorLevel.Info,
+                                                          Dictionary<string, string> tags = null,
+                                                          object extra = null)
             {
-                JsonPacket packet = new JsonPacket(CurrentDsn.ProjectID)
-                {
-                    Message = message,
-                    Level = level,
-                    Tags = tags,
-                    Extra = extra
-                };
+                JsonPacket packet = jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
 
                 return await SendAsync(packet, CurrentDsn);
             }
+    #endif
 
             private string HandleException(Exception exception)
             {
@@ -292,9 +279,9 @@ namespace SharpRaven
             /// </returns>
             protected virtual string Send(JsonPacket packet, Dsn dsn)
             {
-                packet.Logger = Logger;
                 try
                 {
+                    packet = PreparePacket(packet);
 
                     var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
                     request.Timeout = (int)Timeout.TotalMilliseconds;
@@ -353,7 +340,7 @@ namespace SharpRaven
                 }
             }
 
-
+    #if (!net40)
             /// <summary>
             /// Sends the specified packet to Sentry.
             /// </summary>
@@ -362,70 +349,90 @@ namespace SharpRaven
             /// <returns>
             /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
             /// </returns>
-            protected virtual async Task<string> Send(JsonPacket packet, Dsn dsn)
+            protected virtual async Task<string> SendAsync(JsonPacket packet, Dsn dsn)
             {
-                packet.Logger = Logger;
-
-                var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
-                request.Timeout = (int)Timeout.TotalMilliseconds;
-                request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
-                request.Method = "POST";
-                request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
-                request.UserAgent = PacketBuilder.UserAgent;
-
-                if (Compression)
+                try
                 {
-                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
-                    request.AutomaticDecompression = DecompressionMethods.Deflate;
-                    request.ContentType = "application/octet-stream";
-                }
-                else
-                    request.ContentType = "application/json; charset=utf-8";
+                    packet = PreparePacket(packet);
 
-                /*string data = packet.ToString(Formatting.Indented);
+                    var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
+                    request.Timeout = (int)Timeout.TotalMilliseconds;
+                    request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
+                    request.Method = "POST";
+                    request.Accept = "application/json";
+                    request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
+                    request.UserAgent = PacketBuilder.UserAgent;
+
+                    if (Compression)
+                    {
+                        request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
+                        request.AutomaticDecompression = DecompressionMethods.Deflate;
+                        request.ContentType = "application/octet-stream";
+                    }
+                    else
+                        request.ContentType = "application/json; charset=utf-8";
+
+                    /*string data = packet.ToString(Formatting.Indented);
                 Console.WriteLine(data);*/
 
-                string data = packet.ToString(Formatting.None);
+                    string data = packet.ToString(Formatting.None);
 
-                if (LogScrubber != null)
-                    data = LogScrubber.Scrub(data);
+                    if (LogScrubber != null)
+                        data = LogScrubber.Scrub(data);
 
-                // Write the messagebody.
-                using (Stream s = request.GetRequestStream())
-                {
-                    if (Compression)
-                        GzipUtil.Write(data, s);
-                    else
+                    // Write the messagebody.
+                    using (Stream s = await request.GetRequestStreamAsync())
                     {
-                        using (StreamWriter sw = new StreamWriter(s))
-                            await sw.WriteAsync(data);
+                        if (Compression)
+                            await GzipUtil.WriteAsync(data, s);
+                        else
+                        {
+                            using (StreamWriter sw = new StreamWriter(s))
+                                await sw.WriteAsync(data);
+                        }
+                    }
+
+                    using (HttpWebResponse wr = (HttpWebResponse)(await request.GetResponseAsync()))
+                    using (Stream responseStream = wr.GetResponseStream())
+                    {
+                        if (responseStream == null)
+                            return null;
+
+                        using (StreamReader sr = new StreamReader(responseStream))
+                        {
+                            string content = await sr.ReadToEndAsync();
+                            var response = JsonConvert.DeserializeObject<dynamic>(content);
+                            return response.id;
+                        }
                     }
                 }
-
-                using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
-                using (Stream responseStream = wr.GetResponseStream())
+                catch (Exception ex)
                 {
-                    if (responseStream == null)
-                        return null;
-
-                    using (StreamReader sr = new StreamReader(responseStream))
-                    {
-                        string content = await sr.ReadToEndAsync();
-                        var response = JsonConvert.DeserializeObject<dynamic>(content);
-                        return response.id;
-                    }
+                    return HandleException(ex);
                 }
             }
+    #endif
 
+            /// <summary>
+            /// Performs <see cref="JsonPacket"/> post-processing prior to being sent to Sentry.
+            /// </summary>
+            /// <param name="packet">The prepared <see cref="JsonPacket"/> which has cleared the creation pipeline.</param>
+            /// <returns>The <see cref="JsonPacket"/> which should be sent to Sentry.</returns>
+            protected virtual JsonPacket PreparePacket(JsonPacket packet)
+            {
+                packet.Logger = Logger;
+                packet.User = packet.User ?? sentryUserFactory.Create();
+                packet.Request = packet.Request ?? sentryRequestFactory.Create();
+                return packet;
+            }
 
             #region Deprecated Methods
 
             /*
-             *  These methods have been deprectaed in favour of the ones
-             *  that have the same names as the other sentry clients, this
-             *  is purely for the sake of consistency
-             */
+           *  These methods have been deprectaed in favour of the ones
+           *  that have the same names as the other sentry clients, this
+           *  is purely for the sake of consistency
+           */
 
 
             /// <summary>
@@ -453,5 +460,5 @@ namespace SharpRaven
             }
 
             #endregion
-        }
     }
+}

@@ -46,19 +46,7 @@ namespace SharpRaven.Data
     {
         internal SentryRequest()
         {
-            // NOTE: We're using dynamic to not require a reference to System.Web.
-            GetHttpContext();
-
-            if (!HasHttpContext)
-                return;
-
-            Url = HttpContext.Request.Url.ToString();
-            Method = HttpContext.Request.HttpMethod;
-            Environment = Convert(x => x.Request.ServerVariables);
-            Headers = Convert(x => x.Request.Headers);
-            Cookies = Convert(x => x.Request.Cookies);
-            Data = Convert(x => x.Request.Form);
-            QueryString = HttpContext.Request.QueryString.ToString();
+            
         }
 
 
@@ -125,171 +113,16 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
-
-        /// <summary>
-        /// Gets or sets the HTTP context.
-        /// </summary>
-        /// <value>
-        /// The HTTP context.
-        /// </value>
-        internal static dynamic HttpContext { get; set; }
-
-        [JsonIgnore]
-        private static bool HasHttpContext
-        {
-            get { return HttpContext != null; }
-        }
-
-
+        
         /// <summary>
         /// Gets the request.
         /// </summary>
         /// <returns>
         /// If an HTTP contest is available, an instance of <see cref="SentryRequest"/>, otherwise <c>null</c>.
         /// </returns>
-        public static SentryRequest GetRequest()
+        public static SentryRequest GetRequest(ISentryRequestFactory factory)
         {
-            var request = new SentryRequest();
-            return HasHttpContext ? request : null;
-        }
-
-
-        /// <summary>
-        /// Gets the user.
-        /// </summary>
-        /// <returns>
-        /// If an HTTP context is available, an instance of <see cref="SentryUser"/>, otherwise <c>null</c>.
-        /// </returns>
-        public SentryUser GetUser()
-        {
-            if (!HasHttpContext)
-                return null;
-
-            return new SentryUser(GetPrincipal())
-            {
-                IpAddress = GetIpAddress()
-            };
-        }
-
-
-        private static IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
-        {
-            if (!HasHttpContext)
-                return null;
-
-            IDictionary<string, string> dictionary = new Dictionary<string, string>();
-
-            try
-            {
-                var collection = collectionGetter.Invoke(HttpContext);
-                var keys = Enumerable.ToArray(collection.AllKeys);
-
-                foreach (object key in keys)
-                {
-                    if (key == null)
-                        continue;
-
-                    string stringKey = key as string ?? key.ToString();
-
-                    // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
-                    if (stringKey.StartsWith("ALL_") || stringKey.StartsWith("HTTP_"))
-                        continue;
-
-                    var value = collection[stringKey];
-                    string stringValue = value as string;
-
-                    if (stringValue != null)
-                    {
-                        // Most dictionary values will be strings and go through this path.
-                        dictionary.Add(stringKey, stringValue);
-                    }
-                    else
-                    {
-                        // HttpCookieCollection is an ugly, evil beast that needs to be treated with a sledgehammer.
-
-                        try
-                        {
-                            // For whatever stupid reason, HttpCookie.ToString() doesn't return its Value, so we need to dive into the .Value property like this.
-                            dictionary.Add(stringKey, value.Value);
-                        }
-                        catch (Exception exception)
-                        {
-                            dictionary.Add(stringKey, exception.ToString());
-                        }
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-
-            return dictionary;
-        }
-
-
-        private static void GetHttpContext()
-        {
-            if (HasHttpContext)
-                return;
-
-            try
-            {
-                var systemWeb = AppDomain.CurrentDomain
-                                         .GetAssemblies()
-                                         .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
-
-                if (HasHttpContext || systemWeb == null)
-                    return;
-
-                var httpContextType = systemWeb.GetExportedTypes()
-                                               .FirstOrDefault(type => type.Name == "HttpContext");
-
-                if (HasHttpContext || httpContextType == null)
-                    return;
-
-                var currentHttpContextProperty = httpContextType.GetProperty("Current",
-                                                                             BindingFlags.Static | BindingFlags.Public);
-
-                if (HasHttpContext || currentHttpContextProperty == null)
-                    return;
-
-                HttpContext = currentHttpContextProperty.GetValue(null, null);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine("An error occurred while retrieving the HTTP context: {0}", exception);
-            }
-        }
-
-
-        private static dynamic GetIpAddress()
-        {
-            try
-            {
-                return HttpContext.Request.UserHostAddress;
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-
-            return null;
-        }
-
-
-        private static IPrincipal GetPrincipal()
-        {
-            try
-            {
-                return HttpContext.User as IPrincipal;
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-
-            return null;
+            return factory != null ? factory.Create() : null;
         }
     }
 }
