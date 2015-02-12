@@ -293,56 +293,63 @@ namespace SharpRaven
             protected virtual string Send(JsonPacket packet, Dsn dsn)
             {
                 packet.Logger = Logger;
-
-                var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
-                request.Timeout = (int)Timeout.TotalMilliseconds;
-                request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
-                request.Method = "POST";
-                request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
-                request.UserAgent = PacketBuilder.UserAgent;
-
-                if (Compression)
+                try
                 {
-                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
-                    request.AutomaticDecompression = DecompressionMethods.Deflate;
-                    request.ContentType = "application/octet-stream";
-                }
-                else
-                    request.ContentType = "application/json; charset=utf-8";
 
-                /*string data = packet.ToString(Formatting.Indented);
-                Console.WriteLine(data);*/
+                    var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
+                    request.Timeout = (int)Timeout.TotalMilliseconds;
+                    request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
+                    request.Method = "POST";
+                    request.Accept = "application/json";
+                    request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
+                    request.UserAgent = PacketBuilder.UserAgent;
 
-                string data = packet.ToString(Formatting.None);
-
-                if (LogScrubber != null)
-                    data = LogScrubber.Scrub(data);
-
-                // Write the messagebody.
-                using (Stream s = request.GetRequestStream())
-                {
                     if (Compression)
-                        GzipUtil.Write(data, s);
-                    else
                     {
-                        using (StreamWriter sw = new StreamWriter(s))
-                            sw.Write(data);
+                        request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
+                        request.AutomaticDecompression = DecompressionMethods.Deflate;
+                        request.ContentType = "application/octet-stream";
+                    }
+                    else
+                        request.ContentType = "application/json; charset=utf-8";
+
+                    /*string data = packet.ToString(Formatting.Indented);
+                    Console.WriteLine(data);*/
+
+                    string data = packet.ToString(Formatting.None);
+
+                    if (LogScrubber != null)
+                        data = LogScrubber.Scrub(data);
+
+                    // Write the messagebody.
+                    using (Stream s = request.GetRequestStream())
+                    {
+                        if (Compression)
+                            GzipUtil.Write(data, s);
+                        else
+                        {
+                            using (StreamWriter sw = new StreamWriter(s))
+                                sw.Write(data);
+                        }
+                    }
+
+                    using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
+                    using (Stream responseStream = wr.GetResponseStream())
+                    {
+                        if (responseStream == null)
+                            return null;
+
+                        using (StreamReader sr = new StreamReader(responseStream))
+                        {
+                            string content = sr.ReadToEnd();
+                            var response = JsonConvert.DeserializeObject<dynamic>(content);
+                            return response.id;
+                        }
                     }
                 }
-
-                using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
-                using (Stream responseStream = wr.GetResponseStream())
+                catch (Exception ex)
                 {
-                    if (responseStream == null)
-                        return null;
-
-                    using (StreamReader sr = new StreamReader(responseStream))
-                    {
-                        string content = sr.ReadToEnd();
-                        var response = JsonConvert.DeserializeObject<dynamic>(content);
-                        return response.id;
-                    }
+                    return HandleException(ex);
                 }
             }
 

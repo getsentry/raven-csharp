@@ -92,6 +92,7 @@ namespace SharpRaven
                                 object extra = null);
 
 
+#if (!net40)
 		/// <summary>
 		/// Captures the <see cref="Exception" />.
 		/// </summary>
@@ -104,10 +105,11 @@ namespace SharpRaven
 		/// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
 		/// </returns>
 		Task<string> CaptureExceptionAsync(Exception exception,
-								string message = null,
+								SentryMessage message = null,
 								ErrorLevel level = ErrorLevel.Error,
 								IDictionary<string, string> tags = null,
 								object extra = null);
+#endif
 
 
         /// <summary>
@@ -127,21 +129,22 @@ namespace SharpRaven
 
         #region Deprecated Methods
 
-
-		/// <summary>
-		/// Captures the message.
-		/// </summary>
-		/// <param name="message">The message to capture.</param>
-		/// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message"/>. Default <see cref="ErrorLevel.Info"/>.</param>
-		/// <param name="tags">The tags to annotate the captured <paramref name="message"/> with.</param>
-		/// <param name="extra">The extra metadata to send with the captured <paramref name="message"/>.</param>
-		/// <returns>
-		/// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
-		/// </returns>
-		Task<string> CaptureMessageAsync(string message,
+#if (!net40)
+        /// <summary>
+        /// Captures the message.
+        /// </summary>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message"/>. Default <see cref="ErrorLevel.Info"/>.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="message"/> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="message"/>.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
+        /// </returns>
+        Task<string> CaptureMessageAsync(SentryMessage message,
 							  ErrorLevel level = ErrorLevel.Info,
 							  Dictionary<string, string> tags = null,
 							  object extra = null);
+#endif
 
         /// <summary>
         /// Captures the event.
