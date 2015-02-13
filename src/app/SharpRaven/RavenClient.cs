@@ -157,7 +157,7 @@ namespace SharpRaven
                                            IDictionary<string, string> tags = null,
                                            object extra = null)
             {
-                JsonPacket packet = jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
+                JsonPacket packet = jsonPacketFactory.Create(CurrentDsn.ProjectID, exception, message, level, tags, extra);
 
                 return Send(packet, CurrentDsn);
             }
@@ -180,7 +180,7 @@ namespace SharpRaven
                                                             IDictionary<string, string> tags = null,
                                                             object extra = null)
             {
-                JsonPacket packet = jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
+                JsonPacket packet = jsonPacketFactory.Create(CurrentDsn.ProjectID, exception, message, level, tags, extra);
 
                 return await SendAsync(packet, CurrentDsn);
             }
