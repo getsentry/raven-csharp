@@ -44,7 +44,7 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequest
     {
-        internal SentryRequest()
+        public SentryRequest()
         {
             
         }

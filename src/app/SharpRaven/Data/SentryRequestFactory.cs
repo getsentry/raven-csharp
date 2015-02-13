@@ -70,7 +70,7 @@ namespace SharpRaven.Data
             GetHttpContext();
 
             if (!HasHttpContext)
-                return null;
+                return OnCreate(null);
 
             var request = new SentryRequest()
             {
