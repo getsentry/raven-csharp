@@ -44,6 +44,10 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequest
     {
+        /// <summary>
+        /// Creates a new <see cref="SentryRequest"/> which may be submitted to Sentry to give context specific
+        /// request information for web services.
+        /// </summary>
         public SentryRequest()
         {
             
