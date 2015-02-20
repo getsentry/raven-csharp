@@ -28,10 +28,15 @@
 
 #endregion
 
+using System.IO;
+using System.Net;
+
+using Newtonsoft.Json;
+
+using SharpRaven.Utilities;
 #if !(net40)
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 using SharpRaven.Data;
@@ -48,7 +53,7 @@ namespace SharpRaven
         /// </summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
         /// <param name="message">The optional messge to capture. Default: <see cref="Exception.Message" />.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error" />.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error"/>.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
@@ -60,12 +65,13 @@ namespace SharpRaven
                                                         IDictionary<string, string> tags = null,
                                                         object extra = null)
         {
-            JsonPacket packet = this.jsonPacketFactory.Create(this.currentDsn.ProjectID,
+            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
                                                               exception,
                                                               message,
                                                               level,
                                                               tags,
                                                               extra);
+
             return await SendAsync(packet, CurrentDsn);
         }
 
@@ -74,11 +80,11 @@ namespace SharpRaven
         /// Captures the message.
         /// </summary>
         /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message" />. Default <see cref="ErrorLevel.Info" />.</param>
-        /// <param name="tags">The tags to annotate the captured <paramref name="message" /> with.</param>
-        /// <param name="extra">The extra metadata to send with the captured <paramref name="message" />.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message"/>. Default <see cref="ErrorLevel.Info"/>.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="message"/> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="message"/>.</param>
         /// <returns>
-        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="message" />, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
         /// </returns>
         public async Task<string> CaptureMessageAsync(SentryMessage message,
                                                       ErrorLevel level = ErrorLevel.Info,
@@ -86,6 +92,7 @@ namespace SharpRaven
                                                       object extra = null)
         {
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
+
             return await SendAsync(packet, CurrentDsn);
         }
 
@@ -100,21 +107,65 @@ namespace SharpRaven
         /// </returns>
         protected virtual async Task<string> SendAsync(JsonPacket packet, Dsn dsn)
         {
-            packet.Logger = Logger;
-
             try
             {
-                using (HttpClient client = new HttpClient())
+                packet = PreparePacket(packet);
+
+                var request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
+                request.Timeout = (int) Timeout.TotalMilliseconds;
+                request.ReadWriteTimeout = (int) Timeout.TotalMilliseconds;
+                request.Method = "POST";
+                request.Accept = "application/json";
+                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
+                request.UserAgent = PacketBuilder.UserAgent;
+
+                if (Compression)
                 {
-                    // TODO: Implement the below with HttpClient.
-                    client.Timeout = Timeout;
+                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
+                    request.AutomaticDecompression = DecompressionMethods.Deflate;
+                    request.ContentType = "application/octet-stream";
+                }
+                else
+                    request.ContentType = "application/json; charset=utf-8";
+
+                /*string data = packet.ToString(Formatting.Indented);
+            Console.WriteLine(data);*/
+
+                string data = packet.ToString(Formatting.None);
+
+                if (LogScrubber != null)
+                    data = LogScrubber.Scrub(data);
+
+                // Write the messagebody.
+                using (Stream s = await request.GetRequestStreamAsync())
+                {
+                    if (Compression)
+                        await GzipUtil.WriteAsync(data, s);
+                    else
+                    {
+                        using (StreamWriter sw = new StreamWriter(s))
+                            await sw.WriteAsync(data);
+                    }
+                }
+
+                using (HttpWebResponse wr = (HttpWebResponse) (await request.GetResponseAsync()))
+                using (Stream responseStream = wr.GetResponseStream())
+                {
+                    if (responseStream == null)
+                        return null;
+
+                    using (StreamReader sr = new StreamReader(responseStream))
+                    {
+                        string content = await sr.ReadToEndAsync();
+                        var response = JsonConvert.DeserializeObject<dynamic>(content);
+                        return response.id;
+                    }
                 }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
+                return HandleException(ex);
             }
-
-            return null;
         }
     }
 }

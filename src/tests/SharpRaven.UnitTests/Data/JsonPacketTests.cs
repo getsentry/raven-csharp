@@ -41,6 +41,24 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class JsonPacketTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
+            SentryRequestFactory.HttpContext = null;
+        }
+
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
+            SentryRequestFactory.HttpContext = null;
+        }
+
+        private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
+        private static readonly ISentryUserFactory userFactory = new SentryUserFactory();
+
         private static void SimulateHttpRequest(Action<JsonPacket> test)
         {
             using (var simulator = new HttpSimulator())
@@ -53,11 +71,13 @@ namespace SharpRaven.UnitTests.Data
                 using (simulator.SimulateRequest())
                 {
                     var json = new JsonPacket(Guid.NewGuid().ToString("n"));
+                    json.Request = requestFactory.Create();
+                    json.User = userFactory.Create();
                     test.Invoke(json);
                 }
             }
         }
-
+        
 
         [Test]
         public void Constructor_NullException_ThrowsArgumentNullException()
