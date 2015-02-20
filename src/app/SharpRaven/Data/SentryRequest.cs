@@ -44,24 +44,21 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequest
     {
-        private readonly dynamic httpContext;
-
-
         internal SentryRequest()
         {
             // NOTE: We're using dynamic to not require a reference to System.Web.
-            this.httpContext = GetHttpContext();
+            GetHttpContext();
 
             if (!HasHttpContext)
                 return;
 
-            Url = this.httpContext.Request.Url.ToString();
-            Method = this.httpContext.Request.HttpMethod;
+            Url = HttpContext.Request.Url.ToString();
+            Method = HttpContext.Request.HttpMethod;
             Environment = Convert(x => x.Request.ServerVariables);
             Headers = Convert(x => x.Request.Headers);
             Cookies = Convert(x => x.Request.Cookies);
             Data = Convert(x => x.Request.Form);
-            QueryString = this.httpContext.Request.QueryString.ToString();
+            QueryString = HttpContext.Request.QueryString.ToString();
         }
 
 
@@ -129,10 +126,18 @@ namespace SharpRaven.Data
         [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
 
+        /// <summary>
+        /// Gets or sets the HTTP context.
+        /// </summary>
+        /// <value>
+        /// The HTTP context.
+        /// </value>
+        internal static dynamic HttpContext { get; set; }
+
         [JsonIgnore]
-        private bool HasHttpContext
+        private static bool HasHttpContext
         {
-            get { return this.httpContext != null; }
+            get { return HttpContext != null; }
         }
 
 
@@ -144,8 +149,17 @@ namespace SharpRaven.Data
         /// </returns>
         public static SentryRequest GetRequest()
         {
-            var request = new SentryRequest();
-            return request.HasHttpContext ? request : null;
+            try
+            {
+                var request = new SentryRequest();
+                return HasHttpContext ? request : null;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
         }
 
 
@@ -160,48 +174,23 @@ namespace SharpRaven.Data
             if (!HasHttpContext)
                 return null;
 
-            return new SentryUser((IPrincipal)this.httpContext.User)
+            return new SentryUser(GetPrincipal())
             {
-                IpAddress = this.httpContext.Request.UserHostAddress
+                IpAddress = GetIpAddress()
             };
         }
 
 
-        private static dynamic GetHttpContext()
+        private static IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
         {
-            var systemWeb = AppDomain.CurrentDomain
-                                     .GetAssemblies()
-                                     .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
-
-            if (systemWeb == null)
-                return null;
-
-            var httpContextType = systemWeb.GetExportedTypes()
-                                           .FirstOrDefault(type => type.Name == "HttpContext");
-
-            if (httpContextType == null)
-                return null;
-
-            var currentHttpContextProperty = httpContextType.GetProperty("Current",
-                                                                         BindingFlags.Static | BindingFlags.Public);
-
-            if (currentHttpContextProperty == null)
-                return null;
-
-            return currentHttpContextProperty.GetValue(null, null);
-        }
-
-
-        private IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
-        {
-            if (this.httpContext == null)
+            if (!HasHttpContext)
                 return null;
 
             IDictionary<string, string> dictionary = new Dictionary<string, string>();
 
             try
             {
-                var collection = collectionGetter.Invoke(this.httpContext);
+                var collection = collectionGetter.Invoke(HttpContext);
                 var keys = Enumerable.ToArray(collection.AllKeys);
 
                 foreach (object key in keys)
@@ -245,6 +234,71 @@ namespace SharpRaven.Data
             }
 
             return dictionary;
+        }
+
+
+        private static void GetHttpContext()
+        {
+            if (HasHttpContext)
+                return;
+
+            try
+            {
+                var systemWeb = AppDomain.CurrentDomain
+                                         .GetAssemblies()
+                                         .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
+
+                if (HasHttpContext || systemWeb == null)
+                    return;
+
+                var httpContextType = systemWeb.GetExportedTypes()
+                                               .FirstOrDefault(type => type.Name == "HttpContext");
+
+                if (HasHttpContext || httpContextType == null)
+                    return;
+
+                var currentHttpContextProperty = httpContextType.GetProperty("Current",
+                                                                             BindingFlags.Static | BindingFlags.Public);
+
+                if (HasHttpContext || currentHttpContextProperty == null)
+                    return;
+
+                HttpContext = currentHttpContextProperty.GetValue(null, null);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("An error occurred while retrieving the HTTP context: {0}", exception);
+            }
+        }
+
+
+        private static dynamic GetIpAddress()
+        {
+            try
+            {
+                return HttpContext.Request.UserHostAddress;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
+        }
+
+
+        private static IPrincipal GetPrincipal()
+        {
+            try
+            {
+                return HttpContext.User as IPrincipal;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
         }
     }
 }

@@ -44,14 +44,6 @@ namespace SharpRaven.UnitTests.Integration
     [Category("NuGet")]
     public class NuGetTests
     {
-        private static string MakeAbsolute(string relativePath)
-        {
-            string absolutePath = Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\..\..\", relativePath);
-
-            return new DirectoryInfo(absolutePath).FullName;
-        }
-
-
         [Test]
         public void Pack_Works()
         {
@@ -61,9 +53,9 @@ namespace SharpRaven.UnitTests.Integration
             ProcessStartInfo start = new ProcessStartInfo(pathToNuGet)
             {
                 Arguments = String.Format(
-                    "Pack {0} -Version {1} -Properties Configuration=Release -Properties \"ReleaseNotes=Test\"",
-                    pathToNuSpec,
-                    GetType().Assembly.GetName().Version),
+                        "Pack {0} -Version {1} -Properties Configuration=Release -Properties \"ReleaseNotes=Test\"",
+                        pathToNuSpec,
+                        typeof(IRavenClient).Assembly.GetName().Version),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardError = true,
@@ -82,6 +74,14 @@ namespace SharpRaven.UnitTests.Integration
                 process.WaitForExit(3000);
                 Assert.That(process.ExitCode, Is.EqualTo(0), "The NuGet process exited with an unexpected code.");
             }
+        }
+
+
+        private static string MakeAbsolute(string relativePath)
+        {
+            string absolutePath = Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\..\..\", relativePath);
+
+            return new DirectoryInfo(absolutePath).FullName;
         }
     }
 }

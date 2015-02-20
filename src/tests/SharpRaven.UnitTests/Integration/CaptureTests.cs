@@ -54,60 +54,69 @@ namespace SharpRaven.UnitTests.Integration
                 LogScrubber = new LogScrubber()
             };
 
-            PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
-            PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
-            PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
-            PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
-            PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
+            Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
         }
 
         #endregion
 
-        private const string DsnUrl =
-            "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
-
-        private IRavenClient ravenClient;
-
-
-        private static void SecondLevelException()
+        [Test]
+        public void CaptureException_CanLogException_If_Send_Fails()
         {
+            const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
+
+            Exception hookedException = null;
+
+            this.ravenClient = new RavenClient(dsnUri)
+            {
+                ErrorOnCapture = exp => hookedException = exp
+            };
+
+            Helper.PrintInfo("In test client change!");
+            Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
+
             try
             {
-                PerformDivideByZero();
+                Helper.FirstLevelException();
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Second Level Exception", e);
+                this.ravenClient.CaptureException(e);
             }
+
+            Assert.That(hookedException, Is.Not.Null);
         }
 
 
-        private static void FirstLevelException()
+        [Test]
+        public void CaptureException_Doesnt_Fail_On_Error_During_Send()
         {
+            const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
+
+            this.ravenClient = new RavenClient(dsnUri);
+
+            Helper.PrintInfo("In test client change!");
+            Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
+
             try
             {
-                SecondLevelException();
+                Helper.FirstLevelException();
             }
             catch (Exception e)
             {
-                throw new Exception("First Level Exception", e);
+                Assert.DoesNotThrow(() => this.ravenClient.CaptureException(e));
             }
-        }
-
-
-        private static void PerformDivideByZero()
-        {
-            int i2 = 0;
-            int i = 10 / i2;
-        }
-
-
-        private static void PrintInfo(string info)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[INFO] ");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(info);
         }
 
 
@@ -119,7 +128,7 @@ namespace SharpRaven.UnitTests.Integration
             var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."), message);
             //Console.WriteLine("Sent packet: " + id);
 
-            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(id, Is.Not.Null);
             Assert.That(Guid.Parse(id), Is.Not.Null);
         }
 
@@ -129,7 +138,7 @@ namespace SharpRaven.UnitTests.Integration
         {
             try
             {
-                FirstLevelException();
+                Helper.FirstLevelException();
             }
             catch (Exception e)
             {
@@ -140,11 +149,11 @@ namespace SharpRaven.UnitTests.Integration
                 tags["TAG"] = "TAG1";
                 extra["extra"] = "EXTRA1";
 
-                var id = this.ravenClient.CaptureException(e, tags : tags, extra : extra);
+                var id = this.ravenClient.CaptureException(e, tags: tags, extra: extra);
 
                 //Console.WriteLine("Sent packet: " + id);
 
-                Assert.That(id, Is.Not.Null.Or.Empty);
+                Assert.That(id, Is.Not.Null);
                 Assert.That(Guid.Parse(id), Is.Not.Null);
             }
         }
@@ -162,12 +171,55 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
+        public void CaptureMessage_CanLogException_If_Send_Fails()
+        {
+            const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
+
+            Exception hookedException = null;
+
+            this.ravenClient = new RavenClient(dsnUri)
+            {
+                ErrorOnCapture = exp => hookedException = exp
+            };
+
+            Helper.PrintInfo("In test client change!");
+            Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
+
+            this.ravenClient.CaptureMessage("Test message");
+
+            Assert.NotNull(hookedException);
+        }
+
+
+        [Test]
+        public void CaptureMessage_Doesnt_Fail_On_Error_During_Send()
+        {
+            const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
+
+            this.ravenClient = new RavenClient(dsnUri);
+
+            Helper.PrintInfo("In test client change!");
+            Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
+            Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
+            Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
+            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
+            Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
+
+            Assert.DoesNotThrow(() => this.ravenClient.CaptureMessage("Test message"));
+        }
+
+
+        [Test]
         public void CaptureMessage_ReturnsValidID()
         {
             var id = this.ravenClient.CaptureMessage("Test");
             //Console.WriteLine("Sent packet: " + id);
 
-            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(id, Is.Not.Null);
             Assert.That(Guid.Parse(id), Is.Not.Null);
         }
 
@@ -191,8 +243,62 @@ namespace SharpRaven.UnitTests.Integration
             var id = this.ravenClient.CaptureMessage(message);
             //Console.WriteLine("Sent packet: " + id);
 
-            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(id, Is.Not.Null);
             Assert.That(Guid.Parse(id), Is.Not.Null);
         }
+
+
+        private const string DsnUrl =
+            "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+
+        private IRavenClient ravenClient;
+
+        #region Nested type: Helper
+
+        private static class Helper
+        {
+            public static void FirstLevelException()
+            {
+                try
+                {
+                    SecondLevelException();
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("First Level Exception", e);
+                }
+            }
+
+
+            public static void PrintInfo(string info)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write("[INFO] ");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(info);
+            }
+
+
+            private static void PerformDivideByZero()
+            {
+                int i2 = 0;
+                int i = 10 / i2;
+            }
+
+
+            private static void SecondLevelException()
+            {
+                try
+                {
+                    PerformDivideByZero();
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException("Second Level Exception", e);
+                }
+            }
+        }
+
+        #endregion
     }
 }

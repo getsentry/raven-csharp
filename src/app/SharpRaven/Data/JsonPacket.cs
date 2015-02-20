@@ -30,7 +30,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 
 using Newtonsoft.Json;
 
@@ -83,6 +83,18 @@ namespace SharpRaven.Data
 
                 Exceptions.Add(sentryException);
             }
+
+            // ReflectionTypeLoadException doesn't contain much useful info in itself, and needs special handling
+            ReflectionTypeLoadException reflectionTypeLoadException = exception as ReflectionTypeLoadException;
+            if (reflectionTypeLoadException != null)
+            {
+                foreach (Exception loaderException in reflectionTypeLoadException.LoaderExceptions)
+                {
+                    SentryException sentryException = new SentryException(loaderException);
+
+                    Exceptions.Add(sentryException);
+                }
+            }
         }
 
 
@@ -106,7 +118,7 @@ namespace SharpRaven.Data
         private JsonPacket()
         {
             // Get assemblies.
-            Modules = SystemUtil.GetModules().ToList();
+            Modules = SystemUtil.GetModules();
 
             // The current hostname
             ServerName = Environment.MachineName;
@@ -204,7 +216,7 @@ namespace SharpRaven.Data
         /// The modules.
         /// </value>
         [JsonProperty(PropertyName = "modules", NullValueHandling = NullValueHandling.Ignore)]
-        public List<SentryModule> Modules { get; set; }
+        public IDictionary<string, string> Modules { get; set; }
 
         /// <summary>
         /// A string representing the platform the client is submitting from. 
