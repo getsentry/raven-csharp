@@ -45,6 +45,7 @@ namespace SharpRaven.UnitTests.Integration
     public class NuGetTests
     {
         [Test]
+        [Ignore("Figure out a way to test NuGet Pack without having a local reference to NuGet.")]
         public void Pack_Works()
         {
             string pathToNuGet = MakeAbsolute(@".nuget\NuGet.exe");

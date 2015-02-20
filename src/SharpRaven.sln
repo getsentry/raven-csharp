@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40418.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRaven", "app\SharpRaven\SharpRaven.csproj", "{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}"
 EndProject
@@ -8,20 +8,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRaven.UnitTests", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRaven.WebTest", "tests\SharpRaven.WebTest\SharpRaven.WebTest.csproj", "{156621FC-2C48-4CDF-A368-9347BABE9089}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{8A88BBCD-89AC-4593-9B91-A93B9F305ED3}"
-	ProjectSection(SolutionItems) = preProject
-		..\.nuget\NuGet.Config = ..\.nuget\NuGet.Config
-		..\.nuget\NuGet.exe = ..\.nuget\NuGet.exe
-		..\.nuget\NuGet.targets = ..\.nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "app", "app", "{88CB5CD6-ACFA-441E-9FBB-E1E06F181B89}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D2B3990A-A048-49F3-A697-A1DAEF82CE7F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF6154D1-9BC4-4966-9506-BC33E81F317C}"
 	ProjectSection(SolutionItems) = preProject
+		..\.gitattributes = ..\.gitattributes
+		..\.gitignore = ..\.gitignore
+		..\.gitmodules = ..\.gitmodules
 		Build.cmd = Build.cmd
+		..\GitVersionConfig.yaml = ..\GitVersionConfig.yaml
 		..\LICENSE = ..\LICENSE
 		..\Makefile = ..\Makefile
 		..\README.md = ..\README.md
