@@ -149,8 +149,17 @@ namespace SharpRaven.Data
         /// </returns>
         public static SentryRequest GetRequest()
         {
-            var request = new SentryRequest();
-            return HasHttpContext ? request : null;
+            try
+            {
+                var request = new SentryRequest();
+                return HasHttpContext ? request : null;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
         }
 
 
