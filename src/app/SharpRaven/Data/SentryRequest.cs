@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
@@ -52,6 +52,7 @@ namespace SharpRaven.Data
         {
             if (httpContext == null)
                 throw new ArgumentNullException("httpContext");
+
             this.httpContext = httpContext;
             Url = this.httpContext.Request.Url.ToString();
             Method = this.httpContext.Request.HttpMethod;
@@ -171,7 +172,7 @@ namespace SharpRaven.Data
 
             try
             {
-                var collection = collectionGetter.Invoke(httpContext);
+                var collection = collectionGetter.Invoke(this.httpContext);
                 var keys = Enumerable.ToArray(collection.AllKeys);
 
                 foreach (object key in keys)
@@ -179,14 +180,14 @@ namespace SharpRaven.Data
                     if (key == null)
                         continue;
 
-                    string stringKey = key as string ?? key.ToString();
+                    var stringKey = key as string ?? key.ToString();
 
                     // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
                     if (stringKey.StartsWith("ALL_") || stringKey.StartsWith("HTTP_"))
                         continue;
 
                     var value = collection[stringKey];
-                    string stringValue = value as string;
+                    var stringValue = value as string;
 
                     if (stringValue != null)
                     {
@@ -243,7 +244,7 @@ namespace SharpRaven.Data
             {
                 if (currentHttpContextProperty == null)
                     currentHttpContextProperty = GetHttpContextCurrentProperty();
-                
+
                 if (currentHttpContextProperty != null)
                     return currentHttpContextProperty.GetValue(null, null);
             }
