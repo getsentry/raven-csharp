@@ -28,19 +28,23 @@
 
 #endregion
 
-namespace SharpRaven.Logging
+namespace SharpRaven.Data
 {
     /// <summary>
-    /// Interface for plugging into RavenClient to provide methods to filter logs.
+    /// Factory interface for creating 
+    /// <see cref="SentryUser" />s. To simply adjust the values of a
+    /// user object before it is sent to Sentry, inherit 
+    /// <see cref="SentryUserFactory" /> and override
+    /// its 
+    /// <see cref="SentryUserFactory.OnCreate" /> method.
     /// </summary>
-    public interface IScrubber
+    public interface ISentryUserFactory
     {
         /// <summary>
-        /// The main interface for scrubbing a JSON packet,
-        /// called before compression (if enabled)
+        /// Creates a new instance of <see cref="SentryUser"/>
+        /// for the current packet.
         /// </summary>
-        /// <param name="input">The serialized JSON packet is given here.</param>
-        /// <returns>Scrubbed JSON packet.</returns>
-        string Scrub(string input);
+        /// <returns>A new instance of <see cref="SentryUser"/> with information relating to the current application's user</returns>
+        SentryUser Create();
     }
 }

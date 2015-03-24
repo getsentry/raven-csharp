@@ -74,6 +74,8 @@
     <Reference Include="System.Net.Http" Condition="$(Configuration) == 'Release 4.5' Or $(Configuration) == 'Debug 4.5'" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\ISentryUserFactory.cs" />
+    <Compile Include="Data\ISentryRequestFactory.cs" />
     <Compile Include="Data\JsonPacketFactory.cs" />
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
@@ -81,6 +83,8 @@
     <Compile Include="Data\SentryMessage.cs" />
     <Compile Include="Data\SentryException.cs" />
     <Compile Include="Data\SentryRequest.cs" />
+    <Compile Include="Data\SentryUserFactory.cs" />
+    <Compile Include="Data\SentryRequestFactory.cs" />
     <Compile Include="Data\SentryStacktrace.cs" />
     <Compile Include="Data\SentryUser.cs" />
     <Compile Include="Dsn.cs" />
@@ -93,6 +97,7 @@
     <Compile Include="Logging\IScrubber.cs" />
     <Compile Include="Logging\LogScrubber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RavenClient.Net45.cs" />
     <Compile Include="RavenClient.cs" />
     <Compile Include="Serialization\ErrorLevelConverter.cs" />
     <Compile Include="Utilities\GzipUtil.cs" />

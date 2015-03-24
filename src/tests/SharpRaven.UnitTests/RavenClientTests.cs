@@ -30,6 +30,10 @@
 
 using System;
 
+#if (!net40)
+using System.Threading.Tasks;
+#endif
+
 using NSubstitute;
 
 using NUnit.Framework;
@@ -49,12 +53,18 @@ namespace SharpRaven.UnitTests
                 : base(dsn, jsonPacketFactory)
             {
             }
-
-
+            
             protected override string Send(JsonPacket packet, Dsn dsn)
             {
                 return packet.Project;
             }
+
+#if(!net40)
+            protected override Task<string> SendAsync(JsonPacket packet, Dsn dsn)
+            {
+                return Task.FromResult(packet.Project);
+            }
+#endif
         }
 
         private class TestableJsonPacketFactory : JsonPacketFactory
@@ -89,6 +99,21 @@ namespace SharpRaven.UnitTests
             Assert.That(result, Is.EqualTo(project));
         }
 
+
+#if (!net40)
+        [Test]
+        public async Task CaptureMessageAsync_InvokesSend_AndJsonPacketFactoryOnCreate()
+        {
+            const string dsnUri =
+                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+            var project = Guid.NewGuid().ToString();
+            var jsonPacketFactory = new TestableJsonPacketFactory(project);
+            var client = new TestableRavenClient(dsnUri, jsonPacketFactory);
+            var result = await client.CaptureMessageAsync("Test");
+
+            Assert.That(result, Is.EqualTo(project));
+        }
+#endif
 
         [Test]
         public void CaptureMessage_ScrubberIsInvoked()

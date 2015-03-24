@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
@@ -44,22 +44,13 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequest
     {
-        private static PropertyInfo currentHttpContextProperty;
-        private readonly dynamic httpContext;
-
-
-        internal SentryRequest(dynamic httpContext)
+        /// <summary>
+        /// Creates a new <see cref="SentryRequest"/> which may be submitted to Sentry to give context specific
+        /// request information for web services.
+        /// </summary>
+        public SentryRequest()
         {
-            if (httpContext == null)
-                throw new ArgumentNullException("httpContext");
-            this.httpContext = httpContext;
-            Url = this.httpContext.Request.Url.ToString();
-            Method = this.httpContext.Request.HttpMethod;
-            Environment = Convert(x => x.Request.ServerVariables);
-            Headers = Convert(x => x.Request.Headers);
-            Cookies = Convert(x => x.Request.Cookies);
-            Data = Convert(x => x.Request.Form);
-            QueryString = this.httpContext.Request.QueryString.ToString();
+            
         }
 
 
@@ -126,163 +117,16 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
-
-
+        
         /// <summary>
         /// Gets the request.
         /// </summary>
         /// <returns>
         /// If an HTTP contest is available, an instance of <see cref="SentryRequest"/>, otherwise <c>null</c>.
         /// </returns>
-        public static SentryRequest GetRequest()
+        public static SentryRequest GetRequest(ISentryRequestFactory factory)
         {
-            try
-            {
-                var httpContext = GetHttpContext();
-                return httpContext != null ? new SentryRequest(httpContext) : null;
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-
-            return null;
-        }
-
-
-        /// <summary>
-        /// Gets the user.
-        /// </summary>
-        /// <returns>
-        /// If an HTTP context is available, an instance of <see cref="SentryUser"/>, otherwise <c>null</c>.
-        /// </returns>
-        public SentryUser GetUser()
-        {
-            return new SentryUser(GetPrincipal())
-            {
-                IpAddress = GetIpAddress()
-            };
-        }
-
-
-        private IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
-        {
-            IDictionary<string, string> dictionary = new Dictionary<string, string>();
-
-            try
-            {
-                var collection = collectionGetter.Invoke(httpContext);
-                var keys = Enumerable.ToArray(collection.AllKeys);
-
-                foreach (object key in keys)
-                {
-                    if (key == null)
-                        continue;
-
-                    string stringKey = key as string ?? key.ToString();
-
-                    // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
-                    if (stringKey.StartsWith("ALL_") || stringKey.StartsWith("HTTP_"))
-                        continue;
-
-                    var value = collection[stringKey];
-                    string stringValue = value as string;
-
-                    if (stringValue != null)
-                    {
-                        // Most dictionary values will be strings and go through this path.
-                        dictionary.Add(stringKey, stringValue);
-                    }
-                    else
-                    {
-                        // HttpCookieCollection is an ugly, evil beast that needs to be treated with a sledgehammer.
-
-                        try
-                        {
-                            // For whatever stupid reason, HttpCookie.ToString() doesn't return its Value, so we need to dive into the .Value property like this.
-                            dictionary.Add(stringKey, value.Value);
-                        }
-                        catch (Exception exception)
-                        {
-                            dictionary.Add(stringKey, exception.ToString());
-                        }
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-
-            return dictionary;
-        }
-
-
-        private static PropertyInfo GetHttpContextCurrentProperty()
-        {
-            var systemWeb = AppDomain.CurrentDomain
-                                     .GetAssemblies()
-                                     .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
-
-            if (systemWeb == null)
-                return null;
-
-            var httpContextType = systemWeb.GetExportedTypes()
-                                           .FirstOrDefault(type => type.Name == "HttpContext");
-
-            if (httpContextType == null)
-                return null;
-
-            return httpContextType.GetProperty("Current", BindingFlags.Static | BindingFlags.Public);
-        }
-
-
-        private static dynamic GetHttpContext()
-        {
-            try
-            {
-                if (currentHttpContextProperty == null)
-                    currentHttpContextProperty = GetHttpContextCurrentProperty();
-                
-                if (currentHttpContextProperty != null)
-                    return currentHttpContextProperty.GetValue(null, null);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine("An error occurred while retrieving the HTTP context: {0}", exception);
-            }
-
-            return null;
-        }
-
-
-        private dynamic GetIpAddress()
-        {
-            try
-            {
-                return this.httpContext.Request.UserHostAddress;
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-
-            return null;
-        }
-
-
-        private IPrincipal GetPrincipal()
-        {
-            try
-            {
-                return this.httpContext.User as IPrincipal;
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-
-            return null;
+            return factory != null ? factory.Create() : null;
         }
     }
 }

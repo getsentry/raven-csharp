@@ -105,9 +105,10 @@ namespace SharpRaven.Data
         public JsonPacket(string project)
             : this()
         {
+
             if (project == null)
                 throw new ArgumentNullException("project");
-
+            
             Project = project;
         }
 
@@ -140,14 +141,6 @@ namespace SharpRaven.Data
 
             // Platform
             Platform = "csharp";
-
-            // Get data from the HTTP request
-            Request = SentryRequest.GetRequest();
-
-            // Get the user data from the HTTP context or environment
-            User = Request != null
-                       ? Request.GetUser()
-                       : new SentryUser(Environment.UserName);
         }
 
 
