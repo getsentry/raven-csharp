@@ -12,3 +12,4 @@ obj/
 /src/packages/*
 !/src/packages/repositories.config
 /TestResult.xml
+docs/_build
