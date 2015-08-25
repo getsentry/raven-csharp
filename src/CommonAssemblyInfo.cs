@@ -1,4 +1,4 @@
-ï»¿#region License
+#region License
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
@@ -29,9 +29,10 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly : AssemblyTitle("SharpRaven.Nancy")]
-[assembly : Guid("48817F2C-4A13-42B5-B362-EF00A957F2D5")]
-[assembly : InternalsVisibleTo("SharpRaven.UnitTests")]
+[assembly : AssemblyDescription("SharpRaven is a C# client for Sentry https://www.getsentry.com")]
+[assembly : AssemblyCompany("Sentry")]
+[assembly : AssemblyProduct("SharpRaven")]
+[assembly : AssemblyCopyright("Copyright © Sentry")]
+[assembly : ComVisible(false)]

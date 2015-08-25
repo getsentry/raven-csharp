@@ -31,7 +31,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly : AssemblyTitle("SharpRaven.Nancy.WebTest")]
-[assembly : AssemblyProduct("SharpRaven")]
-[assembly : AssemblyCopyright("Copyright © Sentry")]
-[assembly : ComVisible(false)]
+[assembly : AssemblyTitle("SharpRaven.Nancy.UnitTests")]
+[assembly : Guid("489f93bd-e14c-4b44-8422-955c455d6150")]
