@@ -69,7 +69,7 @@ namespace SharpRaven.Data
             // NOTE: We're using dynamic to not require a reference to System.Web.
             GetHttpContext();
 
-            if (!HasHttpContext)
+            if (!HasHttpContext || HttpContext.Request == null)
                 return OnCreate(null);
 
             var request = new SentryRequest()
