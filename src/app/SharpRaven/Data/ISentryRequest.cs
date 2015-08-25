@@ -93,14 +93,5 @@ namespace SharpRaven.Data
         /// The URL of the HTTP request.
         /// </value>
         string Url { get; set; }
-
-
-        /// <summary>
-        /// Gets the user.
-        /// </summary>
-        /// <returns>
-        /// If an HTTP context is available, an instance of <see cref="SentryUser"/>, otherwise <c>null</c>.
-        /// </returns>
-        SentryUser GetUser();
     }
 }
