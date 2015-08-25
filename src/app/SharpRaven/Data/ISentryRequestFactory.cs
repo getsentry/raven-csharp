@@ -45,6 +45,6 @@ namespace SharpRaven.Data
         /// for the current packet.
         /// </summary>
         /// <returns>A new instance of <see cref="SentryRequest"/> with information relating to the current HTTP request</returns>
-        SentryRequest Create();
+        ISentryRequest Create();
     }
 }

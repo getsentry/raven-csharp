@@ -124,7 +124,7 @@ namespace SharpRaven.Data
         /// <returns>
         /// If an HTTP contest is available, an instance of <see cref="SentryRequest"/>, otherwise <c>null</c>.
         /// </returns>
-        public static SentryRequest GetRequest(ISentryRequestFactory factory)
+        public static ISentryRequest GetRequest(ISentryRequestFactory factory)
         {
             return factory != null ? factory.Create() : null;
         }

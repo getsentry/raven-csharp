@@ -62,7 +62,7 @@ namespace SharpRaven.UnitTests.Data
 
         private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
 
-        private static void SimulateHttpRequest(Action<SentryRequest> test)
+        private static void SimulateHttpRequest(Action<ISentryRequest> test)
         {
             using (var simulator = new HttpSimulator())
             {
