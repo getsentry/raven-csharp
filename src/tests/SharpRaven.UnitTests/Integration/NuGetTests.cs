@@ -54,9 +54,9 @@ namespace SharpRaven.UnitTests.Integration
             ProcessStartInfo start = new ProcessStartInfo(pathToNuGet)
             {
                 Arguments = String.Format(
-                        "Pack {0} -Version {1} -Properties Configuration=Release -Properties \"ReleaseNotes=Test\"",
-                        pathToNuSpec,
-                        typeof(IRavenClient).Assembly.GetName().Version),
+                    "Pack {0} -Version {1} -Properties Configuration=Release -Properties \"ReleaseNotes=Test\"",
+                    pathToNuSpec,
+                    typeof(IRavenClient).Assembly.GetName().Version),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardError = true,

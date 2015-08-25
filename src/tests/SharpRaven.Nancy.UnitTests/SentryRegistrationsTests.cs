@@ -40,20 +40,6 @@ namespace SharpRaven.Nancy.UnitTests
     [TestFixture]
     public class SentryRegistrationsTests
     {
-        private static T Resolve<T>()
-            where T : class
-        {
-            T instance = null;
-
-            new Browser(cfg => cfg.ApplicationStartup((container, pipelines) =>
-            {
-                instance = container.Resolve<T>();
-            })).Get("/");
-
-            return instance;
-        }
-
-
         [Test]
         public void NancyContextJsonPacketFactoryIsRegistered()
         {
@@ -69,6 +55,17 @@ namespace SharpRaven.Nancy.UnitTests
             var ravenClient = Resolve<IRavenClient>();
 
             Assert.That(ravenClient, Is.TypeOf<RavenClient>());
+        }
+
+
+        private static T Resolve<T>()
+            where T : class
+        {
+            T instance = null;
+
+            new Browser(cfg => cfg.ApplicationStartup((container, pipelines) => { instance = container.Resolve<T>(); })).Get("/");
+
+            return instance;
         }
     }
 }

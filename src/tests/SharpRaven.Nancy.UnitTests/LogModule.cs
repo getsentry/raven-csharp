@@ -44,7 +44,7 @@ namespace SharpRaven.Nancy.UnitTests
                 return View["log.html", new { MessageId = messageId }];
             };
 
-            Get["/log-async", runAsync: true] = async (_, token) =>
+            Get["/log-async", runAsync : true] = async (_, token) =>
             {
                 HttpClient httpClient = new HttpClient();
                 var response = await httpClient.GetAsync("http://www.google.com");

@@ -64,18 +64,6 @@ namespace SharpRaven.UnitTests
 
 
         [Test]
-        public void Constructor_ValidHttpUri_SentryUriHasHttpScheme()
-        {
-            const string dsnUri =
-                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
-            var dsn = new Dsn(dsnUri);
-
-            Assert.That(dsn.SentryUri, Is.Not.Null);
-            Assert.That(dsn.SentryUri.Scheme, Is.EqualTo("http"));
-        }
-
-
-        [Test]
         public void Constructor_ValidHttpsUri_SentryUriHasHttpsScheme()
         {
             var dsn = new Dsn(TestHelper.DsnUri);
@@ -92,6 +80,18 @@ namespace SharpRaven.UnitTests
 
             Assert.That(dsn.Uri, Is.Not.Null);
             Assert.That(dsn.Uri.ToString(), Is.EqualTo(TestHelper.DsnUri));
+        }
+
+
+        [Test]
+        public void Constructor_ValidHttpUri_SentryUriHasHttpScheme()
+        {
+            const string dsnUri =
+                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+            var dsn = new Dsn(dsnUri);
+
+            Assert.That(dsn.SentryUri, Is.Not.Null);
+            Assert.That(dsn.SentryUri.Scheme, Is.EqualTo("http"));
         }
 
 

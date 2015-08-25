@@ -107,6 +107,16 @@ namespace SharpRaven
 
 
         /// <summary>
+        /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing
+        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Action"/> to execute if an error occurs when executing
+        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
+        /// </value>
+        public Action<Exception> ErrorOnCapture { get; set; }
+
+        /// <summary>
         /// Enable Gzip Compression?
         /// Defaults to <c>false</c>.
         /// </summary>
@@ -119,16 +129,6 @@ namespace SharpRaven
         {
             get { return this.currentDsn; }
         }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing
-        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
-        /// </summary>
-        /// <value>
-        /// The <see cref="Action"/> to execute if an error occurs when executing
-        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
-        /// </value>
-        public Action<Exception> ErrorOnCapture { get; set; }
 
         /// <summary>
         /// Interface for providing a 'log scrubber' that removes 
@@ -171,7 +171,7 @@ namespace SharpRaven
         [Obsolete("The more common CaptureException method should be used")]
         public string CaptureEvent(Exception e, Dictionary<string, string> tags)
         {
-            return CaptureException(e, tags: tags);
+            return CaptureException(e, tags : tags);
         }
 
 
@@ -252,9 +252,9 @@ namespace SharpRaven
             {
                 packet = PreparePacket(packet);
 
-                var request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
-                request.Timeout = (int) Timeout.TotalMilliseconds;
-                request.ReadWriteTimeout = (int) Timeout.TotalMilliseconds;
+                var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
+                request.Timeout = (int)Timeout.TotalMilliseconds;
+                request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
                 request.Method = "POST";
                 request.Accept = "application/json";
                 request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
@@ -285,21 +285,25 @@ namespace SharpRaven
                     else
                     {
                         using (StreamWriter sw = new StreamWriter(s))
+                        {
                             sw.Write(data);
+                        }
                     }
                 }
 
-                using (HttpWebResponse wr = (HttpWebResponse) request.GetResponse())
-                using (Stream responseStream = wr.GetResponseStream())
+                using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
                 {
-                    if (responseStream == null)
-                        return null;
-
-                    using (StreamReader sr = new StreamReader(responseStream))
+                    using (Stream responseStream = wr.GetResponseStream())
                     {
-                        string content = sr.ReadToEnd();
-                        var response = JsonConvert.DeserializeObject<dynamic>(content);
-                        return response.id;
+                        if (responseStream == null)
+                            return null;
+
+                        using (StreamReader sr = new StreamReader(responseStream))
+                        {
+                            string content = sr.ReadToEnd();
+                            var response = JsonConvert.DeserializeObject<dynamic>(content);
+                            return response.id;
+                        }
                     }
                 }
             }
@@ -336,7 +340,9 @@ namespace SharpRaven
                         return null;
 
                     using (StreamReader sw = new StreamReader(stream))
+                    {
                         messageBody = sw.ReadToEnd();
+                    }
                 }
 
                 Console.WriteLine("[MESSAGE BODY] " + messageBody);
@@ -348,12 +354,5 @@ namespace SharpRaven
 
             return null;
         }
-
-
-        /*
-           *  These methods have been deprectaed in favour of the ones
-           *  that have the same names as the other sentry clients, this
-           *  is purely for the sake of consistency
-           */
     }
 }

@@ -41,6 +41,8 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class JsonPacketTests
     {
+        #region SetUp/Teardown
+
         [SetUp]
         public void SetUp()
         {
@@ -56,34 +58,21 @@ namespace SharpRaven.UnitTests.Data
             SentryRequestFactory.HttpContext = null;
         }
 
-        private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
-        private static readonly ISentryUserFactory userFactory = new SentryUserFactory();
-
-        private static void SimulateHttpRequest(Action<JsonPacket> test)
-        {
-            using (var simulator = new HttpSimulator())
-            {
-                simulator.SetFormVariable("Form1", "Value1")
-                         .SetCookie("Cookie1", "Value1")
-                         .SetHeader("Header1", "Value1")
-                         .SetReferer(new Uri("http://getsentry.com/"));
-
-                using (simulator.SimulateRequest())
-                {
-                    var json = new JsonPacket(Guid.NewGuid().ToString("n"));
-                    json.Request = requestFactory.Create();
-                    json.User = userFactory.Create();
-                    test.Invoke(json);
-                }
-            }
-        }
-        
+        #endregion
 
         [Test]
         public void Constructor_NullException_ThrowsArgumentNullException()
         {
             var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(String.Empty, null));
             Assert.That(exception.ParamName, Is.EqualTo("exception"));
+        }
+
+
+        [Test]
+        public void Constructor_NullProject_ThrowsArgumentNullException()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(null));
+            Assert.That(exception.ParamName, Is.EqualTo("project"));
         }
 
 
@@ -96,10 +85,43 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
-        public void Constructor_NullProject_ThrowsArgumentNullException()
+        public void Constructor_Project_EventIDIsValidGuid()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(null));
-            Assert.That(exception.ParamName, Is.EqualTo("project"));
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project);
+
+            Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
+        }
+
+
+        [Test]
+        public void Constructor_Project_ModulesHasCountGreaterThanZero()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project);
+
+            Assert.That(json.Modules, Has.Count.GreaterThan(0));
+        }
+
+
+        [Test]
+        public void Constructor_Project_ProjectIsEqual()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project);
+
+            Assert.That(json.Project, Is.EqualTo(project));
+        }
+
+
+        [Test]
+        public void Constructor_Project_ServerNameEqualsMachineName()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = new JsonPacket(project);
+
+            Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
         }
 
 
@@ -156,47 +178,6 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
-        public void Constructor_Project_EventIDIsValidGuid()
-        {
-            var project = Guid.NewGuid().ToString();
-            var json = new JsonPacket(project);
-
-            Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
-            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
-        }
-
-
-        [Test]
-        public void Constructor_Project_ModulesHasCountGreaterThanZero()
-        {
-            var project = Guid.NewGuid().ToString();
-            var json = new JsonPacket(project);
-
-            Assert.That(json.Modules, Has.Count.GreaterThan(0));
-        }
-
-
-        [Test]
-        public void Constructor_Project_ProjectIsEqual()
-        {
-            var project = Guid.NewGuid().ToString();
-            var json = new JsonPacket(project);
-
-            Assert.That(json.Project, Is.EqualTo(project));
-        }
-
-
-        [Test]
-        public void Constructor_Project_ServerNameEqualsMachineName()
-        {
-            var project = Guid.NewGuid().ToString();
-            var json = new JsonPacket(project);
-
-            Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
-        }
-
-
-        [Test]
         [Category("NoMono")]
         public void Constructor_WithHttpContext_RequestCookiesContainsExpectedItem()
         {
@@ -217,7 +198,7 @@ namespace SharpRaven.UnitTests.Data
             {
                 Assert.That(json.Request.Data, Is.Not.Null);
                 Assert.That(json.Request.Data, Is.TypeOf<Dictionary<string, string>>());
-                var data = (Dictionary<string, string>) json.Request.Data;
+                var data = (Dictionary<string, string>)json.Request.Data;
                 Assert.That(data, Has.Count.EqualTo(1));
                 Assert.That(data, Has.Member(new KeyValuePair<string, string>("Form1", "Value1")));
             });
@@ -258,6 +239,30 @@ namespace SharpRaven.UnitTests.Data
                 Assert.That(json.User, Is.Not.Null);
                 Assert.That(json.User.IpAddress, Is.EqualTo("127.0.0.1"));
             });
+        }
+
+
+        private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
+        private static readonly ISentryUserFactory userFactory = new SentryUserFactory();
+
+
+        private static void SimulateHttpRequest(Action<JsonPacket> test)
+        {
+            using (var simulator = new HttpSimulator())
+            {
+                simulator.SetFormVariable("Form1", "Value1")
+                    .SetCookie("Cookie1", "Value1")
+                    .SetHeader("Header1", "Value1")
+                    .SetReferer(new Uri("http://getsentry.com/"));
+
+                using (simulator.SimulateRequest())
+                {
+                    var json = new JsonPacket(Guid.NewGuid().ToString("n"));
+                    json.Request = requestFactory.Create();
+                    json.User = userFactory.Create();
+                    test.Invoke(json);
+                }
+            }
         }
     }
 }

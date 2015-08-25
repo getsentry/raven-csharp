@@ -44,28 +44,6 @@ namespace SharpRaven.Nancy.UnitTests
     [TestFixture]
     public class NancyTests
     {
-        private class TestableRavenClient : RavenClient
-        {
-            public TestableRavenClient(IJsonPacketFactory jsonPacketFactory)
-                : base(jsonPacketFactory)
-            {
-                // This constructor must exist so Nancy can inject the NancyContextJsonPacketFactory
-                // that is registered in SentryRegistrations. @asbjornu
-            }
-
-
-            protected override string Send(JsonPacket packet, Dsn dsn)
-            {
-                // Retrieving the GUID from the JsonPacket verifies that
-                // NancyContextJsonPacketFactory.OnCreate() has been invoked,
-                // since it will copy the request data from the NancyContext.
-                // @asbjornu
-                dynamic data = packet.Request.Data;
-                return data["GUID"];
-            }
-        }
-
-
         [Test]
         public void Get_InvokesRavenClientWithNancyContextJsonPacketFactory()
         {
@@ -82,10 +60,7 @@ namespace SharpRaven.Nancy.UnitTests
                 });
             });
 
-            var response = browser.Get("/log", with =>
-            {
-                with.FormValue("GUID", guid);
-            });
+            var response = browser.Get("/log", with => { with.FormValue("GUID", guid); });
 
             Assert.AreEqual(response.StatusCode, HttpStatusCode.OK);
 
@@ -149,6 +124,28 @@ namespace SharpRaven.Nancy.UnitTests
             // SentryRequestStartup.Initialize() should set the GUID in Exception.Data. @asbjornu
             var loggedGuid = exception.InnerException.InnerException.Data[NancyConfiguration.Settings.SentryEventGuid];
             Assert.That(loggedGuid, Is.EqualTo(guid));
+        }
+
+
+        private class TestableRavenClient : RavenClient
+        {
+            public TestableRavenClient(IJsonPacketFactory jsonPacketFactory)
+                : base(jsonPacketFactory)
+            {
+                // This constructor must exist so Nancy can inject the NancyContextJsonPacketFactory
+                // that is registered in SentryRegistrations. @asbjornu
+            }
+
+
+            protected override string Send(JsonPacket packet, Dsn dsn)
+            {
+                // Retrieving the GUID from the JsonPacket verifies that
+                // NancyContextJsonPacketFactory.OnCreate() has been invoked,
+                // since it will copy the request data from the NancyContext.
+                // @asbjornu
+                dynamic data = packet.Request.Data;
+                return data["GUID"];
+            }
         }
     }
 }

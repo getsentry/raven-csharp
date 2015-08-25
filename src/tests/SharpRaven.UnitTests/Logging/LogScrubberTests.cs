@@ -41,7 +41,7 @@ namespace SharpRaven.UnitTests.Logging
     [TestFixture]
     public class @LogScrubberTests
     {
-        #region Setup/Teardown
+        #region SetUp/Teardown
 
         [SetUp]
         public void SetUp()
@@ -50,9 +50,6 @@ namespace SharpRaven.UnitTests.Logging
         }
 
         #endregion
-
-        private LogScrubber scrubber;
-
 
         [Test]
         public void Filters_ContainCreditCardFilter()
@@ -132,5 +129,8 @@ namespace SharpRaven.UnitTests.Logging
             Assert.That(output, Is.Not.StringContaining(validCreditCardNumber));
             Assert.That(output, Is.Not.StringContaining(validPhoneNumber));
         }
+
+
+        private LogScrubber scrubber;
     }
 }

@@ -45,17 +45,6 @@ namespace SharpRaven.Nancy
             ConfigurationManager.GetSection("sharpRaven") as NancyConfiguration;
 
         /// <summary>
-        /// Gets the &lt;sharpRaven/&gt; configuration element.
-        /// </summary>
-        /// <value>
-        /// The the &lt;sharpRaven/&gt; configuration element.
-        /// </value>
-        public new static NancyConfiguration Settings
-        {
-            get { return settings; }
-        }
-
-        /// <summary>
         /// Gets the &lt;captureExceptionOnError /&gt; configuration element.
         /// </summary>
         /// <value>
@@ -64,7 +53,7 @@ namespace SharpRaven.Nancy
         [ConfigurationProperty(CaptureExceptionOnErrorKey, IsKey = true)]
         public CaptureExceptionOnErrorElement CaptureExceptionOnError
         {
-            get { return (CaptureExceptionOnErrorElement) base[CaptureExceptionOnErrorKey]; }
+            get { return (CaptureExceptionOnErrorElement)base[CaptureExceptionOnErrorKey]; }
         }
 
         /// <summary>
@@ -78,7 +67,6 @@ namespace SharpRaven.Nancy
             get { return "SharpRaven.Nancy.NancyContext"; }
         }
 
-
         /// <summary>
         /// Gets the &lt;pipelineName /&gt; configuration element.
         /// </summary>
@@ -88,7 +76,7 @@ namespace SharpRaven.Nancy
         [ConfigurationProperty(PipelineNameKey, IsKey = true)]
         public PipelineNameElement PipelineName
         {
-            get { return (PipelineNameElement) base[PipelineNameKey]; }
+            get { return (PipelineNameElement)base[PipelineNameKey]; }
         }
 
         /// <summary>
@@ -100,6 +88,17 @@ namespace SharpRaven.Nancy
         public string SentryEventGuid
         {
             get { return "SharpRaven.Nancy.SentryEventGuid"; }
+        }
+
+        /// <summary>
+        /// Gets the &lt;sharpRaven/&gt; configuration element.
+        /// </summary>
+        /// <value>
+        /// The the &lt;sharpRaven/&gt; configuration element.
+        /// </value>
+        public new static NancyConfiguration Settings
+        {
+            get { return settings; }
         }
 
         #region Nested type: CaptureExceptionOnErrorElement
@@ -118,7 +117,7 @@ namespace SharpRaven.Nancy
             [ConfigurationProperty("value", DefaultValue = "true")]
             public bool Value
             {
-                get { return (bool) this["value"]; }
+                get { return (bool)this["value"]; }
                 set { this["value"] = value; }
             }
         }
@@ -141,7 +140,7 @@ namespace SharpRaven.Nancy
             [ConfigurationProperty("value", DefaultValue = "SharpRaven.Nancy")]
             public String Value
             {
-                get { return (string) this["value"]; }
+                get { return (string)this["value"]; }
                 set { this["value"] = value; }
             }
         }

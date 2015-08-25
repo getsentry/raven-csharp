@@ -54,9 +54,7 @@ namespace SharpRaven.Nancy.UnitTests
                 var b = 1 / a;
             }
             else
-            {
                 DivideByZero(--stackFrames);
-            }
         }
     }
 }

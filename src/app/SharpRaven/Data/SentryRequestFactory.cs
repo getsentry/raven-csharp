@@ -28,13 +28,13 @@
 
 #endregion
 
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
-using System.Security.Principal;
+
+using Newtonsoft.Json;
 
 namespace SharpRaven.Data
 {
@@ -44,6 +44,11 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequestFactory : ISentryRequestFactory
     {
+        [JsonIgnore]
+        internal static bool HasHttpContext
+        {
+            get { return HttpContext != null; }
+        }
 
         /// <summary>
         /// Gets or sets the HTTP context.
@@ -53,11 +58,6 @@ namespace SharpRaven.Data
         /// </value>
         internal static dynamic HttpContext { get; set; }
 
-        [JsonIgnore]
-        internal static bool HasHttpContext
-        {
-            get { return HttpContext != null; }
-        }
 
         /// <summary>
         /// Creates a new instance of <see cref="SentryRequest"/>
@@ -99,6 +99,7 @@ namespace SharpRaven.Data
         {
             return request;
         }
+
 
         private static IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
         {
@@ -164,14 +165,14 @@ namespace SharpRaven.Data
             try
             {
                 var systemWeb = AppDomain.CurrentDomain
-                                         .GetAssemblies()
-                                         .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
+                    .GetAssemblies()
+                    .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
 
                 if (HasHttpContext || systemWeb == null)
                     return;
 
                 var httpContextType = systemWeb.GetExportedTypes()
-                                               .FirstOrDefault(type => type.Name == "HttpContext");
+                    .FirstOrDefault(type => type.Name == "HttpContext");
 
                 if (HasHttpContext || httpContextType == null)
                     return;

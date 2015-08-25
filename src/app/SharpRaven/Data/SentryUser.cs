@@ -50,6 +50,7 @@ namespace SharpRaven.Data
                 Username = principal.Identity.Name;
         }
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SentryUser"/> class.
         /// </summary>
@@ -70,16 +71,6 @@ namespace SharpRaven.Data
             Username = username;
         }
 
-        /// <summary>
-        /// Gets the user.
-        /// </summary>
-        /// <returns>
-        /// If an HTTP context is available, an instance of <see cref="SentryUser"/>, otherwise <c>null</c>.
-        /// </returns>
-        public static SentryUser GetUser(ISentryUserFactory factory)
-        {
-            return factory != null ? factory.Create() : null;
-        }
 
         /// <summary>
         /// Gets or sets the user's email address.
@@ -116,5 +107,17 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "username", NullValueHandling = NullValueHandling.Ignore)]
         public string Username { get; set; }
+
+
+        /// <summary>
+        /// Gets the user.
+        /// </summary>
+        /// <returns>
+        /// If an HTTP context is available, an instance of <see cref="SentryUser"/>, otherwise <c>null</c>.
+        /// </returns>
+        public static SentryUser GetUser(ISentryUserFactory factory)
+        {
+            return factory != null ? factory.Create() : null;
+        }
     }
 }

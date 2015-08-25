@@ -54,14 +54,16 @@ namespace SharpRaven.UnitTests
         public static JsonSchema GetSchema()
         {
             var stream = typeof(SerializationTests).Assembly
-                                                   .GetManifestResourceStream(typeof(SerializationTests),
-                                                                              "schema.json");
+                .GetManifestResourceStream(typeof(SerializationTests),
+                                           "schema.json");
 
             if (stream == null)
                 return null;
 
             using (StreamReader reader = new StreamReader(stream))
+            {
                 return JsonSchema.Parse(reader.ReadToEnd());
+            }
         }
 
 
@@ -72,7 +74,7 @@ namespace SharpRaven.UnitTests
 
             while (directory != null && directory.Exists &&
                    (file = directory.EnumerateFiles("*.json")
-                                    .FirstOrDefault(f => f.FullName.EndsWith("schema.json"))) == null)
+                       .FirstOrDefault(f => f.FullName.EndsWith("schema.json"))) == null)
                 directory = directory.Parent;
 
             return file != null ? file.FullName : null;
@@ -86,7 +88,7 @@ namespace SharpRaven.UnitTests
 
             if (converterAttribute != null)
             {
-                var converter = (JsonConverter) Activator.CreateInstance(converterAttribute.ConverterType);
+                var converter = (JsonConverter)Activator.CreateInstance(converterAttribute.ConverterType);
                 if (converter.CanConvert(enumType))
                 {
                     foreach (var value in Enum.GetValues(enumType))
@@ -94,7 +96,9 @@ namespace SharpRaven.UnitTests
                         using (var stringWriter = new StringWriter())
                         {
                             using (var jsonWriter = new JsonTextWriter(stringWriter))
+                            {
                                 converter.WriteJson(jsonWriter, value, new JsonSerializer());
+                            }
 
                             yield return stringWriter.ToString().Replace("\"", String.Empty);
                             ;

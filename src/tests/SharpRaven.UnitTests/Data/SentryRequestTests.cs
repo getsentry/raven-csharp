@@ -41,7 +41,7 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class SentryRequestTests
     {
-        #region Setup/Teardown
+        #region SetUp/Teardown
 
         [SetUp]
         public void SetUp()
@@ -59,25 +59,6 @@ namespace SharpRaven.UnitTests.Data
         }
 
         #endregion
-
-        private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
-
-        private static void SimulateHttpRequest(Action<ISentryRequest> test)
-        {
-            using (var simulator = new HttpSimulator())
-            {
-                simulator.SetFormVariable("Form1", "Value1");
-                simulator.SetHeader("UserAgent", "SharpRaven");
-                simulator.SetCookie("Cookie", "Monster");
-
-                using (simulator.SimulateRequest())
-                {
-                    var request = requestFactory.Create();
-                    test.Invoke(request);
-                }
-            }
-        }
-
 
         [Test]
         public void GetRequest_NoHttpContext_ReturnsNull()
@@ -107,7 +88,7 @@ namespace SharpRaven.UnitTests.Data
             {
                 Assert.That(request.Data, Is.TypeOf<Dictionary<string, string>>());
 
-                var data = (Dictionary<string, string>) request.Data;
+                var data = (Dictionary<string, string>)request.Data;
 
                 Assert.That(data, Has.Count.EqualTo(1));
                 Assert.That(data["Form1"], Is.EqualTo("Value1"));
@@ -132,6 +113,26 @@ namespace SharpRaven.UnitTests.Data
         public void GetRequest_WithHttpContext_RequestIsNotNull()
         {
             SimulateHttpRequest(request => Assert.That(request, Is.Not.Null));
+        }
+
+
+        private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
+
+
+        private static void SimulateHttpRequest(Action<ISentryRequest> test)
+        {
+            using (var simulator = new HttpSimulator())
+            {
+                simulator.SetFormVariable("Form1", "Value1");
+                simulator.SetHeader("UserAgent", "SharpRaven");
+                simulator.SetCookie("Cookie", "Monster");
+
+                using (simulator.SimulateRequest())
+                {
+                    var request = requestFactory.Create();
+                    test.Invoke(request);
+                }
+            }
         }
     }
 }

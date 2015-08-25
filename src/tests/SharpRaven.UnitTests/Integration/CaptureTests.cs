@@ -42,7 +42,7 @@ namespace SharpRaven.UnitTests.Integration
     [TestFixture]
     public class CaptureTests
     {
-        #region Setup/Teardown
+        #region SetUp/Teardown
 
         [SetUp]
         public void Setup()
@@ -134,6 +134,17 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
+        public void CaptureException_WithoutStacktrace_ReturnsValidID()
+        {
+            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
+            //Console.WriteLine("Sent packet: " + id);
+
+            Assert.That(id, Is.Not.Null.Or.Empty);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
+        }
+
+
+        [Test]
         public void CaptureException_WithStacktrace_ReturnsValidID()
         {
             try
@@ -149,24 +160,13 @@ namespace SharpRaven.UnitTests.Integration
                 tags["TAG"] = "TAG1";
                 extra["extra"] = "EXTRA1";
 
-                var id = this.ravenClient.CaptureException(e, tags: tags, extra: extra);
+                var id = this.ravenClient.CaptureException(e, tags : tags, extra : extra);
 
                 //Console.WriteLine("Sent packet: " + id);
 
                 Assert.That(id, Is.Not.Null);
                 Assert.That(Guid.Parse(id), Is.Not.Null);
             }
-        }
-
-
-        [Test]
-        public void CaptureException_WithoutStacktrace_ReturnsValidID()
-        {
-            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
-            //Console.WriteLine("Sent packet: " + id);
-
-            Assert.That(id, Is.Not.Null.Or.Empty);
-            Assert.That(Guid.Parse(id), Is.Not.Null);
         }
 
 
@@ -253,8 +253,6 @@ namespace SharpRaven.UnitTests.Integration
 
         private IRavenClient ravenClient;
 
-        #region Nested type: Helper
-
         private static class Helper
         {
             public static void FirstLevelException()
@@ -298,7 +296,5 @@ namespace SharpRaven.UnitTests.Integration
                 }
             }
         }
-
-        #endregion
     }
 }

@@ -30,10 +30,6 @@
 
 using System;
 
-#if (!net40)
-using System.Threading.Tasks;
-#endif
-
 using NSubstitute;
 
 using NUnit.Framework;
@@ -41,31 +37,99 @@ using NUnit.Framework;
 using SharpRaven.Data;
 using SharpRaven.Logging;
 using SharpRaven.UnitTests.Utilities;
+#if (!net40)
+using System.Threading.Tasks;
+
+#endif
 
 namespace SharpRaven.UnitTests
 {
     [TestFixture]
     public class RavenClientTests
     {
-        private class TestableRavenClient : RavenClient
+        [Test]
+        public void CaptureMessage_InvokesSend_AndJsonPacketFactoryOnCreate()
         {
-            public TestableRavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null)
-                : base(dsn, jsonPacketFactory)
-            {
-            }
-            
-            protected override string Send(JsonPacket packet, Dsn dsn)
-            {
-                return packet.Project;
-            }
+            const string dsnUri =
+                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+            var project = Guid.NewGuid().ToString();
+            var jsonPacketFactory = new TestableJsonPacketFactory(project);
+            var client = new TestableRavenClient(dsnUri, jsonPacketFactory);
+            var result = client.CaptureMessage("Test");
 
-#if(!net40)
-            protected override Task<string> SendAsync(JsonPacket packet, Dsn dsn)
-            {
-                return Task.FromResult(packet.Project);
-            }
-#endif
+            Assert.That(result, Is.EqualTo(project));
         }
+
+
+        [Test]
+        public void CaptureMessage_ScrubberIsInvoked()
+        {
+            string message = Guid.NewGuid().ToString("n");
+
+            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+            ravenClient.LogScrubber = Substitute.For<IScrubber>();
+            ravenClient.LogScrubber.Scrub(Arg.Any<string>())
+                .Returns(c =>
+                {
+                    string json = c.Arg<string>();
+                    Assert.That(json, Is.StringContaining(message));
+                    return json;
+                });
+
+            ravenClient.CaptureMessage(message);
+
+            // Verify that we actually received a Scrub() call:
+            ravenClient.LogScrubber.Received().Scrub(Arg.Any<string>());
+        }
+
+
+#if (!net40)
+        [Test]
+        public async Task CaptureMessageAsync_InvokesSend_AndJsonPacketFactoryOnCreate()
+        {
+            const string dsnUri =
+                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+            var project = Guid.NewGuid().ToString();
+            var jsonPacketFactory = new TestableJsonPacketFactory(project);
+            var client = new TestableRavenClient(dsnUri, jsonPacketFactory);
+            var result = await client.CaptureMessageAsync("Test");
+
+            Assert.That(result, Is.EqualTo(project));
+        }
+#endif
+
+
+        [Test]
+        public void Constructor_NullDsn_ThrowsArgumentNullException()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn)null));
+            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+        }
+
+
+        [Test]
+        public void Constructor_NullDsnString_ThrowsArgumentNullException()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string)null));
+            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
+        }
+
+
+        [Test]
+        public void Constructor_StringDsn_CurrentDsnEqualsDsn()
+        {
+            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+            Assert.That(ravenClient.CurrentDsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
+        }
+
+
+        [Test]
+        public void Logger_IsRoot()
+        {
+            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+            Assert.That(ravenClient.Logger, Is.EqualTo("root"));
+        }
+
 
         private class TestableJsonPacketFactory : JsonPacketFactory
         {
@@ -85,87 +149,26 @@ namespace SharpRaven.UnitTests
             }
         }
 
-
-        [Test]
-        public void CaptureMessage_InvokesSend_AndJsonPacketFactoryOnCreate()
+        private class TestableRavenClient : RavenClient
         {
-            const string dsnUri =
-                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
-            var project = Guid.NewGuid().ToString();
-            var jsonPacketFactory = new TestableJsonPacketFactory(project);
-            var client = new TestableRavenClient(dsnUri, jsonPacketFactory);
-            var result = client.CaptureMessage("Test");
-
-            Assert.That(result, Is.EqualTo(project));
-        }
+            public TestableRavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null)
+                : base(dsn, jsonPacketFactory)
+            {
+            }
 
 
-#if (!net40)
-        [Test]
-        public async Task CaptureMessageAsync_InvokesSend_AndJsonPacketFactoryOnCreate()
-        {
-            const string dsnUri =
-                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
-            var project = Guid.NewGuid().ToString();
-            var jsonPacketFactory = new TestableJsonPacketFactory(project);
-            var client = new TestableRavenClient(dsnUri, jsonPacketFactory);
-            var result = await client.CaptureMessageAsync("Test");
+            protected override string Send(JsonPacket packet, Dsn dsn)
+            {
+                return packet.Project;
+            }
 
-            Assert.That(result, Is.EqualTo(project));
-        }
+
+#if(!net40)
+            protected override Task<string> SendAsync(JsonPacket packet, Dsn dsn)
+            {
+                return Task.FromResult(packet.Project);
+            }
 #endif
-
-        [Test]
-        public void CaptureMessage_ScrubberIsInvoked()
-        {
-            string message = Guid.NewGuid().ToString("n");
-
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-            ravenClient.LogScrubber = Substitute.For<IScrubber>();
-            ravenClient.LogScrubber.Scrub(Arg.Any<string>())
-                       .Returns(c =>
-                       {
-                           string json = c.Arg<string>();
-                           Assert.That(json, Is.StringContaining(message));
-                           return json;
-                       });
-
-            ravenClient.CaptureMessage(message);
-
-            // Verify that we actually received a Scrub() call:
-            ravenClient.LogScrubber.Received().Scrub(Arg.Any<string>());
-        }
-
-
-        [Test]
-        public void Constructor_NullDsnString_ThrowsArgumentNullException()
-        {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string) null));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
-        }
-
-
-        [Test]
-        public void Constructor_NullDsn_ThrowsArgumentNullException()
-        {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn) null));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
-        }
-
-
-        [Test]
-        public void Constructor_StringDsn_CurrentDsnEqualsDsn()
-        {
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-            Assert.That(ravenClient.CurrentDsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
-        }
-
-
-        [Test]
-        public void Logger_IsRoot()
-        {
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-            Assert.That(ravenClient.Logger, Is.EqualTo("root"));
         }
     }
 }

@@ -28,12 +28,7 @@
 
 #endregion
 
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Reflection;
 using System.Security.Principal;
 
 namespace SharpRaven.Data
@@ -56,10 +51,12 @@ namespace SharpRaven.Data
             if (!SentryRequestFactory.HasHttpContext)
                 user = new SentryUser(Environment.UserName);
             else
+            {
                 user = new SentryUser(GetPrincipal())
                 {
                     IpAddress = GetIpAddress()
                 };
+            }
 
             return OnCreate(user);
         }
@@ -77,6 +74,7 @@ namespace SharpRaven.Data
         {
             return user;
         }
+
 
         private static dynamic GetIpAddress()
         {

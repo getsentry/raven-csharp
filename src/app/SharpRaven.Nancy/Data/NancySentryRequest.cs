@@ -57,9 +57,7 @@ namespace SharpRaven.Nancy.Data
             this.httpContext = httpContext;
 
             if (!HasHttpContext || this.httpContext.Request == null)
-            {
                 return;
-            }
 
             // Url and Method
             Url = this.httpContext.Request.Url.ToString();
@@ -69,9 +67,7 @@ namespace SharpRaven.Nancy.Data
             // QueryString
             string qs = string.Empty;
             foreach (var item in this.httpContext.Request.Query)
-            {
                 qs += item + "=" + this.httpContext.Request.Query[item] + "&";
-            }
 
             QueryString = qs.TrimEnd(new[] { '&' });
 
@@ -91,6 +87,12 @@ namespace SharpRaven.Nancy.Data
             }).ToDictionary(k => k.Key, v => v.Value);
         }
 
+
+        [JsonIgnore]
+        private bool HasHttpContext
+        {
+            get { return this.httpContext != null; }
+        }
 
         /// <summary>
         /// Gets or sets the cookies.
@@ -156,12 +158,6 @@ namespace SharpRaven.Nancy.Data
         [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
 
-        [JsonIgnore]
-        private bool HasHttpContext
-        {
-            get { return this.httpContext != null; }
-        }
-
 
         /// <summary>
         /// Gets the request.
@@ -185,9 +181,7 @@ namespace SharpRaven.Nancy.Data
         public SentryUser GetUser()
         {
             if (!HasHttpContext || this.httpContext.CurrentUser == null)
-            {
                 return null;
-            }
 
             return new SentryUser(this.httpContext.CurrentUser.UserName)
             {

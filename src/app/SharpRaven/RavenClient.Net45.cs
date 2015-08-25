@@ -111,9 +111,9 @@ namespace SharpRaven
             {
                 packet = PreparePacket(packet);
 
-                var request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
-                request.Timeout = (int) Timeout.TotalMilliseconds;
-                request.ReadWriteTimeout = (int) Timeout.TotalMilliseconds;
+                var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
+                request.Timeout = (int)Timeout.TotalMilliseconds;
+                request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
                 request.Method = "POST";
                 request.Accept = "application/json";
                 request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
@@ -144,21 +144,25 @@ namespace SharpRaven
                     else
                     {
                         using (StreamWriter sw = new StreamWriter(s))
+                        {
                             await sw.WriteAsync(data);
+                        }
                     }
                 }
 
-                using (HttpWebResponse wr = (HttpWebResponse) (await request.GetResponseAsync()))
-                using (Stream responseStream = wr.GetResponseStream())
+                using (HttpWebResponse wr = (HttpWebResponse)(await request.GetResponseAsync()))
                 {
-                    if (responseStream == null)
-                        return null;
-
-                    using (StreamReader sr = new StreamReader(responseStream))
+                    using (Stream responseStream = wr.GetResponseStream())
                     {
-                        string content = await sr.ReadToEndAsync();
-                        var response = JsonConvert.DeserializeObject<dynamic>(content);
-                        return response.id;
+                        if (responseStream == null)
+                            return null;
+
+                        using (StreamReader sr = new StreamReader(responseStream))
+                        {
+                            string content = await sr.ReadToEndAsync();
+                            var response = JsonConvert.DeserializeObject<dynamic>(content);
+                            return response.id;
+                        }
                     }
                 }
             }

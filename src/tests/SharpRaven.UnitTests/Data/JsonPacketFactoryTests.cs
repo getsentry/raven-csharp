@@ -39,7 +39,7 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class JsonPacketFactoryTests
     {
-        #region Setup/Teardown
+        #region SetUp/Teardown
 
         [SetUp]
         public void SetUp()
@@ -49,35 +49,55 @@ namespace SharpRaven.UnitTests.Data
 
         #endregion
 
-        private class TestableJsonPacketFactory : JsonPacketFactory
-        {
-            private readonly string project;
-
-
-            public TestableJsonPacketFactory(string project)
-            {
-                this.project = project;
-            }
-
-
-            protected override JsonPacket OnCreate(JsonPacket jsonPacket)
-            {
-                jsonPacket.Project = this.project;
-                return base.OnCreate(jsonPacket);
-            }
-        }
-
-        private IJsonPacketFactory jsonPacketFactory;
-
-
         [Test]
         public void Create_InvokesOnCreate()
         {
             var project = Guid.NewGuid().ToString("N");
             var factory = new TestableJsonPacketFactory(project);
-            var json = factory.Create(String.Empty, (SentryMessage) null);
+            var json = factory.Create(String.Empty, (SentryMessage)null);
 
             Assert.That(json.Project, Is.EqualTo(project));
+        }
+
+
+        [Test]
+        public void Create_Project_EventIDIsValidGuid()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
+
+            Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
+        }
+
+
+        [Test]
+        public void Create_Project_ModulesHasCountGreaterThanZero()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
+
+            Assert.That(json.Modules, Has.Count.GreaterThan(0));
+        }
+
+
+        [Test]
+        public void Create_Project_ProjectIsEqual()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
+
+            Assert.That(json.Project, Is.EqualTo(project));
+        }
+
+
+        [Test]
+        public void Create_Project_ServerNameEqualsMachineName()
+        {
+            var project = Guid.NewGuid().ToString();
+            var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
+
+            Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
         }
 
 
@@ -133,44 +153,24 @@ namespace SharpRaven.UnitTests.Data
         }
 
 
-        [Test]
-        public void Create_Project_EventIDIsValidGuid()
+        private IJsonPacketFactory jsonPacketFactory;
+
+        private class TestableJsonPacketFactory : JsonPacketFactory
         {
-            var project = Guid.NewGuid().ToString();
-            var json = this.jsonPacketFactory.Create(project, (SentryMessage) null);
-
-            Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
-            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
-        }
+            private readonly string project;
 
 
-        [Test]
-        public void Create_Project_ModulesHasCountGreaterThanZero()
-        {
-            var project = Guid.NewGuid().ToString();
-            var json = this.jsonPacketFactory.Create(project, (SentryMessage) null);
-
-            Assert.That(json.Modules, Has.Count.GreaterThan(0));
-        }
+            public TestableJsonPacketFactory(string project)
+            {
+                this.project = project;
+            }
 
 
-        [Test]
-        public void Create_Project_ProjectIsEqual()
-        {
-            var project = Guid.NewGuid().ToString();
-            var json = this.jsonPacketFactory.Create(project, (SentryMessage) null);
-
-            Assert.That(json.Project, Is.EqualTo(project));
-        }
-
-
-        [Test]
-        public void Create_Project_ServerNameEqualsMachineName()
-        {
-            var project = Guid.NewGuid().ToString();
-            var json = this.jsonPacketFactory.Create(project, (SentryMessage) null);
-
-            Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
+            protected override JsonPacket OnCreate(JsonPacket jsonPacket)
+            {
+                jsonPacket.Project = this.project;
+                return base.OnCreate(jsonPacket);
+            }
         }
     }
 }

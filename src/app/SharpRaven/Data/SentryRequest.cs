@@ -28,12 +28,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Reflection;
-using System.Security.Principal;
 
 using Newtonsoft.Json;
 
@@ -50,7 +45,6 @@ namespace SharpRaven.Data
         /// </summary>
         public SentryRequest()
         {
-            
         }
 
 
@@ -117,7 +111,8 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
-        
+
+
         /// <summary>
         /// Gets the request.
         /// </summary>

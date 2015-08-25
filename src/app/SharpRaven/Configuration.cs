@@ -44,17 +44,6 @@ namespace SharpRaven
             ConfigurationManager.GetSection("sharpRaven") as Configuration;
 
         /// <summary>
-        /// Gets the &lt;sharpRaven/&gt; configuration element.
-        /// </summary>
-        /// <value>
-        /// The the &lt;sharpRaven/&gt; configuration element.
-        /// </value>
-        public static Configuration Settings
-        {
-            get { return settings; }
-        }
-
-        /// <summary>
         /// Gets the &lt;dsn/&gt; configuration element.
         /// </summary>
         /// <value>
@@ -63,7 +52,18 @@ namespace SharpRaven
         [ConfigurationProperty(DsnKey, IsKey = true)]
         public DsnElement Dsn
         {
-            get { return (DsnElement) base[DsnKey]; }
+            get { return (DsnElement)base[DsnKey]; }
+        }
+
+        /// <summary>
+        /// Gets the &lt;sharpRaven/&gt; configuration element.
+        /// </summary>
+        /// <value>
+        /// The the &lt;sharpRaven/&gt; configuration element.
+        /// </value>
+        public static Configuration Settings
+        {
+            get { return settings; }
         }
 
         #region Nested type: DsnElement
@@ -82,7 +82,7 @@ namespace SharpRaven
             [ConfigurationProperty("value")]
             public String Value
             {
-                get { return (String) this["value"]; }
+                get { return (String)this["value"]; }
                 set { this["value"] = value; }
             }
         }

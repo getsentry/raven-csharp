@@ -62,8 +62,8 @@ namespace SharpRaven.Data
                 // ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
                 Culprit = String.Format("{0} in {1}",
                                         ((exception.TargetSite.ReflectedType == null)
-                                             ? "<dynamic type>"
-                                             : exception.TargetSite.ReflectedType.FullName),
+                                            ? "<dynamic type>"
+                                            : exception.TargetSite.ReflectedType.FullName),
                                         exception.TargetSite.Name);
                 // ReSharper restore ConditionIsAlwaysTrueOrFalse
             }
