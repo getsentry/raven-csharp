@@ -28,11 +28,23 @@
 
 #endregion
 
-using System.Reflection;
-using System.Runtime.InteropServices;
-
-[assembly : AssemblyTitle("SharpRaven.UnitTests")]
-[assembly : AssemblyProduct("SharpRaven")]
-[assembly : AssemblyCopyright("Copyright © Sentry")]
-[assembly : ComVisible(false)]
-[assembly : Guid("cf1c285c-42e3-46f3-a8b1-9339c3f1f8ae")]
+namespace SharpRaven.Data
+{
+    /// <summary>
+    /// Factory interface for creating 
+    /// <see cref="SentryUser" />s. To simply adjust the values of a
+    /// user object before it is sent to Sentry, inherit 
+    /// <see cref="SentryUserFactory" /> and override
+    /// its 
+    /// <see cref="SentryUserFactory.OnCreate" /> method.
+    /// </summary>
+    public interface ISentryUserFactory
+    {
+        /// <summary>
+        /// Creates a new instance of <see cref="SentryUser"/>
+        /// for the current packet.
+        /// </summary>
+        /// <returns>A new instance of <see cref="SentryUser"/> with information relating to the current application's user</returns>
+        SentryUser Create();
+    }
+}

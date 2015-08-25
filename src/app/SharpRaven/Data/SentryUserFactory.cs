@@ -28,65 +28,83 @@
 
 #endregion
 
+using Newtonsoft.Json;
 using System;
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
+using System.Reflection;
+using System.Security.Principal;
 
-namespace SharpRaven.Logging.Filters
+namespace SharpRaven.Data
 {
     /// <summary>
-    /// The credit card filter.
+    /// A default implementation of <see cref="ISentryUserFactory"/>. Override the <see cref="OnCreate"/>
+    /// method to adjust the values of the <see cref="SentryUser"/> before it is sent to Sentry.
     /// </summary>
-    public class CreditCardFilter : IFilter
+    public class SentryUserFactory : ISentryUserFactory
     {
         /// <summary>
-        /// Filters credit card numbers from the input.
+        /// Gets the user.
         /// </summary>
-        /// <param name="input">
-        /// The input.
-        /// </param>
         /// <returns>
-        /// The <see cref="string"/> with credit card numbers removed.
+        /// If an HTTP context is available, an instance of <see cref="SentryUser"/>, otherwise <c>null</c>.
         /// </returns>
-        public string Filter(string input)
+        public SentryUser Create()
         {
-            Regex cardRegex = new Regex(@"\b(?:\d[ -]*?){13,16}\b", RegexOptions.IgnoreCase);
+            SentryUser user;
+            if (!SentryRequestFactory.HasHttpContext)
+                user = new SentryUser(Environment.UserName);
+            else
+                user = new SentryUser(GetPrincipal())
+                {
+                    IpAddress = GetIpAddress()
+                };
 
-            return cardRegex.Replace(input, m => IsValidCreditCardNumber(m.Value) ? "####-CC-TRUNCATED-####" : m.Value);
+            return OnCreate(user);
         }
 
 
         /// <summary>
-        /// Validates a credit card number using Luhn algorithm.
-        /// Extremely fast Luhn algorithm implementation, based on 
-        /// pseudo code from Cliff L. Biffle (http://microcoder.livejournal.com/17175.html)
-        /// Copyleft Thomas @ Orb of Knowledge:
-        /// http://orb-of-knowledge.blogspot.com/2009/08/extremely-fast-luhn-function-for-c.html
+        /// Called when the <see cref="SentryUser"/> has been created. Can be overridden to
+        /// adjust the values of the <paramref name="user"/> before it is sent to Sentry.
         /// </summary>
-        /// <param name="number">
-        /// The credit card number.
-        /// </param>
+        /// <param name="user">The user information.</param>
         /// <returns>
-        /// True if a valid credit card number; otherwise false.
+        /// The <see cref="SentryUser"/>.
         /// </returns>
-        private bool IsValidCreditCardNumber(string number)
+        protected virtual SentryUser OnCreate(SentryUser user)
         {
-            number = number.Replace("-", String.Empty);
-            number = number.Replace(" ", String.Empty);
+            return user;
+        }
 
-            int[] deltas = new[] { 0, 1, 2, 3, 4, -4, -3, -2, -1, 0 };
-            int checksum = 0;
-            char[] chars = number.ToCharArray();
-
-            for (int i = chars.Length - 1; i > -1; i--)
+        private static dynamic GetIpAddress()
+        {
+            try
             {
-                int j = chars[i] - 48;
-                checksum += j;
-
-                if (((i - chars.Length) % 2) == 0)
-                    checksum += deltas[j];
+                return SentryRequestFactory.HttpContext.Request.UserHostAddress;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
             }
 
-            return (checksum % 10) == 0;
+            return null;
+        }
+
+
+        private static IPrincipal GetPrincipal()
+        {
+            try
+            {
+                return SentryRequestFactory.HttpContext.User as IPrincipal;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
         }
     }
 }

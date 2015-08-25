@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
@@ -47,7 +47,7 @@ namespace SharpRaven.UnitTests.Data
         public void SetUp()
         {
             // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
-            SentryRequest.HttpContext = null;
+            SentryRequestFactory.HttpContext = null;
         }
 
 
@@ -55,10 +55,12 @@ namespace SharpRaven.UnitTests.Data
         public void TearDown()
         {
             // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
-            SentryRequest.HttpContext = null;
+            SentryRequestFactory.HttpContext = null;
         }
 
         #endregion
+
+        private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
 
         private static void SimulateHttpRequest(Action<SentryRequest> test)
         {
@@ -70,7 +72,7 @@ namespace SharpRaven.UnitTests.Data
 
                 using (simulator.SimulateRequest())
                 {
-                    var request = SentryRequest.GetRequest();
+                    var request = requestFactory.Create();
                     test.Invoke(request);
                 }
             }
@@ -80,7 +82,7 @@ namespace SharpRaven.UnitTests.Data
         [Test]
         public void GetRequest_NoHttpContext_ReturnsNull()
         {
-            var request = SentryRequest.GetRequest();
+            var request = requestFactory.Create();
             Assert.That(request, Is.Null);
         }
 

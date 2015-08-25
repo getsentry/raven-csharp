@@ -51,4 +51,4 @@ Resources
 * [Code](http://github.com/getsentry/raven-csharp)
 * [Mailing List](https://groups.google.com/group/getsentry)
 * [IRC](irc://irc.freenode.net/sentry) (irc.freenode.net, #sentry)
-
+* [![Join the chat at https://gitter.im/getsentry/raven-csharp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/getsentry/raven-csharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

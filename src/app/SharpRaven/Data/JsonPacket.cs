@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 using Newtonsoft.Json;
 
@@ -82,6 +83,18 @@ namespace SharpRaven.Data
 
                 Exceptions.Add(sentryException);
             }
+
+            // ReflectionTypeLoadException doesn't contain much useful info in itself, and needs special handling
+            ReflectionTypeLoadException reflectionTypeLoadException = exception as ReflectionTypeLoadException;
+            if (reflectionTypeLoadException != null)
+            {
+                foreach (Exception loaderException in reflectionTypeLoadException.LoaderExceptions)
+                {
+                    SentryException sentryException = new SentryException(loaderException);
+
+                    Exceptions.Add(sentryException);
+                }
+            }
         }
 
 
@@ -127,14 +140,6 @@ namespace SharpRaven.Data
 
             // Platform
             Platform = "csharp";
-
-            // Get data from the HTTP request
-            Request = SentryRequest.GetRequest();
-
-            // Get the user data from the HTTP context or environment
-            User = Request != null
-                       ? Request.GetUser()
-                       : new SentryUser(Environment.UserName);
         }
 
 

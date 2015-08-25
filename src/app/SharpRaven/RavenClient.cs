@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
@@ -48,6 +48,8 @@ namespace SharpRaven
     {
         private readonly Dsn currentDsn;
         private readonly IJsonPacketFactory jsonPacketFactory;
+        private readonly ISentryRequestFactory sentryRequestFactory;
+        private readonly ISentryUserFactory sentryUserFactory;
 
 
         /// <summary>
@@ -67,8 +69,13 @@ namespace SharpRaven
         /// </summary>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
         /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
-        public RavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null)
-            : this(new Dsn(dsn), jsonPacketFactory)
+        /// <param name="sentryRequestFactory">The optional factory that will be used to create the <see cref="SentryRequest"/> that will be sent to Sentry.</param>
+        /// <param name="sentryUserFactory">The optional factory that will be used to create the <see cref="SentryUser"/> that will be sent to Sentry.</param>
+        public RavenClient(string dsn,
+                           IJsonPacketFactory jsonPacketFactory = null,
+                           ISentryRequestFactory sentryRequestFactory = null,
+                           ISentryUserFactory sentryUserFactory = null)
+            : this(new Dsn(dsn), jsonPacketFactory, sentryRequestFactory, sentryUserFactory)
         {
         }
 
@@ -78,14 +85,22 @@ namespace SharpRaven
         /// </summary>
         /// <param name="dsn">The Data Source Name in Sentry.</param>
         /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
+        /// <param name="sentryRequestFactory">The optional factory that will be used to create the <see cref="SentryRequest"/> that will be sent to Sentry.</param>
+        /// <param name="sentryUserFactory">The optional factory that will be used to create the <see cref="SentryUser"/> that will be sent to Sentry.</param>
         /// <exception cref="System.ArgumentNullException">dsn</exception>
-        public RavenClient(Dsn dsn, IJsonPacketFactory jsonPacketFactory = null)
+        public RavenClient(Dsn dsn,
+                           IJsonPacketFactory jsonPacketFactory = null,
+                           ISentryRequestFactory sentryRequestFactory = null,
+                           ISentryUserFactory sentryUserFactory = null)
         {
             if (dsn == null)
                 throw new ArgumentNullException("dsn");
 
             this.currentDsn = dsn;
             this.jsonPacketFactory = jsonPacketFactory ?? new JsonPacketFactory();
+            this.sentryRequestFactory = sentryRequestFactory ?? new SentryRequestFactory();
+            this.sentryUserFactory = sentryUserFactory ?? new SentryUserFactory();
+
             Logger = "root";
             Timeout = TimeSpan.FromSeconds(5);
         }
@@ -104,6 +119,16 @@ namespace SharpRaven
         {
             get { return this.currentDsn; }
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing
+        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Action"/> to execute if an error occurs when executing
+        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
+        /// </value>
+        public Action<Exception> ErrorOnCapture { get; set; }
 
         /// <summary>
         /// Interface for providing a 'log scrubber' that removes 
@@ -126,11 +151,36 @@ namespace SharpRaven
 
 
         /// <summary>
+        /// Captures the event.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception" /> to capture.</param>
+        /// <returns></returns>
+        [Obsolete("The more common CaptureException method should be used")]
+        public string CaptureEvent(Exception e)
+        {
+            return CaptureException(e);
+        }
+
+
+        /// <summary>
+        /// Captures the event.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception" /> to capture.</param>
+        /// <param name="tags">The tags to annotate the captured exception with.</param>
+        /// <returns></returns>
+        [Obsolete("The more common CaptureException method should be used")]
+        public string CaptureEvent(Exception e, Dictionary<string, string> tags)
+        {
+            return CaptureException(e, tags: tags);
+        }
+
+
+        /// <summary>
         /// Captures the <see cref="Exception" />.
         /// </summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
         /// <param name="message">The optional messge to capture. Default: <see cref="Exception.Message" />.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error" />.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error"/>.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
@@ -142,12 +192,13 @@ namespace SharpRaven
                                        IDictionary<string, string> tags = null,
                                        object extra = null)
         {
-            JsonPacket packet = this.jsonPacketFactory.Create(this.currentDsn.ProjectID,
+            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
                                                               exception,
                                                               message,
                                                               level,
                                                               tags,
                                                               extra);
+
             return Send(packet, CurrentDsn);
         }
 
@@ -156,11 +207,11 @@ namespace SharpRaven
         /// Captures the message.
         /// </summary>
         /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message" />. Default <see cref="ErrorLevel.Info" />.</param>
-        /// <param name="tags">The tags to annotate the captured <paramref name="message" /> with.</param>
-        /// <param name="extra">The extra metadata to send with the captured <paramref name="message" />.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message"/>. Default <see cref="ErrorLevel.Info"/>.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="message"/> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="message"/>.</param>
         /// <returns>
-        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="message" />, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
         /// </returns>
         public string CaptureMessage(SentryMessage message,
                                      ErrorLevel level = ErrorLevel.Info,
@@ -168,7 +219,22 @@ namespace SharpRaven
                                      object extra = null)
         {
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, extra);
+
             return Send(packet, CurrentDsn);
+        }
+
+
+        /// <summary>
+        /// Performs <see cref="JsonPacket"/> post-processing prior to being sent to Sentry.
+        /// </summary>
+        /// <param name="packet">The prepared <see cref="JsonPacket"/> which has cleared the creation pipeline.</param>
+        /// <returns>The <see cref="JsonPacket"/> which should be sent to Sentry.</returns>
+        protected virtual JsonPacket PreparePacket(JsonPacket packet)
+        {
+            packet.Logger = Logger;
+            packet.User = packet.User ?? this.sentryUserFactory.Create();
+            packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
+            return packet;
         }
 
 
@@ -182,10 +248,10 @@ namespace SharpRaven
         /// </returns>
         protected virtual string Send(JsonPacket packet, Dsn dsn)
         {
-            packet.Logger = Logger;
-
             try
             {
+                packet = PreparePacket(packet);
+
                 var request = (HttpWebRequest) WebRequest.Create(dsn.SentryUri);
                 request.Timeout = (int) Timeout.TotalMilliseconds;
                 request.ReadWriteTimeout = (int) Timeout.TotalMilliseconds;
@@ -204,7 +270,7 @@ namespace SharpRaven
                     request.ContentType = "application/json; charset=utf-8";
 
                 /*string data = packet.ToString(Formatting.Indented);
-                Console.WriteLine(data);*/
+                    Console.WriteLine(data);*/
 
                 string data = packet.ToString(Formatting.None);
 
@@ -237,66 +303,57 @@ namespace SharpRaven
                     }
                 }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
+                return HandleException(ex);
+            }
+        }
+
+
+        private string HandleException(Exception exception)
+        {
+            try
+            {
+                if (ErrorOnCapture != null)
+                {
+                    ErrorOnCapture(exception);
+                    return null;
+                }
+
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("[ERROR] ");
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine(exception);
 
                 WebException webException = exception as WebException;
-                if (webException != null && webException.Response != null)
+                if (webException == null || webException.Response == null)
+                    return null;
+
+                string messageBody;
+                using (Stream stream = webException.Response.GetResponseStream())
                 {
-                    string messageBody;
-                    using (Stream stream = webException.Response.GetResponseStream())
-                    {
-                        if (stream == null)
-                            return null;
+                    if (stream == null)
+                        return null;
 
-                        using (StreamReader sw = new StreamReader(stream))
-                            messageBody = sw.ReadToEnd();
-                    }
-
-                    Console.WriteLine("[MESSAGE BODY] " + messageBody);
+                    using (StreamReader sw = new StreamReader(stream))
+                        messageBody = sw.ReadToEnd();
                 }
+
+                Console.WriteLine("[MESSAGE BODY] " + messageBody);
+            }
+            catch (Exception onErrorException)
+            {
+                Console.WriteLine(onErrorException);
             }
 
             return null;
         }
 
-        #region Deprecated Methods
 
         /*
-         *  These methods have been deprectaed in favour of the ones
-         *  that have the same names as the other sentry clients, this
-         *  is purely for the sake of consistency
-         */
-
-
-        /// <summary>
-        /// Captures the event.
-        /// </summary>
-        /// <param name="e">The <see cref="Exception" /> to capture.</param>
-        /// <returns></returns>
-        [Obsolete("The more common CaptureException method should be used")]
-        public string CaptureEvent(Exception e)
-        {
-            return CaptureException(e);
-        }
-
-
-        /// <summary>
-        /// Captures the event.
-        /// </summary>
-        /// <param name="e">The <see cref="Exception" /> to capture.</param>
-        /// <param name="tags">The tags to annotate the captured exception with.</param>
-        /// <returns></returns>
-        [Obsolete("The more common CaptureException method should be used")]
-        public string CaptureEvent(Exception e, Dictionary<string, string> tags)
-        {
-            return CaptureException(e, tags: tags);
-        }
-
-        #endregion
+           *  These methods have been deprectaed in favour of the ones
+           *  that have the same names as the other sentry clients, this
+           *  is purely for the sake of consistency
+           */
     }
 }

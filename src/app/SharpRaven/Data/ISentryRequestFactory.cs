@@ -28,11 +28,23 @@
 
 #endregion
 
-using System.Reflection;
-using System.Runtime.InteropServices;
-
-[assembly : AssemblyTitle("SharpRaven.UnitTests")]
-[assembly : AssemblyProduct("SharpRaven")]
-[assembly : AssemblyCopyright("Copyright © Sentry")]
-[assembly : ComVisible(false)]
-[assembly : Guid("cf1c285c-42e3-46f3-a8b1-9339c3f1f8ae")]
+namespace SharpRaven.Data
+{
+    /// <summary>
+    /// Factory interface for creating 
+    /// <see cref="SentryRequest" />s. To simply adjust the values of a
+    /// request object before it is sent to Sentry, inherit 
+    /// <see cref="SentryRequestFactory" /> and override
+    /// its 
+    /// <see cref="SentryRequestFactory.OnCreate" /> method.
+    /// </summary>
+    public interface ISentryRequestFactory
+    {
+        /// <summary>
+        /// Creates a new instance of <see cref="SentryRequest"/>
+        /// for the current packet.
+        /// </summary>
+        /// <returns>A new instance of <see cref="SentryRequest"/> with information relating to the current HTTP request</returns>
+        SentryRequest Create();
+    }
+}
