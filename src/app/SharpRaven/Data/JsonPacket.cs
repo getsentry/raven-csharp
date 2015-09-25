@@ -2,21 +2,21 @@
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
-// 
+//
 //     1. Redistributions of source code must retain the above copyright notice, this list of
 //        conditions and the following disclaimer.
-// 
+//
 //     2. Redistributions in binary form must reproduce the above copyright notice, this list of
 //        conditions and the following disclaimer in the documentation and/or other materials
 //        provided with the distribution.
-// 
+//
 //     3. Neither the name of the Sentry nor the names of its contributors may be used to
 //        endorse or promote products derived from this software without specific prior written
 //        permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -140,6 +140,8 @@ namespace SharpRaven.Data
 
             // Platform
             Platform = "csharp";
+
+            Release = "";
         }
 
 
@@ -182,7 +184,7 @@ namespace SharpRaven.Data
         /// <summary>
         /// The name of the logger which created the record.
         /// If missing, defaults to the string root.
-        /// 
+        ///
         /// Ex: "my.logger.name"
         /// </summary>
         [JsonProperty(PropertyName = "logger", NullValueHandling = NullValueHandling.Ignore)]
@@ -211,7 +213,7 @@ namespace SharpRaven.Data
         public IDictionary<string, string> Modules { get; set; }
 
         /// <summary>
-        /// A string representing the platform the client is submitting from. 
+        /// A string representing the platform the client is submitting from.
         /// This will be used by the Sentry interface to customize various components in the interface.
         /// </summary>
         [JsonProperty(PropertyName = "platform", NullValueHandling = NullValueHandling.Ignore)]
@@ -237,6 +239,12 @@ namespace SharpRaven.Data
         /// </summary>
         [JsonProperty(PropertyName = "server_name", NullValueHandling = NullValueHandling.Ignore)]
         public string ServerName { get; set; }
+
+        /// <summary>
+        /// Identifies the version of the application.
+        /// </summary>
+        [JsonProperty(PropertyName = "release", NullValueHandling = NullValueHandling.Ignore)]
+        public string Release { get; set; }
 
         /// <summary>
         /// A map or list of tags for this event.
