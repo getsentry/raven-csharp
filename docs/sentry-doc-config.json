@@ -1,0 +1,14 @@
+{
+  "wizards": {
+    "c-sharp": {
+      "name": "C#",
+      "client_lib": "raven-csharp",
+      "is_framework": false,
+      "doc_link": "",
+      "snippets": [
+        "index#installation",
+        "index#capturing-exceptions"
+      ]
+    }
+  }
+}
