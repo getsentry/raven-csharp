@@ -30,8 +30,6 @@ echo ===  NuGet Pack   ===
 echo =====================
 echo.
 NuGet pack app\SharpRaven\SharpRaven.csproj -Properties ReleaseNotes='Test'
-
-rem TODO: https://github.com/getsentry/raven-csharp/issues/81
-NuGet pack app\SharpRaven.Nancy\SharpRaven.Nancy.csproj -Properties ReleaseNotes='Test' -Verbosity detailed
+NuGet pack app\SharpRaven.Nancy\SharpRaven.Nancy.csproj -Properties ReleaseNotes='Test'
 echo.
 ENDLOCAL
