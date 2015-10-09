@@ -48,6 +48,7 @@ namespace SharpRaven.Data
         /// <param name="message">The message to capture.</param>
         /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message" />. Default <see cref="ErrorLevel.Info" />.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="message" />.</param>
         /// <returns>
         /// A new instance of <see cref="JsonPacket" /> for the specified <paramref name="project" />.
@@ -85,6 +86,7 @@ namespace SharpRaven.Data
         /// <param name="message">The optional messge to capture. Default: <see cref="Exception.Message" />.</param>
         /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error" />.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
+        /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
         /// A new instance of
