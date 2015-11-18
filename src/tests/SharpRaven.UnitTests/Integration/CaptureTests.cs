@@ -121,6 +121,23 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
+        public void CaptureException_WithFingerprint_ReturnsValidID()
+        {
+            try
+            {
+                Helper.FirstLevelException();
+            }
+            catch (Exception exception)
+            {
+                var id = this.ravenClient.CaptureException(exception, fingerprint : new[] { "f", "i", "n", "g", "e", "r" }.ToList());
+
+                Assert.That(id, Is.Not.Null);
+                Assert.That(Guid.Parse(id), Is.Not.Null);
+            }
+        }
+
+
+        [Test]
         public void CaptureException_WithMessageFormat_ReturnsValidID()
         {
             object[] args = Enumerable.Range(0, 5).Select(i => Guid.NewGuid()).Cast<object>().ToArray();
