@@ -94,7 +94,26 @@ namespace SharpRaven
                                 object extra = null);
 
 
+        /// <summary>
+        /// Captures the message.
+        /// </summary>
+        /// <param name="message">The message to capture.</param>
+        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message" />. Default <see cref="ErrorLevel.Info" />.</param>
+        /// <param name="tags">The tags to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="extra">The extra metadata to send with the captured <paramref name="message" />.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="message" />, or <c>null</c> if it fails.
+        /// </returns>
+        string CaptureMessage(SentryMessage message,
+                              ErrorLevel level = ErrorLevel.Info,
+                              Dictionary<string, string> tags = null,
+                              List<string> fingerprint = null,
+                              object extra = null);
+
+
 #if (!net40)
+
         /// <summary>
         /// Captures the <see cref="Exception" />.
         /// </summary>
@@ -114,29 +133,7 @@ namespace SharpRaven
                                            List<string> fingerprint = null,
                                            object extra = null);
 
-#endif
 
-
-        /// <summary>
-        /// Captures the message.
-        /// </summary>
-        /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message" />. Default <see cref="ErrorLevel.Info" />.</param>
-        /// <param name="tags">The tags to annotate the captured <paramref name="message" /> with.</param>
-        /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
-        /// <param name="extra">The extra metadata to send with the captured <paramref name="message" />.</param>
-        /// <returns>
-        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="message" />, or <c>null</c> if it fails.
-        /// </returns>
-        string CaptureMessage(SentryMessage message,
-                              ErrorLevel level = ErrorLevel.Info,
-                              Dictionary<string, string> tags = null,
-                              List<string> fingerprint = null,
-                              object extra = null);
-
-        #region Deprecated Methods
-
-#if (!net40)
         /// <summary>
         /// Captures the message.
         /// </summary>
@@ -155,6 +152,7 @@ namespace SharpRaven
                                          object extra = null);
 #endif
 
+        #region Deprecated Methods
 
         /// <summary>
         /// Captures the event.
