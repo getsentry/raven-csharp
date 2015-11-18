@@ -32,6 +32,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using NSubstitute;
+
 using NUnit.Framework;
 
 using SharpRaven.Data;
@@ -116,6 +118,34 @@ namespace SharpRaven.UnitTests.Integration
             catch (Exception e)
             {
                 Assert.DoesNotThrow(() => this.ravenClient.CaptureException(e));
+            }
+        }
+
+
+        [Test]
+        public void CaptureException_WithData_DataIsCaptured()
+        {
+            var data = new KeyValuePair<string, string>("DataKey", Guid.NewGuid().ToString("N"));
+
+            try
+            {
+                Helper.FirstLevelException(data);
+            }
+            catch (Exception e)
+            {
+                // I don't feel OK using LogScrubber for testing this, but we can't test at a (mocked) HTTP level yet. @asbjornu
+                var logScrubber = Substitute.For<IScrubber>();
+
+                this.ravenClient = new RavenClient(DsnUrl)
+                {
+                    Logger = "C#",
+                    LogScrubber = logScrubber
+                };
+
+                this.ravenClient.CaptureException(e);
+
+                logScrubber.Received(1)
+                    .Scrub(Arg.Is<string>(s => s.Contains(String.Format("\"{0}\":\"{1}\"", data.Key, data.Value))));
             }
         }
 
@@ -255,11 +285,11 @@ namespace SharpRaven.UnitTests.Integration
 
         private static class Helper
         {
-            public static void FirstLevelException()
+            public static void FirstLevelException(KeyValuePair<string, string>? data = null)
             {
                 try
                 {
-                    SecondLevelException();
+                    SecondLevelException(data);
                 }
                 catch (Exception e)
                 {
@@ -284,7 +314,7 @@ namespace SharpRaven.UnitTests.Integration
             }
 
 
-            private static void SecondLevelException()
+            private static void SecondLevelException(KeyValuePair<string, string>? data)
             {
                 try
                 {
@@ -292,7 +322,11 @@ namespace SharpRaven.UnitTests.Integration
                 }
                 catch (Exception e)
                 {
-                    throw new InvalidOperationException("Second Level Exception", e);
+                    var invalidOperationException = new InvalidOperationException("Second Level Exception", e);
+                    if (data != null)
+                        invalidOperationException.Data.Add(data.Value.Key, data.Value.Value);
+
+                    throw invalidOperationException;
                 }
             }
         }

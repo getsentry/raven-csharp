@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace SharpRaven.Data
@@ -64,7 +65,7 @@ namespace SharpRaven.Data
                 MessageObject = message,
                 Level = level,
                 Tags = tags,
-                Extra = extra
+                Extra = Convert(extra)
             };
 
             return OnCreate(json);
@@ -104,7 +105,7 @@ namespace SharpRaven.Data
                 MessageObject = message,
                 Level = level,
                 Tags = tags,
-                Extra = extra
+                Extra = Convert(extra, exception.Data)
             };
 
             return OnCreate(json);
@@ -122,6 +123,69 @@ namespace SharpRaven.Data
         protected virtual JsonPacket OnCreate(JsonPacket jsonPacket)
         {
             return jsonPacket;
+        }
+
+
+        private static IDictionary<string, object> Convert(object extra, IDictionary data = null)
+        {
+            if (data == null && extra == null)
+                return null;
+
+            var result = new Dictionary<string, object>();
+
+            if (extra != null)
+            {
+                foreach (var property in extra.GetType().GetProperties())
+                {
+                    try
+                    {
+                        var value = property.GetValue(extra);
+                        var key = UniqueKey(result, property.Name);
+                        result.Add(key, value);
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine("ERROR: " + exception);
+                    }
+                }
+            }
+
+            if (data == null)
+                return result;
+
+            foreach (var k in data.Keys)
+            {
+                try
+                {
+                    var value = data[k];
+                    var key = UniqueKey(result, k);
+                    result.Add(key, value);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine("ERROR: " + exception);
+                }
+            }
+
+            return result;
+        }
+
+
+        private static string UniqueKey(IDictionary<string, object> dictionary, object key)
+        {
+            var stringKey = key as string ?? key.ToString();
+
+            if (!dictionary.ContainsKey(stringKey))
+                return stringKey;
+
+            for (var i = 0; i < 10000; i++)
+            {
+                var newKey = String.Join(stringKey, i);
+                if (!dictionary.ContainsKey(newKey))
+                    return stringKey;
+            }
+
+            throw new ArgumentException(String.Format("Unable to find a unique key for '{0}'.", stringKey), "key");
         }
     }
 }
