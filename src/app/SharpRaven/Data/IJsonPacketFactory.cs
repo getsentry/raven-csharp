@@ -61,7 +61,7 @@ namespace SharpRaven.Data
                           SentryMessage message,
                           ErrorLevel level = ErrorLevel.Info,
                           IDictionary<string, string> tags = null,
-                          List<string> fingerprint = null,
+                          string[] fingerprint = null,
                           object extra = null);
 
 
@@ -91,7 +91,7 @@ namespace SharpRaven.Data
                           SentryMessage message = null,
                           ErrorLevel level = ErrorLevel.Error,
                           IDictionary<string, string> tags = null,
-                          List<string> fingerprint = null,
+                          string[] fingerprint = null,
                           object extra = null);
     }
 }

@@ -191,7 +191,7 @@ namespace SharpRaven
                                        SentryMessage message = null,
                                        ErrorLevel level = ErrorLevel.Error,
                                        IDictionary<string, string> tags = null,
-                                       List<string> fingerprint = null,
+                                       string[] fingerprint = null,
                                        object extra = null)
         {
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
@@ -220,7 +220,7 @@ namespace SharpRaven
         public string CaptureMessage(SentryMessage message,
                                      ErrorLevel level = ErrorLevel.Info,
                                      Dictionary<string, string> tags = null,
-                                     List<string> fingerprint = null,
+                                     string[] fingerprint = null,
                                      object extra = null)
         {
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, fingerprint, extra);

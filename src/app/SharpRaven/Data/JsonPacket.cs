@@ -250,7 +250,7 @@ namespace SharpRaven.Data
         /// Gets or sets the fingerprint used for custom grouping
         /// </summary>
         [JsonProperty(PropertyName = "fingerprint", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Fingerprint { get; set; }
+        public string[] Fingerprint { get; set; }
 
         /// <summary>
         /// A map or list of tags for this event.

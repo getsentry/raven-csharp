@@ -129,7 +129,7 @@ namespace SharpRaven.UnitTests.Integration
             }
             catch (Exception exception)
             {
-                var id = this.ravenClient.CaptureException(exception, fingerprint : new[] { "f", "i", "n", "g", "e", "r" }.ToList());
+                var id = this.ravenClient.CaptureException(exception, fingerprint : new[] { "f", "i", "n", "g", "e", "r" });
 
                 Assert.That(id, Is.Not.Null);
                 Assert.That(Guid.Parse(id), Is.Not.Null);
