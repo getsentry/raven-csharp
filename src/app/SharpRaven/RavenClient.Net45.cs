@@ -28,13 +28,14 @@
 
 #endregion
 
+#if !(net40)
+
 using System.IO;
 using System.Net;
 
 using Newtonsoft.Json;
 
 using SharpRaven.Utilities;
-#if !(net40)
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

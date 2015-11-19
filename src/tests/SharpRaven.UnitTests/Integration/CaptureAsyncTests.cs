@@ -28,6 +28,8 @@
 
 #endregion
 
+#if !(net40)
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -242,3 +244,5 @@ namespace SharpRaven.UnitTests.Integration
         private IRavenClient ravenClient;
     }
 }
+
+#endif
