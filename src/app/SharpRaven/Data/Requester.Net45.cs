@@ -28,57 +28,177 @@
 
 #endregion
 
-using System.IO;
-using System.Net;
-#if (!net35)
-using System.Threading.Tasks;
-#endif
+#if !(net40) && !(net35)
 
-using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+
+using Newtonsoft.Json.Linq;
 
 using SharpRaven.Utilities;
-
-#if !(net40) && !(net35)
 
 namespace SharpRaven.Data
 {
     public partial class Requester
     {
+        private readonly HttpClient httpClient;
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Requester"/> class.
+        /// </summary>
+        /// <param name="ravenClient">The <see cref="RavenClient"/> to initialize with.</param>
+        internal Requester(RavenClient ravenClient)
+        {
+            if (ravenClient == null)
+                throw new ArgumentNullException("ravenClient");
+
+            this.ravenClient = ravenClient;
+            this.httpClient = new HttpClient
+            {
+                Timeout = ravenClient.Timeout
+            };
+
+            var auth = PacketBuilder.CreateAuthenticationHeader(ravenClient.CurrentDsn);
+            var userAgent = new ProductInfoHeaderValue(PacketBuilder.ProductName, PacketBuilder.ProductVersion);
+
+            this.httpClient.DefaultRequestHeaders.Add("X-Sentry-Auth", auth);
+            this.httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            this.httpClient.DefaultRequestHeaders.UserAgent.Add(userAgent);
+        }
+
+
+        /// <summary>
+        /// Disposes the Requester and its <see cref="HttpClient"/>.
+        /// </summary>
+        public void Dispose()
+        {
+            if (this.httpClient != null)
+                this.httpClient.Dispose();
+        }
+
+
         /// <summary>
         /// Executes the <c>async</c> HTTP request to Sentry.
         /// </summary>
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
-        public async Task<string> RequestAsync()
+        public string Request(JsonPacket packet)
         {
-            using (var s = await this.webRequest.GetRequestStreamAsync())
+            return RequestAsync(packet).GetAwaiter().GetResult();
+        }
+
+
+        /// <summary>
+        /// Executes the <c>async</c> HTTP request to Sentry.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
+        /// </returns>
+        public async Task<string> RequestAsync(JsonPacket packet)
+        {
+            if (this.data == null)
+                throw new InvalidOperationException("Cannot perform a request on an unprepared Requester. Call Prepare() first.");
+
+            using (var request = new HttpRequestMessage(HttpMethod.Post, this.ravenClient.CurrentDsn.SentryUri))
             {
-                if (this.Client.Compression)
-                    await GzipUtil.WriteAsync(this.data.Scrubbed, s);
-                else
+                foreach (var header in request.Headers)
                 {
-                    using (var sw = new StreamWriter(s))
-                    {
-                        await sw.WriteAsync(this.data.Scrubbed);
-                    }
+                    this.Data.Headers.Add(header.Key, header.Value);
+                }
+
+                request.Content = new StringContent(this.Data.Scrubbed);
+
+                if (Client.Compression)
+                    request.Content = new CompressedContent(request.Content, "gzip");
+
+                using (var response = await this.httpClient.SendAsync(request))
+                {
+                    response.EnsureSuccessStatusCode();
+                    var content = await response.Content.ReadAsStringAsync();
+                    var o = JObject.Parse(content);
+                    return o["id"] != null ? o["id"].ToString() : null;
                 }
             }
+        }
 
-            using (var wr = (HttpWebResponse)await this.webRequest.GetResponseAsync())
+
+        /// <summary>
+        /// Compressed <see cref="HttpContent"/> class.
+        /// </summary>
+        /// <remarks>
+        /// Shamefully snitched from https://github.com/WebApiContrib/WebAPIContrib/blob/master/src/WebApiContrib/Content/CompressedContent.cs.
+        /// </remarks>
+        private class CompressedContent : HttpContent
+        {
+            private readonly string encodingType;
+            private readonly HttpContent originalContent;
+
+
+            public CompressedContent(HttpContent content, string encodingType)
             {
-                using (var responseStream = wr.GetResponseStream())
-                {
-                    if (responseStream == null)
-                        return null;
+                if (content == null)
+                    throw new ArgumentNullException("content");
 
-                    using (var sr = new StreamReader(responseStream))
-                    {
-                        var content = await sr.ReadToEndAsync();
-                        var response = JsonConvert.DeserializeObject<dynamic>(content);
-                        return response.id;
-                    }
+                if (encodingType == null)
+                    throw new ArgumentNullException("encodingType");
+
+                this.originalContent = content;
+                this.encodingType = encodingType.ToLowerInvariant();
+
+                if (this.encodingType != "gzip" && this.encodingType != "deflate")
+                    throw new NotSupportedException(
+                        string.Format("Encoding '{0}' is not supported. Only supports gzip or deflate encoding.", this.encodingType));
+
+                foreach (var header in this.originalContent.Headers)
+                    Headers.TryAddWithoutValidation(header.Key, header.Value);
+
+                Headers.ContentEncoding.Add(encodingType);
+            }
+
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                    this.originalContent.Dispose();
+
+                base.Dispose(disposing);
+            }
+
+
+            protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
+            {
+                Stream compressedStream = null;
+
+                switch (this.encodingType)
+                {
+                    case "gzip":
+                        compressedStream = new GZipStream(stream, CompressionMode.Compress, true);
+                        break;
+                    case "deflate":
+                        compressedStream = new DeflateStream(stream, CompressionMode.Compress, true);
+                        break;
                 }
+
+                return this.originalContent.CopyToAsync(compressedStream).ContinueWith(task =>
+                {
+                    if (compressedStream != null)
+                        compressedStream.Dispose();
+                });
+            }
+
+
+            protected override bool TryComputeLength(out long length)
+            {
+                length = -1;
+
+                return false;
             }
         }
     }

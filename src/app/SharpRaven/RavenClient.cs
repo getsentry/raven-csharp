@@ -51,6 +51,7 @@ namespace SharpRaven
         private readonly IJsonPacketFactory jsonPacketFactory;
         private readonly ISentryRequestFactory sentryRequestFactory;
         private readonly ISentryUserFactory sentryUserFactory;
+        private readonly Requester requester;
 
 
         /// <summary>
@@ -106,8 +107,18 @@ namespace SharpRaven
             Timeout = TimeSpan.FromSeconds(5);
             this.defaultTags = new Dictionary<string, string>();
             this.breadcrumbs = new CircularBuffer<Breadcrumb>();
+            this.requester = new Requester(this);
         }
 
+
+        /// <summary>
+        /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing
+        /// <see cref="Capture"/>.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Action"/> to execute if an error occurs when executing <see cref="Capture"/>.
+        /// </value>
+        public Action<Exception> ErrorOnCapture { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="Action"/> to execute to manipulate or extract data from
@@ -118,15 +129,6 @@ namespace SharpRaven
         /// <see cref="Requester"/> object before it is used in the <see cref="Send"/> method.
         /// </value>
         public Func<Requester, Requester> BeforeSend { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing
-        /// <see cref="Capture"/>.
-        /// </summary>
-        /// <value>
-        /// The <see cref="Action"/> to execute if an error occurs when executing <see cref="Capture"/>.
-        /// </value>
-        public Action<Exception> ErrorOnCapture { get; set; }
 
         /// <summary>
         /// Enable Gzip Compression?
@@ -326,14 +328,16 @@ namespace SharpRaven
         protected internal virtual JsonPacket PreparePacket(JsonPacket packet)
         {
             packet.Logger = SystemUtil.IsNullOrWhiteSpace(packet.Logger)
-                            || (packet.Logger == "root" && !SystemUtil.IsNullOrWhiteSpace(Logger))
+                            || packet.Logger == "root" && !SystemUtil.IsNullOrWhiteSpace(Logger)
                 ? Logger
                 : packet.Logger;
             packet.User = packet.User ?? this.sentryUserFactory.Create();
-            try {
+            try
+            {
                 packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 HandleException(ex, null);
                 packet.Request = null;
             }
@@ -350,25 +354,23 @@ namespace SharpRaven
         /// </returns>
         protected virtual string Send(JsonPacket packet)
         {
-            Requester requester = null;
+            var req = this.requester.Prepare(packet);
 
             try
             {
-                requester = new Requester(packet, this);
-
                 if (BeforeSend != null)
-                    requester = BeforeSend(requester);
+                    req = BeforeSend(req) ?? req;
 
-                return requester.Request();
+                return req.Request(packet);
             }
             catch (Exception exception)
             {
-                return HandleException(exception, requester);
+                return HandleException(exception, req);
             }
         }
 
 
-        private string HandleException(Exception exception, Requester requester)
+        private string HandleException(Exception exception, Requester req)
         {
             string id = null;
 
@@ -383,16 +385,16 @@ namespace SharpRaven
                 if (exception != null)
                     SystemUtil.WriteError(exception);
 
-                if (requester != null)
+                if (req != null)
                 {
-                    if (requester.Data != null)
+                    if (req.Data != null)
                     {
-                        SystemUtil.WriteError("Request body (raw):", requester.Data.Raw);
-                        SystemUtil.WriteError("Request body (scrubbed):", requester.Data.Scrubbed);
+                        SystemUtil.WriteError("Request body (raw):", req.Data.Raw);
+                        SystemUtil.WriteError("Request body (scrubbed):", req.Data.Scrubbed);
                     }
 
-                    if (requester.WebRequest != null && requester.WebRequest.Headers != null && requester.WebRequest.Headers.Count > 0)
-                        SystemUtil.WriteError("Request headers:", requester.WebRequest.Headers.ToString());
+                    if (req.Data != null && req.Data.Headers != null && req.Data.Headers.Count > 0)
+                        SystemUtil.WriteError("Request headers:", req.Data.Headers.ToString());
                 }
 
                 var webException = exception as WebException;

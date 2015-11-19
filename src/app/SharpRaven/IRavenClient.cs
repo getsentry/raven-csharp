@@ -42,7 +42,7 @@ namespace SharpRaven
     /// <summary>
     /// Raven client interface.
     /// </summary>
-    public interface IRavenClient
+    public partial interface IRavenClient
     {
         /// <summary>
         /// Gets or sets the <see cref="Action"/> to execute to manipulate or extract data from

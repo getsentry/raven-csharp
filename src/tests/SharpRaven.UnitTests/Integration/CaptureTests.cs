@@ -38,6 +38,7 @@ using NUnit.Framework;
 using SharpRaven.Data;
 using SharpRaven.Logging;
 using SharpRaven.UnitTests.Utilities;
+#pragma warning disable 618
 
 namespace SharpRaven.UnitTests.Integration
 {
@@ -233,7 +234,7 @@ namespace SharpRaven.UnitTests.Integration
             var id = this.ravenClient.CaptureMessage("Test");
             this.ravenClient.BeforeSend = requester =>
             {
-                Console.WriteLine("Event ID: " + requester.Packet.EventID);
+                Console.WriteLine("Event ID: " + requester.Data.Packet.EventID);
                 return requester;
             };
 
@@ -276,8 +277,8 @@ namespace SharpRaven.UnitTests.Integration
                 LogScrubber = new LogScrubber(),
                 BeforeSend = requester =>
                 {
-                    Console.WriteLine("EventID: " + requester.Packet.EventID);
-                    requester.Packet.EventID = "55518231234e2400d82f11c490683c2d2";
+                    Console.WriteLine("EventID: " + requester.Data.Packet.EventID);
+                    requester.Data.Packet.EventID = "55518231234e2400d82f11c490683c2d2";
                     onCreateHttpWebRequestInvoked = true;
                     return requester;
                 }

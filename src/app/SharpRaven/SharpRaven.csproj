@@ -130,6 +130,7 @@
     <Compile Include="Data\ExceptionFrame.cs" />
     <Compile Include="Data\IJsonPacketFactory.cs" />
     <Compile Include="Data\RequestData.cs" />
+    <Compile Include="Data\Requester.Net35.cs" />
     <Compile Include="Data\Requester.Net45.cs" />
     <Compile Include="Data\Requester.cs" />
     <Compile Include="Data\SentryEvent.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="Dsn.cs" />
     <Compile Include="Data\JsonPacket.cs" />
     <Compile Include="IRavenClient.cs" />
+    <Compile Include="IRavenClient.Net45.cs" />
     <Compile Include="Logging\Filters\CreditCardFilter.cs" />
     <Compile Include="Logging\Filters\PhoneNumberFilter.cs" />
     <Compile Include="Logging\Filters\SocialSecurityFilter.cs" />

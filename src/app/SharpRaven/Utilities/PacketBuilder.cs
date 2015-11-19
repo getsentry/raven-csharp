@@ -39,6 +39,8 @@ namespace SharpRaven.Utilities
     {
         private const int SentryVersion = 7;
         private static readonly string userAgent;
+        private static readonly string productName;
+        private static readonly string productVersion;
 
 
         /// <summary>
@@ -47,11 +49,25 @@ namespace SharpRaven.Utilities
         static PacketBuilder()
         {
             var assemblyName = typeof(PacketBuilder).Assembly.GetName();
-            var name = assemblyName.Name;
-            var version = assemblyName.Version;
-            userAgent = String.Format("{0}/{1}", name, version);
+            productName = assemblyName.Name;
+            productVersion = assemblyName.Version.ToString();
+            userAgent = String.Format("{0}/{1}", productName, productVersion);
         }
 
+
+        /// <summary>Gets the name of the product.</summary>
+        /// <value>The name of the product.</value>
+        public static string ProductName
+        {
+            get { return productName; }
+        }
+
+        /// <summary>Gets the product version.</summary>
+        /// <value>The product version.</value>
+        public static string ProductVersion
+        {
+            get { return productVersion; }
+        }
 
         /// <summary>
         /// Gets the user agent string for Sentry.

@@ -32,14 +32,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-
 using SharpRaven.Data;
-using SharpRaven.Utilities;
 
 namespace SharpRaven
 {
@@ -48,17 +43,22 @@ namespace SharpRaven
     /// </summary>
     public partial class RavenClient
     {
-        /// <summary>Captures the event.</summary>
-        /// <param name="event">The event.</param>
+        public void Dispose()
+        {
+            if (this.requester != null)
+                this.requester.Dispose();
+        }
+
+
         /// <returns>
-        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="eve" />, or <c>null</c> if it fails.
         /// </returns>
         public async Task<string> CaptureAsync(SentryEvent @event)
         {
             @event.Tags = MergeTags(@event.Tags);
             if (!this.breadcrumbs.IsEmpty())
                 @event.Breadcrumbs = this.breadcrumbs.ToList();
-            
+
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
 
             var eventId = await SendAsync(packet);
@@ -138,20 +138,18 @@ namespace SharpRaven
         /// </returns>
         protected virtual async Task<string> SendAsync(JsonPacket packet)
         {
-            Requester requester = null;
+            var req = this.requester.Prepare(packet);
 
             try
             {
-                requester = new Requester(packet, this);
-
                 if (BeforeSend != null)
-                    requester = BeforeSend(requester);
+                    req = BeforeSend(req) ?? req;
 
-                return await requester.RequestAsync();
+                return await req.RequestAsync(packet);
             }
             catch (Exception exception)
             {
-                return HandleException(exception, requester);
+                return HandleException(exception, req);
             }
         }
     }

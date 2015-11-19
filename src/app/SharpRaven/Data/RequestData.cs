@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 using Newtonsoft.Json;
 
@@ -39,6 +40,8 @@ namespace SharpRaven.Data
     /// </summary>
     public class RequestData
     {
+        private readonly IDictionary<string, IEnumerable<string>> headers;
+        private readonly JsonPacket packet;
         private readonly Requester requester;
         private string formatted;
         private string raw;
@@ -49,17 +52,33 @@ namespace SharpRaven.Data
         /// Initializes a new instance of the <see cref="RequestData"/> class.
         /// </summary>
         /// <param name="requester">The <see cref="Requester"/> in which the request data will be used.</param>
-        internal RequestData(Requester requester)
+        /// <param name="packet">The JSON packet to send to Sentry.</param>
+        internal RequestData(Requester requester, JsonPacket packet)
         {
             if (requester == null)
                 throw new ArgumentNullException("requester");
 
-            if (requester.Packet == null)
-                throw new ArgumentException("Requester.Packet was null", "requester");
-
             this.requester = requester;
+            this.packet = packet;
+            this.headers = new Dictionary<string, IEnumerable<string>>();
         }
 
+
+        /// <summary>
+        /// The request headers
+        /// </summary>
+        public IDictionary<string, IEnumerable<string>> Headers
+        {
+            get { return this.headers; }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="JsonPacket"/> being sent to Sentry.
+        /// </summary>
+        public JsonPacket Packet
+        {
+            get { return this.packet; }
+        }
 
         /// <summary>
         /// Gets the <see cref="JsonPacket"/> converted to a <see cref="System.String"/> before
@@ -67,7 +86,7 @@ namespace SharpRaven.Data
         /// </summary>
         public string Raw
         {
-            get { return this.raw = this.raw ?? this.requester.Packet.ToString(Formatting.None); }
+            get { return this.raw = this.raw ?? (this.packet != null ? this.packet.ToString(Formatting.None) : null); }
         }
 
         /// <summary>
@@ -95,7 +114,7 @@ namespace SharpRaven.Data
         /// </returns>
         public override string ToString()
         {
-            return this.formatted = this.formatted ?? this.requester.Packet.ToString(Formatting.Indented);
+            return this.formatted = this.formatted ?? (this.packet != null ? this.packet.ToString(Formatting.Indented) : string.Empty);
         }
     }
 }
