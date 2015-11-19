@@ -32,8 +32,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using NSubstitute;
-
 using NUnit.Framework;
 
 using SharpRaven.Data;
@@ -120,35 +118,6 @@ namespace SharpRaven.UnitTests.Integration
                 Assert.DoesNotThrow(() => this.ravenClient.CaptureException(e));
             }
         }
-
-
-        [Test]
-        public void CaptureException_WithData_DataIsCaptured()
-        {
-            var data = new KeyValuePair<string, string>("DataKey", Guid.NewGuid().ToString("N"));
-
-            try
-            {
-                Helper.FirstLevelException(data);
-            }
-            catch (Exception e)
-            {
-                // I don't feel OK using LogScrubber for testing this, but we can't test at a (mocked) HTTP level yet. @asbjornu
-                var logScrubber = Substitute.For<IScrubber>();
-
-                this.ravenClient = new RavenClient(DsnUrl)
-                {
-                    Logger = "C#",
-                    LogScrubber = logScrubber
-                };
-
-                this.ravenClient.CaptureException(e);
-
-                logScrubber.Received(1)
-                    .Scrub(Arg.Is<string>(s => s.Contains(String.Format("\"{0}\":\"{1}\"", data.Key, data.Value))));
-            }
-        }
-
 
         [Test]
         public void CaptureException_WithMessageFormat_ReturnsValidID()

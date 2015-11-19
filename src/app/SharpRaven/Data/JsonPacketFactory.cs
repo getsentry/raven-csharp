@@ -31,6 +31,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace SharpRaven.Data
 {
@@ -139,7 +140,7 @@ namespace SharpRaven.Data
                 {
                     try
                     {
-                        var value = property.GetValue(extra);
+                        var value = property.GetValue(extra, BindingFlags.Default, null, null, null);
                         var key = UniqueKey(result, property.Name);
                         result.Add(key, value);
                     }
@@ -180,9 +181,9 @@ namespace SharpRaven.Data
 
             for (var i = 0; i < 10000; i++)
             {
-                var newKey = String.Join(stringKey, i);
+                var newKey = String.Concat(stringKey, i);
                 if (!dictionary.ContainsKey(newKey))
-                    return stringKey;
+                    return newKey;
             }
 
             throw new ArgumentException(String.Format("Unable to find a unique key for '{0}'.", stringKey), "key");
