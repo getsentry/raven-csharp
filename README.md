@@ -47,8 +47,8 @@ You can clone and build SharpRaven yourself, but for those of us who are happy w
 
 Resources
 ---------
-* [Build Status](http://teamcity.codebetter.com/project.html?projectId=project344&tab=projectOverview) (requires registration)
+* [![Build Status](http://teamcity.codebetter.com/app/rest/builds/buildType:(id:bt1000)/statusIcon)](http://teamcity.codebetter.com/viewType.html?buildTypeId=bt1000&guest=1)
+* [![Join the chat at https://gitter.im/getsentry/raven-csharp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/getsentry/raven-csharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 * [Code](http://github.com/getsentry/raven-csharp)
 * [Mailing List](https://groups.google.com/group/getsentry)
 * [IRC](irc://irc.freenode.net/sentry) (irc.freenode.net, #sentry)
-* [![Join the chat at https://gitter.im/getsentry/raven-csharp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/getsentry/raven-csharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
