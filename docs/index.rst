@@ -14,7 +14,7 @@
 
     The C# SDK is maintained and supported by the Sentry
     community.  Learn more about the project on `GitHub
-    <git://github.com/getsentry/raven-csharp>`__.
+    <https://github.com/getsentry/raven-csharp>`__.
 
 Raven is the C# client for Sentry. Raven relies on the most popular
 logging libraries to capture and convert logs before sending details to a
