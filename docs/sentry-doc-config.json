@@ -1,11 +1,11 @@
 {
-  "wizards": {
-    "c-sharp": {
+  "support_level": "community",
+  "platforms": {
+    "csharp": {
       "name": "C#",
-      "client_lib": "raven-csharp",
-      "is_framework": false,
+      "type": "language",
       "doc_link": "",
-      "snippets": [
+      "wizard": [
         "index#installation",
         "index#capturing-exceptions"
       ]

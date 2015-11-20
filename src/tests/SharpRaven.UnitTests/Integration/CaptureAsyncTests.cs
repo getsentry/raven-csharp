@@ -28,6 +28,8 @@
 
 #endregion
 
+#if !(net40)
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +42,7 @@ using SharpRaven.Logging;
 namespace SharpRaven.UnitTests.Integration
 {
     [TestFixture]
-    public class CaptureTests
+    public class CaptureAsyncTests
     {
         #region SetUp/Teardown
 
@@ -64,7 +66,7 @@ namespace SharpRaven.UnitTests.Integration
         #endregion
 
         [Test]
-        public void CaptureException_CanLogException_If_Send_Fails()
+        public async void CaptureExceptionAsync_CanLogException_If_Send_Fails()
         {
             const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
 
@@ -82,21 +84,14 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
 
-            try
-            {
-                Helper.FirstLevelException();
-            }
-            catch (Exception e)
-            {
-                this.ravenClient.CaptureException(e);
-            }
+            await this.ravenClient.CaptureExceptionAsync(Helper.GetException());
 
             Assert.That(hookedException, Is.Not.Null);
         }
 
 
         [Test]
-        public void CaptureException_Doesnt_Fail_On_Error_During_Send()
+        public async void CaptureExceptionAsync_Doesnt_Fail_On_Error_During_Send()
         {
             const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
 
@@ -109,39 +104,26 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
 
-            try
-            {
-                Helper.FirstLevelException();
-            }
-            catch (Exception e)
-            {
-                Assert.DoesNotThrow(() => this.ravenClient.CaptureException(e));
-            }
-        }
-
-        [Test]
-        public void CaptureException_WithFingerprint_ReturnsValidID()
-        {
-            try
-            {
-                Helper.FirstLevelException();
-            }
-            catch (Exception exception)
-            {
-                var id = this.ravenClient.CaptureException(exception, fingerprint : new[] { "f", "i", "n", "g", "e", "r" });
-
-                Assert.That(id, Is.Not.Null);
-                Assert.That(Guid.Parse(id), Is.Not.Null);
-            }
+            await this.ravenClient.CaptureExceptionAsync(Helper.GetException());
         }
 
 
         [Test]
-        public void CaptureException_WithMessageFormat_ReturnsValidID()
+        public async void CaptureExceptionAsync_WithFingerprint_ReturnsValidID()
         {
-            object[] args = Enumerable.Range(0, 5).Select(i => Guid.NewGuid()).Cast<object>().ToArray();
+            var id = await this.ravenClient.CaptureExceptionAsync(Helper.GetException(),
+                                                                  fingerprint : new[] { "f", "i", "n", "g", "e", "r" });
+            Assert.That(id, Is.Not.Null);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
+        }
+
+
+        [Test]
+        public async void CaptureExceptionAsync_WithMessageFormat_ReturnsValidID()
+        {
+            var args = Enumerable.Range(0, 5).Select(i => Guid.NewGuid()).Cast<object>().ToArray();
             var message = new SentryMessage("A {0:N} B {1:N} C {2:N} D {3:N} F {4:N}.", args);
-            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."), message);
+            var id = await this.ravenClient.CaptureExceptionAsync(new Exception("Test without a stacktrace."), message);
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null);
@@ -150,9 +132,9 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
-        public void CaptureException_WithoutStacktrace_ReturnsValidID()
+        public async void CaptureExceptionAsync_WithoutStacktrace_ReturnsValidID()
         {
-            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
+            var id = await this.ravenClient.CaptureExceptionAsync(new Exception("Test without a stacktrace."));
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null.Or.Empty);
@@ -161,33 +143,25 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
-        public void CaptureException_WithStacktrace_ReturnsValidID()
+        public async void CaptureExceptionAsync_WithStacktrace_ReturnsValidID()
         {
-            try
-            {
-                Helper.FirstLevelException();
-            }
-            catch (Exception e)
-            {
-                //Console.WriteLine("Captured: " + e.Message);
-                Dictionary<string, string> tags = new Dictionary<string, string>();
-                Dictionary<string, string> extra = new Dictionary<string, string>();
+            var tags = new Dictionary<string, string>();
+            var extra = new Dictionary<string, string>();
 
-                tags["TAG"] = "TAG1";
-                extra["extra"] = "EXTRA1";
+            tags["TAG"] = "TAG1";
+            extra["extra"] = "EXTRA1";
 
-                var id = this.ravenClient.CaptureException(e, tags : tags, extra : extra);
+            var id = await this.ravenClient.CaptureExceptionAsync(Helper.GetException(), tags : tags, extra : extra);
 
-                //Console.WriteLine("Sent packet: " + id);
+            //Console.WriteLine("Sent packet: " + id);
 
-                Assert.That(id, Is.Not.Null);
-                Assert.That(Guid.Parse(id), Is.Not.Null);
-            }
+            Assert.That(id, Is.Not.Null);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
         }
 
 
         [Test]
-        public void CaptureMessage_CanLogException_If_Send_Fails()
+        public async void CaptureMessageAsync_CanLogException_If_Send_Fails()
         {
             const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
 
@@ -205,14 +179,14 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
 
-            this.ravenClient.CaptureMessage("Test message");
+            await this.ravenClient.CaptureMessageAsync("Test message");
 
             Assert.NotNull(hookedException);
         }
 
 
         [Test]
-        public void CaptureMessage_Doesnt_Fail_On_Error_During_Send()
+        public async void CaptureMessageAsync_Doesnt_Fail_On_Error_During_Send()
         {
             const string dsnUri = "http://a:b@totally.notexisting.xyz/666";
 
@@ -225,14 +199,14 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
 
-            Assert.DoesNotThrow(() => this.ravenClient.CaptureMessage("Test message"));
+            await this.ravenClient.CaptureMessageAsync("Test message");
         }
 
 
         [Test]
-        public void CaptureMessage_ReturnsValidID()
+        public async void CaptureMessageAsync_ReturnsValidID()
         {
-            var id = this.ravenClient.CaptureMessage("Test");
+            var id = await this.ravenClient.CaptureMessageAsync("Test");
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null);
@@ -241,10 +215,10 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
-        public void CaptureMessage_WithCompression_ReturnsValidID()
+        public async void CaptureMessageAsync_WithCompression_ReturnsValidID()
         {
             this.ravenClient.Compression = true;
-            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
+            var id = await this.ravenClient.CaptureExceptionAsync(new Exception("Test without a stacktrace."));
 
             Assert.That(id, Is.Not.Null);
             Assert.That(Guid.Parse(id), Is.Not.Null);
@@ -252,11 +226,11 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
-        public void CaptureMessage_WithFormat_ReturnsValidID()
+        public async void CaptureMessageAsync_WithFormat_ReturnsValidID()
         {
-            object[] args = Enumerable.Range(0, 5).Select(i => Guid.NewGuid()).Cast<object>().ToArray();
+            var args = Enumerable.Range(0, 5).Select(i => Guid.NewGuid()).Cast<object>().ToArray();
             var message = new SentryMessage("Lorem %s ipsum %s dolor %s sit %s amet %s.", args);
-            var id = this.ravenClient.CaptureMessage(message);
+            var id = await this.ravenClient.CaptureMessageAsync(message);
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null);
@@ -270,3 +244,5 @@ namespace SharpRaven.UnitTests.Integration
         private IRavenClient ravenClient;
     }
 }
+
+#endif

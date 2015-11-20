@@ -247,6 +247,12 @@ namespace SharpRaven.Data
         public string ServerName { get; set; }
 
         /// <summary>
+        /// Gets or sets the fingerprint used for custom grouping
+        /// </summary>
+        [JsonProperty(PropertyName = "fingerprint", NullValueHandling = NullValueHandling.Ignore)]
+        public string[] Fingerprint { get; set; }
+
+        /// <summary>
         /// A map or list of tags for this event.
         /// </summary>
         [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
