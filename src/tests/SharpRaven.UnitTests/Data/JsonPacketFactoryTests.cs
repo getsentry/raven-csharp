@@ -103,20 +103,6 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
         }
 
-        [Test]
-        public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObjectEvenWithTheSameKey()
-        {
-            var project = Guid.NewGuid().ToString();
-            var exception = new Exception("Error");
-            exception.Data.Add("key", "value");
-            var json = this.jsonPacketFactory.Create(project, exception, extra: new { ExceptionData = "ExceptionValue" });
-
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("ExceptionData", "ExceptionValue")));
-            Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData0"));
-            Assert.That(json.Extra["ExceptionData0"], Is.TypeOf<ExceptionData>());
-            Assert.That(json.Extra["ExceptionData0"], Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
-        }
-
 
         [Test]
         public void Create_ProjectAndException_DataPropertyIsSavedInExtras()
@@ -146,6 +132,20 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(json.Extra["ExceptionData"], Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
         }
 
+
+        [Test]
+        public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObjectEvenWithTheSameKey()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            exception.Data.Add("key", "value");
+            var json = this.jsonPacketFactory.Create(project, exception, extra : new { ExceptionData = "ExceptionValue" });
+
+            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("ExceptionData", "ExceptionValue")));
+            Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData0"));
+            Assert.That(json.Extra["ExceptionData0"], Is.TypeOf<ExceptionData>());
+            Assert.That(json.Extra["ExceptionData0"], Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
+        }
 
 
         [Test]
