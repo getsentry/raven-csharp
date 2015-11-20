@@ -30,7 +30,7 @@
 
 using System;
 
-namespace SharpRaven.UnitTests.Integration
+namespace SharpRaven.UnitTests
 {
     public static class Helper
     {
