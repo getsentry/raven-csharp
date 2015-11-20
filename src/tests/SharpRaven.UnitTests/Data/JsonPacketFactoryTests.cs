@@ -103,6 +103,44 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        public void Create_ProjectAndException_DataPropertyIsSavedInExtras()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            exception.Data.Add("key", "value");
+            var json = this.jsonPacketFactory.Create(project, exception);
+
+            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
+        }
+
+
+        [Test]
+        public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObject()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            exception.Data.Add("key", "value");
+            var json = this.jsonPacketFactory.Create(project, exception, extra : new { key2 = "value2" });
+
+            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
+            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key2", "value2")));
+        }
+
+
+        [Test]
+        public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObjectEvenWithTheSameKey()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            exception.Data.Add("key", "value");
+            var json = this.jsonPacketFactory.Create(project, exception, extra : new { key = "value" });
+
+            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
+            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key0", "value")));
+        }
+
+
+        [Test]
         public void Create_ProjectAndException_EventIDIsValidGuid()
         {
             var project = Guid.NewGuid().ToString();
@@ -143,6 +181,7 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(json.Project, Is.EqualTo(project));
         }
 
+
         [Test]
         public void Create_ProjectAndException_ServerNameEqualsMachineName()
         {
@@ -152,40 +191,6 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
         }
 
-        [Test]
-        public void Create_ProjectAndException_DataPropertyIsSavedInExtras()
-        {
-            var project = Guid.NewGuid().ToString();
-            var exception = new Exception("Error");
-            exception.Data.Add("key", "value");
-            var json = this.jsonPacketFactory.Create(project, exception);
-
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
-        }
-
-        [Test]
-        public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObject()
-        {
-            var project = Guid.NewGuid().ToString();
-            var exception = new Exception("Error");
-            exception.Data.Add("key", "value");
-            var json = this.jsonPacketFactory.Create(project, exception, extra: new { key2 = "value2" });
-
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key2", "value2")));
-        }
-
-        [Test]
-        public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObjectEvenWithTheSameKey()
-        {
-            var project = Guid.NewGuid().ToString();
-            var exception = new Exception("Error");
-            exception.Data.Add("key", "value");
-            var json = this.jsonPacketFactory.Create(project, exception, extra: new { key = "value" });
-
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key0", "value")));
-        }
 
         private IJsonPacketFactory jsonPacketFactory;
 

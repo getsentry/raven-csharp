@@ -119,6 +119,7 @@ namespace SharpRaven.UnitTests.Integration
             }
         }
 
+
         [Test]
         public void CaptureException_WithFingerprint_ReturnsValidID()
         {
