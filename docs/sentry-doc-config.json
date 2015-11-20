@@ -1,4 +1,5 @@
 {
+  "support_level": "community",
   "platforms": {
     "csharp": {
       "name": "C#",
