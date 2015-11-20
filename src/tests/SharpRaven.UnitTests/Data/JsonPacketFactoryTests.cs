@@ -31,6 +31,8 @@
 using System;
 using System.Collections.Generic;
 
+using Newtonsoft.Json;
+
 using NUnit.Framework;
 
 using SharpRaven.Data;
@@ -110,7 +112,9 @@ namespace SharpRaven.UnitTests.Data
             exception.Data.Add("key", "value");
             var json = this.jsonPacketFactory.Create(project, exception);
 
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
+            Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData"));
+            Assert.That(json.Extra["ExceptionData"], Is.TypeOf<ExceptionData>());
+            Assert.That(json.Extra["ExceptionData"], Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
         }
 
 
@@ -122,22 +126,12 @@ namespace SharpRaven.UnitTests.Data
             exception.Data.Add("key", "value");
             var json = this.jsonPacketFactory.Create(project, exception, extra : new { key2 = "value2" });
 
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
             Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key2", "value2")));
+            Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData"));
+            Assert.That(json.Extra["ExceptionData"], Is.TypeOf<ExceptionData>());
+            Assert.That(json.Extra["ExceptionData"], Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
         }
 
-
-        [Test]
-        public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObjectEvenWithTheSameKey()
-        {
-            var project = Guid.NewGuid().ToString();
-            var exception = new Exception("Error");
-            exception.Data.Add("key", "value");
-            var json = this.jsonPacketFactory.Create(project, exception, extra : new { key = "value" });
-
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
-            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key0", "value")));
-        }
 
 
         [Test]
@@ -169,6 +163,39 @@ namespace SharpRaven.UnitTests.Data
             var json = this.jsonPacketFactory.Create(project, new Exception("Error"));
 
             Assert.That(json.Modules, Has.Count.GreaterThan(0));
+        }
+
+
+        [Test]
+        public void Create_ProjectAndException_NestedExceptionsAndExtraAreStoredInExtrasObject()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = Helper.GetException();
+            var json = this.jsonPacketFactory.Create(project, exception, extra : new { ExtraKey = "ExtraValue" });
+
+            var s = JsonConvert.SerializeObject(json, Formatting.Indented);
+
+            Console.WriteLine(s);
+
+            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("ExtraKey", "ExtraValue")));
+            Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData"));
+            Assert.That(json.Extra["ExceptionData"], Is.TypeOf<ExceptionData>());
+
+            var exceptionData = (ExceptionData)json.Extra["ExceptionData"];
+            Assert.That(exceptionData,
+                        Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("FirstLevelExceptionKey", "FirstLevelExceptionValue")));
+            Assert.That(exceptionData.Keys, Has.Exactly(1).EqualTo("InvalidOperationExceptionData"));
+            Assert.That(exceptionData["InvalidOperationExceptionData"], Is.TypeOf<ExceptionData>());
+
+            var invalidOperationExceptionData = (ExceptionData)exceptionData["InvalidOperationExceptionData"];
+            Assert.That(invalidOperationExceptionData,
+                        Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("InvalidOperationExceptionKey",
+                                                                                "InvalidOperationExceptionValue")));
+            Assert.That(invalidOperationExceptionData.Keys, Has.Exactly(1).EqualTo("DivideByZeroExceptionData"));
+
+            var divideByZeroExceptionData = (ExceptionData)invalidOperationExceptionData["DivideByZeroExceptionData"];
+            Assert.That(divideByZeroExceptionData,
+                        Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("DivideByZeroKey", "DivideByZeroValue")));
         }
 
 

@@ -29,73 +29,56 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
-namespace SharpRaven.UnitTests
+namespace SharpRaven.Data
 {
-    public static class Helper
+    /// <summary>
+    /// Data class for containing <see cref="Exception.Data"/>.
+    /// </summary>
+    public class ExceptionData : Dictionary<string, object>
     {
-        public static void FirstLevelException()
+        private readonly Exception exception;
+
+
+        /// <summary>Initializes a new instance of the <see cref="ExceptionData"/> class.</summary>
+        /// <param name="exception">The exception.</param>
+        public ExceptionData(Exception exception)
         {
-            try
+            if (exception == null)
+                throw new ArgumentNullException("exception");
+
+            this.exception = exception;
+
+            foreach (var k in exception.Data.Keys)
             {
-                SecondLevelException();
+                try
+                {
+                    var value = exception.Data[k];
+                    var key = JsonPacketFactory.UniqueKey(this, k);
+                    Add(key, value);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("ERROR: " + e);
+                }
             }
-            catch (Exception e)
-            {
-                var exception = new Exception("First Level Exception", e);
-                exception.Data.Add("FirstLevelExceptionKey", "FirstLevelExceptionValue");
-                throw exception;
-            }
+
+            if (exception.InnerException == null)
+                return;
+
+            var exceptionData = new ExceptionData(exception.InnerException);
+            exceptionData.AddTo(this);
         }
 
 
-        public static Exception GetException()
+        /// <summary>Adds the current <see cref="ExceptionData"/> instance to the specified <paramref name="dictionary"/>.</summary>
+        /// <param name="dictionary">The dictionary to current <see cref="ExceptionData"/> instance to.</param>
+        public void AddTo(IDictionary<string, object> dictionary)
         {
-            try
-            {
-                FirstLevelException();
-            }
-            catch (Exception exception)
-            {
-                return exception;
-            }
-
-            return null;
-        }
-
-
-        public static void PrintInfo(string info)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[INFO] ");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(info);
-        }
-
-
-        private static void PerformDivideByZero()
-        {
-            int i2 = 0;
-            int i = 10 / i2;
-        }
-
-
-        private static void SecondLevelException()
-        {
-            try
-            {
-                PerformDivideByZero();
-            }
-            catch (Exception e)
-            {
-                e.Data.Add("DivideByZeroKey", "DivideByZeroValue");
-
-                var invalidOperationException = new InvalidOperationException("Second Level Exception", e);
-
-                invalidOperationException.Data.Add("InvalidOperationExceptionKey", "InvalidOperationExceptionValue");
-
-                throw invalidOperationException;
-            }
+            var key = String.Concat(this.exception.GetType().Name, "Data");
+            key = JsonPacketFactory.UniqueKey(dictionary, key);
+            dictionary.Add(key, this);
         }
     }
 }
