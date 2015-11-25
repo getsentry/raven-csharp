@@ -112,6 +112,8 @@ namespace SharpRaven.UnitTests.Data
             exception.Data.Add("key", "value");
             var json = this.jsonPacketFactory.Create(project, exception);
 
+            Console.WriteLine(JsonConvert.SerializeObject(json, Formatting.Indented));
+
             Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData"));
             Assert.That(json.Extra["ExceptionData"], Is.TypeOf<ExceptionData>());
             Assert.That(json.Extra["ExceptionData"], Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
@@ -125,6 +127,8 @@ namespace SharpRaven.UnitTests.Data
             var exception = new Exception("Error");
             exception.Data.Add("key", "value");
             var json = this.jsonPacketFactory.Create(project, exception, extra : new { key2 = "value2" });
+
+            Console.WriteLine(JsonConvert.SerializeObject(json, Formatting.Indented));
 
             Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key2", "value2")));
             Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData"));
@@ -140,6 +144,8 @@ namespace SharpRaven.UnitTests.Data
             var exception = new Exception("Error");
             exception.Data.Add("key", "value");
             var json = this.jsonPacketFactory.Create(project, exception, extra : new { ExceptionData = "ExceptionValue" });
+
+            Console.WriteLine(JsonConvert.SerializeObject(json, Formatting.Indented));
 
             Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("ExceptionData", "ExceptionValue")));
             Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData0"));
@@ -187,9 +193,7 @@ namespace SharpRaven.UnitTests.Data
             var exception = Helper.GetException();
             var json = this.jsonPacketFactory.Create(project, exception, extra : new { ExtraKey = "ExtraValue" });
 
-            var s = JsonConvert.SerializeObject(json, Formatting.Indented);
-
-            Console.WriteLine(s);
+            Console.WriteLine(JsonConvert.SerializeObject(json, Formatting.Indented));
 
             Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("ExtraKey", "ExtraValue")));
             Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData"));
