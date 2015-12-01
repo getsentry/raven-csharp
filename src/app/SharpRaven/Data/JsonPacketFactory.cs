@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -159,17 +160,69 @@ namespace SharpRaven.Data
 
             if (extra != null)
             {
-                foreach (var property in extra.GetType().GetProperties())
+                var dictionary = extra as IDictionary;
+                var enumerable = extra as IEnumerable;
+
+                if (dictionary != null)
                 {
-                    try
+                    foreach (var k in dictionary.Keys)
                     {
-                        var value = property.GetValue(extra, BindingFlags.Default, null, null, null);
-                        var key = UniqueKey(result, property.Name);
+                        var value = dictionary[k];
+                        var key = UniqueKey(result, k);
                         result.Add(key, value);
                     }
-                    catch (Exception e)
+                }
+                else if (enumerable != null)
+                {
+                    foreach (var e in enumerable)
                     {
-                        Console.WriteLine("ERROR: " + e);
+                        if (e == null)
+                            continue;
+
+                        var stringStringKvp = e as KeyValuePair<string, string>?;
+
+                        if (stringStringKvp != null)
+                        {
+                            var key = UniqueKey(result, stringStringKvp.Value.Key);
+                            result.Add(key, stringStringKvp.Value.Value);
+                            continue;
+                        }
+
+                        var stringObjectKvp = e as KeyValuePair<string, object>?;
+
+                        if (stringObjectKvp != null)
+                        {
+                            var key = UniqueKey(result, stringObjectKvp.Value.Key);
+                            result.Add(key, stringObjectKvp.Value.Value);
+                            continue;
+                        }
+
+                        if (e.GetType().IsGenericType && typeof(KeyValuePair<,>).IsAssignableFrom(e.GetType().GetGenericTypeDefinition()))
+                        {
+                            var keyObject = e.GetType().GetProperty("Key").GetValue(e);
+                            var key = keyObject != null ? keyObject as string ?? keyObject.ToString() : null;
+                            if (key == null)
+                                continue;
+
+                            var value = e.GetType().GetProperty("Value").GetValue(e);
+                            result.Add(key, value);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var property in extra.GetType().GetProperties())
+                    {
+                        try
+                        {
+                            var value = property.GetValue(extra, BindingFlags.Default, null, null, null);
+                            var key = UniqueKey(result, property.Name);
+                            result.Add(key, value);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("ERROR: " + e);
+                        }
                     }
                 }
             }
