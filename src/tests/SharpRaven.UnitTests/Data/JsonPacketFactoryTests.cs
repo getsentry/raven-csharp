@@ -124,7 +124,7 @@ namespace SharpRaven.UnitTests.Data
             var project = Guid.NewGuid().ToString();
             var exception = new Exception("Error");
             exception.Data.Add("key", "value");
-            var json = this.jsonPacketFactory.Create(project, exception, extra : new { key2 = "value2" });
+            var json = this.jsonPacketFactory.Create(project, exception, extra: new { key2 = "value2" });
 
             Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key2", "value2")));
             Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData"));
@@ -134,12 +134,23 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        public void Create_ProjectAndException_ExtraObjectIsSavedWithoutUnnecessaryProperties()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            var json = this.jsonPacketFactory.Create(project, exception, extra: new Dictionary<string, string> { { "key", "value2" } });
+
+            Assert.That(json.Extra.Keys, Has.No.Member("Count"));
+        }
+
+
+        [Test]
         public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObjectEvenWithTheSameKey()
         {
             var project = Guid.NewGuid().ToString();
             var exception = new Exception("Error");
             exception.Data.Add("key", "value");
-            var json = this.jsonPacketFactory.Create(project, exception, extra : new { ExceptionData = "ExceptionValue" });
+            var json = this.jsonPacketFactory.Create(project, exception, extra: new { ExceptionData = "ExceptionValue" });
 
             Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("ExceptionData", "ExceptionValue")));
             Assert.That(json.Extra.Keys, Has.Exactly(1).EqualTo("ExceptionData0"));
@@ -185,7 +196,7 @@ namespace SharpRaven.UnitTests.Data
         {
             var project = Guid.NewGuid().ToString();
             var exception = Helper.GetException();
-            var json = this.jsonPacketFactory.Create(project, exception, extra : new { ExtraKey = "ExtraValue" });
+            var json = this.jsonPacketFactory.Create(project, exception, extra: new { ExtraKey = "ExtraValue" });
 
             var s = JsonConvert.SerializeObject(json, Formatting.Indented);
 
