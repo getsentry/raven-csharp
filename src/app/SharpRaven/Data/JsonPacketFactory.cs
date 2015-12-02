@@ -29,9 +29,10 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
+
+using Newtonsoft.Json.Linq;
 
 namespace SharpRaven.Data
 {
@@ -69,7 +70,7 @@ namespace SharpRaven.Data
                 Level = level,
                 Tags = tags,
                 Fingerprint = fingerprint,
-                Extra = Convert(extra)
+                Extra = Merge(extra)
             };
 
             return OnCreate(json);
@@ -112,7 +113,7 @@ namespace SharpRaven.Data
                 Level = level,
                 Tags = tags,
                 Fingerprint = fingerprint,
-                Extra = Convert(extra, exception)
+                Extra = Merge(extra, exception)
             };
 
             return OnCreate(json);
@@ -133,105 +134,48 @@ namespace SharpRaven.Data
         }
 
 
-        internal static string UniqueKey(IDictionary<string, object> dictionary, object key)
-        {
-            var stringKey = key as string ?? key.ToString();
-
-            if (!dictionary.ContainsKey(stringKey))
-                return stringKey;
-
-            for (var i = 0; i < 10000; i++)
-            {
-                var newKey = String.Concat(stringKey, i);
-                if (!dictionary.ContainsKey(newKey))
-                    return newKey;
-            }
-
-            throw new ArgumentException(String.Format("Unable to find a unique key for '{0}'.", stringKey), "key");
-        }
-
-
-        private static IDictionary<string, object> Convert(object extra, Exception exception = null)
+        private static object Merge(object extra, Exception exception = null)
         {
             if (exception == null && extra == null)
                 return null;
 
-            var result = new Dictionary<string, object>();
-
-            if (extra != null)
-            {
-                var dictionary = extra as IDictionary;
-                var enumerable = extra as IEnumerable;
-
-                if (dictionary != null)
-                {
-                    foreach (var k in dictionary.Keys)
-                    {
-                        var value = dictionary[k];
-                        var key = UniqueKey(result, k);
-                        result.Add(key, value);
-                    }
-                }
-                else if (enumerable != null)
-                {
-                    foreach (var e in enumerable)
-                    {
-                        if (e == null)
-                            continue;
-
-                        var stringStringKvp = e as KeyValuePair<string, string>?;
-
-                        if (stringStringKvp != null)
-                        {
-                            var key = UniqueKey(result, stringStringKvp.Value.Key);
-                            result.Add(key, stringStringKvp.Value.Value);
-                            continue;
-                        }
-
-                        var stringObjectKvp = e as KeyValuePair<string, object>?;
-
-                        if (stringObjectKvp != null)
-                        {
-                            var key = UniqueKey(result, stringObjectKvp.Value.Key);
-                            result.Add(key, stringObjectKvp.Value.Value);
-                            continue;
-                        }
-
-                        if (e.GetType().IsGenericType && typeof(KeyValuePair<,>).IsAssignableFrom(e.GetType().GetGenericTypeDefinition()))
-                        {
-                            var keyObject = e.GetType().GetProperty("Key").GetValue(e, null);
-                            var key = keyObject != null ? keyObject as string ?? keyObject.ToString() : null;
-                            if (key == null)
-                                continue;
-
-                            var value = e.GetType().GetProperty("Value").GetValue(e, null);
-                            result.Add(key, value);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var property in extra.GetType().GetProperties())
-                    {
-                        try
-                        {
-                            var value = property.GetValue(extra, BindingFlags.Default, null, null, null);
-                            var key = UniqueKey(result, property.Name);
-                            result.Add(key, value);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("ERROR: " + e);
-                        }
-                    }
-                }
-            }
-
-            if (exception == null)
-                return result;
+            if (extra != null && exception == null)
+                return extra;
 
             var exceptionData = new ExceptionData(exception);
-            exceptionData.AddTo(result);
+
+            if (extra == null)
+                return exceptionData;
+
+            JObject result;
+
+            if (extra.GetType().IsArray)
+            {
+                result = new JObject();
+                var array = JArray.FromObject(extra);
+
+                foreach (var o in array)
+                {
+                    var jo = o as JObject;
+                    JProperty[] properties;
+
+                    if (jo == null || (properties = jo.Properties().ToArray()).Length != 2 || properties[0].Name != "Key"
+                        || properties[1].Name != "Value")
+                    {
+                        result.Merge(o);
+                        continue;
+                    }
+
+                    var key = properties[0].Value.ToString();
+                    var value = properties[1].Value;
+                    result.Add(key, value);
+                }
+            }
+            else
+                result = JObject.FromObject(extra);
+
+            var jExceptionData = JObject.FromObject(exceptionData);
+            result.Merge(jExceptionData);
 
             return result;
         }

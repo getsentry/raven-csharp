@@ -171,7 +171,7 @@ namespace SharpRaven.Data
         /// An arbitrary mapping of additional metadata to store with the event.
         /// </summary>
         [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, object> Extra { get; set; }
+        public object Extra { get; set; }
 
         /// <summary>
         /// The record severity.

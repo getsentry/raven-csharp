@@ -31,6 +31,8 @@
 using System;
 using System.Collections.Generic;
 
+using Newtonsoft.Json;
+
 namespace SharpRaven.Data
 {
     /// <summary>
@@ -38,7 +40,7 @@ namespace SharpRaven.Data
     /// </summary>
     public class ExceptionData : Dictionary<string, object>
     {
-        private readonly Exception exception;
+        private readonly string exceptionType;
 
 
         /// <summary>Initializes a new instance of the <see cref="ExceptionData"/> class.</summary>
@@ -48,14 +50,14 @@ namespace SharpRaven.Data
             if (exception == null)
                 throw new ArgumentNullException("exception");
 
-            this.exception = exception;
+            this.exceptionType = exception.GetType().FullName;
 
             foreach (var k in exception.Data.Keys)
             {
                 try
                 {
                     var value = exception.Data[k];
-                    var key = JsonPacketFactory.UniqueKey(this, k);
+                    var key = k as string ?? k.ToString();
                     Add(key, value);
                 }
                 catch (Exception e)
@@ -72,13 +74,38 @@ namespace SharpRaven.Data
         }
 
 
-        /// <summary>Adds the current <see cref="ExceptionData"/> instance to the specified <paramref name="dictionary"/>.</summary>
-        /// <param name="dictionary">The dictionary to current <see cref="ExceptionData"/> instance to.</param>
-        public void AddTo(IDictionary<string, object> dictionary)
+        /// <summary>Gets the type of the exception.</summary>
+        /// <value>The type of the exception.</value>
+        [JsonProperty("type")]
+        public string ExceptionType
         {
-            var key = String.Concat(this.exception.GetType().Name, "Data");
-            key = JsonPacketFactory.UniqueKey(dictionary, key);
+            get { return this.exceptionType; }
+        }
+
+
+        private void AddTo(IDictionary<string, object> dictionary)
+        {
+            var key = String.Concat(ExceptionType, '.', "Data");
+            key = UniqueKey(dictionary, key);
             dictionary.Add(key, this);
+        }
+
+
+        private static string UniqueKey(IDictionary<string, object> dictionary, object key)
+        {
+            var stringKey = key as string ?? key.ToString();
+
+            if (!dictionary.ContainsKey(stringKey))
+                return stringKey;
+
+            for (var i = 0; i < 10000; i++)
+            {
+                var newKey = String.Concat(stringKey, i);
+                if (!dictionary.ContainsKey(newKey))
+                    return newKey;
+            }
+
+            throw new ArgumentException(String.Format("Unable to find a unique key for '{0}'.", stringKey), "key");
         }
     }
 }
