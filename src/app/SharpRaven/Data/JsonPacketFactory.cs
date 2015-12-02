@@ -199,12 +199,12 @@ namespace SharpRaven.Data
 
                         if (e.GetType().IsGenericType && typeof(KeyValuePair<,>).IsAssignableFrom(e.GetType().GetGenericTypeDefinition()))
                         {
-                            var keyObject = e.GetType().GetProperty("Key").GetValue(e);
+                            var keyObject = e.GetType().GetProperty("Key").GetValue(e, null);
                             var key = keyObject != null ? keyObject as string ?? keyObject.ToString() : null;
                             if (key == null)
                                 continue;
 
-                            var value = e.GetType().GetProperty("Value").GetValue(e);
+                            var value = e.GetType().GetProperty("Value").GetValue(e, null);
                             result.Add(key, value);
                         }
                     }
