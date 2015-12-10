@@ -52,8 +52,7 @@ namespace SharpRaven.Logging
             this.filters = new List<IFilter>
             {
                 new CreditCardFilter(),
-                new PhoneNumberFilter(),
-                new SocialSecurityFilter()
+                new PhoneNumberFilter()
             };
         }
 
