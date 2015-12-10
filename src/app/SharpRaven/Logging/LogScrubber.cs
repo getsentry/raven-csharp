@@ -45,7 +45,8 @@ namespace SharpRaven.Logging
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LogScrubber"/> class.
+        /// Initializes a new instance of the <see cref="LogScrubber"/> class and adds CreditCardFilter and US-style PhoneNumberFilter
+        /// to the filter collection used to scrub the JSON packet. 
         /// </summary>
         public LogScrubber()
         {
