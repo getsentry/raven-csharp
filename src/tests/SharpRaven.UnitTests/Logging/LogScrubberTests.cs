@@ -68,17 +68,9 @@ namespace SharpRaven.UnitTests.Logging
 
 
         [Test]
-        public void Filters_ContainSocialSecurityFilter()
-        {
-            Assert.That(this.scrubber.Filters.OfType<SocialSecurityFilter>().ToArray(),
-                        Has.Length.EqualTo(1));
-        }
-
-
-        [Test]
         public void Filters_HasExpectedCount()
         {
-            Assert.That(this.scrubber.Filters, Has.Count.EqualTo(3));
+            Assert.That(this.scrubber.Filters, Has.Count.EqualTo(2));
         }
 
 
