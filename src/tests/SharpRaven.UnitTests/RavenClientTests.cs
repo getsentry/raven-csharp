@@ -2,21 +2,21 @@
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
-// 
+//
 //     1. Redistributions of source code must retain the above copyright notice, this list of
 //        conditions and the following disclaimer.
-// 
+//
 //     2. Redistributions in binary form must reproduce the above copyright notice, this list of
 //        conditions and the following disclaimer in the documentation and/or other materials
 //        provided with the distribution.
-// 
+//
 //     3. Neither the name of the Sentry nor the names of its contributors may be used to
 //        endorse or promote products derived from this software without specific prior written
 //        permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 using NSubstitute;
 
@@ -47,11 +48,12 @@ namespace SharpRaven.UnitTests
     [TestFixture]
     public class RavenClientTests
     {
+        const string dsnUri =
+            "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+
         [Test]
         public void CaptureMessage_InvokesSend_AndJsonPacketFactoryOnCreate()
         {
-            const string dsnUri =
-                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
             var project = Guid.NewGuid().ToString();
             var jsonPacketFactory = new TestableJsonPacketFactory(project);
             var client = new TestableRavenClient(dsnUri, jsonPacketFactory);
@@ -131,10 +133,101 @@ namespace SharpRaven.UnitTests
         }
 
 
+        [Test]
+        public void Release_IsNullByDefault()
+        {
+            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+            Assert.That(ravenClient.Release, Is.EqualTo(null));
+        }
+
+        [Test]
+        public void CaptureMessage_SendsLogger()
+        {
+            var client = new TestableRavenClient(dsnUri);
+            client.Logger = "foobar";
+            client.CaptureMessage("Test");
+
+            var lastEvent = client.LastEvent();
+
+            Assert.That(lastEvent.Logger, Is.EqualTo("foobar"));
+        }
+
+        [Test]
+        public void CaptureMessage_SendsRelease()
+        {
+            var client = new TestableRavenClient(dsnUri);
+            client.Release = "foobar";
+            client.CaptureMessage("Test");
+
+            var lastEvent = client.LastEvent();
+
+            Assert.That(lastEvent.Release, Is.EqualTo("foobar"));
+        }
+
+        [Test]
+        public void CaptureMessage_SendsEnvironment()
+        {
+            var client = new TestableRavenClient(dsnUri);
+            client.Environment = "foobar";
+            client.CaptureMessage("Test");
+
+            var lastEvent = client.LastEvent();
+
+            Assert.That(lastEvent.Environment, Is.EqualTo("foobar"));
+        }
+
+        [Test]
+        public void CaptureMessage_TagHandling()
+        {
+            var messageTags = new Dictionary<string, string>();
+            messageTags.Add("key", "another value");
+
+            var client = new TestableRavenClient(dsnUri);
+            client.Tags.Add("key", "value");
+            client.Tags.Add("foo", "bar");
+            client.CaptureMessage("Test", ErrorLevel.Info, messageTags);
+
+            var lastEvent = client.LastEvent();
+
+            Assert.That(lastEvent.Tags["key"], Is.EqualTo("another value"));
+            Assert.That(lastEvent.Tags["foo"], Is.EqualTo("bar"));
+        }
+
+        [Test]
+        public void CaptureMessage_OnlyDefaultTags()
+        {
+            var client = new TestableRavenClient(dsnUri);
+            client.Tags.Add("key", "value");
+            client.Tags.Add("foo", "bar");
+            client.Tags = defaultTags;
+            client.CaptureMessage("Test", ErrorLevel.Info);
+
+            var lastEvent = client.LastEvent();
+
+            Assert.That(lastEvent.Tags["key"], Is.EqualTo("value"));
+            Assert.That(lastEvent.Tags["foo"], Is.EqualTo("bar"));
+        }
+
+        [Test]
+        public void CaptureMessage_OnlyMessageTags()
+        {
+            var messageTags = new Dictionary<string, string>();
+            messageTags.Add("key", "value");
+            messageTags.Add("foo", "bar");
+
+            var client = new TestableRavenClient(dsnUri);
+            client.CaptureMessage("Test", ErrorLevel.Info, messageTags);
+
+            var lastEvent = client.LastEvent();
+
+            Assert.That(lastEvent.Tags["key"], Is.EqualTo("value"));
+            Assert.That(lastEvent.Tags["foo"], Is.EqualTo("bar"));
+        }
+
         private class TestableJsonPacketFactory : JsonPacketFactory
         {
             private readonly string project;
-
+            private JsonPacket m_lastEvent;
 
             public TestableJsonPacketFactory(string project)
             {
@@ -156,9 +249,15 @@ namespace SharpRaven.UnitTests
             {
             }
 
+            public JsonPacket LastEvent() {
+                return m_lastEvent;
+            }
 
-            protected override string Send(JsonPacket packet, Dsn dsn)
+            protected override string Send(JsonPacket packet)
             {
+                // TODO(dcramer): this is duped from RavenClient
+                packet = PreparePacket(packet);
+                m_lastEvent = packet;
                 return packet.Project;
             }
 

@@ -2,21 +2,21 @@
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
-// 
+//
 //     1. Redistributions of source code must retain the above copyright notice, this list of
 //        conditions and the following disclaimer.
-// 
+//
 //     2. Redistributions in binary form must reproduce the above copyright notice, this list of
 //        conditions and the following disclaimer in the documentation and/or other materials
 //        provided with the distribution.
-// 
+//
 //     3. Neither the name of the Sentry nor the names of its contributors may be used to
 //        endorse or promote products derived from this software without specific prior written
 //        permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -63,7 +63,6 @@ namespace SharpRaven
         {
         }
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RavenClient" /> class.
         /// </summary>
@@ -103,6 +102,7 @@ namespace SharpRaven
 
             Logger = "root";
             Timeout = TimeSpan.FromSeconds(5);
+            Tags = new Dictionary<string, string>();
         }
 
 
@@ -140,6 +140,21 @@ namespace SharpRaven
         /// The name of the logger. The default logger name is "root".
         /// </summary>
         public string Logger { get; set; }
+
+        /// <summary>
+        /// The version of the application.
+        /// </summary>
+        public string Release { get; set; }
+
+        /// <summary>
+        /// The environment (e.g. production)
+        /// </summary>
+        public string Environment { get; set; }
+
+        /// <summary>
+        /// Default tags
+        /// </summary>
+        public IDictionary<string, string> Tags { get; set; }
 
         /// <summary>
         /// Gets or sets the timeout value in milliseconds for the HTTP communication with Sentry.
@@ -194,17 +209,16 @@ namespace SharpRaven
                                        string[] fingerprint = null,
                                        object extra = null)
         {
+            var finalTags = MergeDicts(Tags, tags);
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
                                                               exception,
                                                               message,
                                                               level,
-                                                              tags,
+                                                              finalTags,
                                                               fingerprint,
                                                               extra);
-
-            return Send(packet, CurrentDsn);
+            return Send(packet);
         }
-
 
         /// <summary>
         /// Captures the message.
@@ -223,9 +237,14 @@ namespace SharpRaven
                                      string[] fingerprint = null,
                                      object extra = null)
         {
-            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, fingerprint, extra);
-
-            return Send(packet, CurrentDsn);
+            var finalTags = MergeDicts(Tags, tags);
+            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
+                                                              message,
+                                                              level,
+                                                              finalTags,
+                                                              fingerprint,
+                                                              extra);
+            return Send(packet);
         }
 
 
@@ -239,6 +258,8 @@ namespace SharpRaven
             packet.Logger = Logger;
             packet.User = packet.User ?? this.sentryUserFactory.Create();
             packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
+            packet.Release = Release;
+            packet.Environment = Environment;
             return packet;
         }
 
@@ -251,18 +272,20 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
-        protected virtual string Send(JsonPacket packet, Dsn dsn)
+        protected virtual string Send(JsonPacket packet)
         {
             try
             {
+                // TODO(dcramer): moving this out of Send makes it easier to test the final
+                // generated packet
                 packet = PreparePacket(packet);
 
-                var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
+                var request = (HttpWebRequest)WebRequest.Create(currentDsn.SentryUri);
                 request.Timeout = (int)Timeout.TotalMilliseconds;
                 request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
                 request.Method = "POST";
                 request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
+                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(currentDsn));
                 request.UserAgent = PacketBuilder.UserAgent;
 
                 if (Compression)
@@ -318,6 +341,25 @@ namespace SharpRaven
             }
         }
 
+        private IDictionary<string, string> MergeDicts(IDictionary<string, string> one = null, IDictionary<string, string> two = null)
+        {
+            var result = new Dictionary<string, string>();
+            if (one != null) {
+                foreach (KeyValuePair<string, string> pair in one) {
+                    result.Add(pair.Key, pair.Value);
+                }
+            }
+            if (two != null) {
+                foreach (KeyValuePair<string, string> pair in two) {
+                    if (result.ContainsKey(pair.Key)) {
+                        result[pair.Key] = pair.Value;
+                    } else {
+                        result.Add(pair.Key, pair.Value);
+                    }
+                }
+            }
+            return result;
+        }
 
         private string HandleException(Exception exception)
         {
