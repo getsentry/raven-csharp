@@ -94,6 +94,36 @@ namespace SharpRaven.Nancy.UnitTests
 
 
         [Test]
+        public void Post_InvokesRavenClientWithInjectedDsn()
+        {
+            var dsn = "http://my:test@example.com/987123/oijf98j23r";
+            var browser = new Browser(cfg =>
+            {
+                cfg.Module<DefaultModule>();
+                cfg.ApplicationStartup((container, pipelines) =>
+                {
+                    // Override the IRavenClient implementation so we don't perform
+                    // any HTTP request and can retrieve the GUID so we can later
+                    // assert that it is the same we sent in. @asbjornu
+
+                    container.Register(new Dsn(dsn));
+                    container.Register<IRavenClient, TestableRavenClient>();
+                });
+            });
+
+            TestDelegate throwing = () => browser.Post("/");
+
+            var exception = Assert.Throws<Exception>(throwing);
+
+            Assert.That(exception.InnerException, Is.TypeOf<RequestExecutionException>());
+            Assert.That(exception.InnerException.InnerException, Is.TypeOf<DivideByZeroException>());
+            // SentryRequestStartup.Initialize() should set the return value from IRavenClient.Send() in Exception.Data. @asbjornu
+            var result = exception.InnerException.InnerException.Data[NancyConfiguration.SentryEventGuidKey];
+            Assert.That(result, Is.EqualTo(dsn));
+        }
+
+
+        [Test]
         public void Post_InvokesRavenClientWithNancyContextJsonPacketFactory()
         {
             var guid = Guid.NewGuid().ToString();
@@ -121,7 +151,7 @@ namespace SharpRaven.Nancy.UnitTests
 
             Assert.That(exception.InnerException, Is.TypeOf<RequestExecutionException>());
             Assert.That(exception.InnerException.InnerException, Is.TypeOf<DivideByZeroException>());
-            // SentryRequestStartup.Initialize() should set the GUID in Exception.Data. @asbjornu
+            // SentryRequestStartup.Initialize() should set the return value from IRavenClient.Send() in Exception.Data. @asbjornu
             var loggedGuid = exception.InnerException.InnerException.Data[NancyConfiguration.SentryEventGuidKey];
             Assert.That(loggedGuid, Is.EqualTo(guid));
         }
@@ -129,6 +159,9 @@ namespace SharpRaven.Nancy.UnitTests
 
         private class TestableRavenClient : RavenClient
         {
+            private readonly Dsn dsn;
+
+
             public TestableRavenClient(IJsonPacketFactory jsonPacketFactory)
                 : base(jsonPacketFactory)
             {
@@ -137,8 +170,20 @@ namespace SharpRaven.Nancy.UnitTests
             }
 
 
+            public TestableRavenClient(Dsn dsn, IJsonPacketFactory jsonPacketFactory)
+                : base(dsn, jsonPacketFactory)
+            {
+                // This constructor must exist so Nancy can inject the Dsn and NancyContextJsonPacketFactory
+                // that is registered in SentryRegistrations. @asbjornu
+                this.dsn = dsn;
+            }
+
+
             protected override string Send(JsonPacket packet)
             {
+                if (this.dsn != null)
+                    return this.dsn.ToString();
+
                 // Retrieving the GUID from the JsonPacket verifies that
                 // NancyContextJsonPacketFactory.OnCreate() has been invoked,
                 // since it will copy the request data from the NancyContext.

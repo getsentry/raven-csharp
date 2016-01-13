@@ -68,7 +68,7 @@ namespace SharpRaven.Nancy
         /// <param name="context">The current context</param>
         public void Initialize(IPipelines pipelines, NancyContext context)
         {
-            // on each request store the NancyContext to the LogicalCallContext
+            // On each request, store the NancyContext in the LogicalCallContext
             CallContext.LogicalSetData(NancyConfiguration.NancyContextDataSlot, context);
 
             var nancyConfiguration = NancyConfiguration.Settings;
