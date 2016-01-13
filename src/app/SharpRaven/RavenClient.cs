@@ -271,13 +271,10 @@ namespace SharpRaven
         }
 
 
-        /// <summary>
-        /// Sends the specified packet to Sentry.
-        /// </summary>
+        /// <summary>Sends the specified packet to Sentry.</summary>
         /// <param name="packet">The packet to send.</param>
-        /// <param name="dsn">The Data Source Name in Sentry.</param>
         /// <returns>
-        /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
         protected virtual string Send(JsonPacket packet)
         {
