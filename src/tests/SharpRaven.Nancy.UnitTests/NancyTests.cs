@@ -85,9 +85,11 @@ namespace SharpRaven.Nancy.UnitTests
 
             TestDelegate throwing = () => browser.Post("/");
 
-            var exception = Assert.Throws<DivideByZeroException>(throwing);
+            var exception = Assert.Throws<Exception>(throwing);
 
-            ravenClient.Received(1).CaptureException(exception);
+            Assert.That(exception.InnerException, Is.TypeOf<RequestExecutionException>());
+            Assert.That(exception.InnerException.InnerException, Is.TypeOf<DivideByZeroException>());
+            ravenClient.Received(1).CaptureException(exception.InnerException.InnerException);
         }
 
 
@@ -115,10 +117,12 @@ namespace SharpRaven.Nancy.UnitTests
                 with.FormValue("GUID", guid);
             });
 
-            var exception = Assert.Throws<DivideByZeroException>(throwing);
+            var exception = Assert.Throws<Exception>(throwing);
 
+            Assert.That(exception.InnerException, Is.TypeOf<RequestExecutionException>());
+            Assert.That(exception.InnerException.InnerException, Is.TypeOf<DivideByZeroException>());
             // SentryRequestStartup.Initialize() should set the GUID in Exception.Data. @asbjornu
-            var loggedGuid = exception.Data[NancyConfiguration.SentryEventGuidKey];
+            var loggedGuid = exception.InnerException.InnerException.Data[NancyConfiguration.SentryEventGuidKey];
             Assert.That(loggedGuid, Is.EqualTo(guid));
         }
 
