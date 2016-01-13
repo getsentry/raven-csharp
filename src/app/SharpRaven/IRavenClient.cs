@@ -76,7 +76,7 @@ namespace SharpRaven
         /// <summary>
         /// Default tags
         /// </summary>
-        IDictionary<string, string> Tags { get; set; }
+        IDictionary<string, string> Tags { get; }
 
         /// <summary>
         /// Gets or sets the timeout value in milliseconds for the <see cref="System.Net.HttpWebRequest.GetResponse()"/>

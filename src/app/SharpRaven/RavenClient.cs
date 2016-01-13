@@ -2,21 +2,21 @@
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
-//
+// 
 //     1. Redistributions of source code must retain the above copyright notice, this list of
 //        conditions and the following disclaimer.
-//
+// 
 //     2. Redistributions in binary form must reproduce the above copyright notice, this list of
 //        conditions and the following disclaimer in the documentation and/or other materials
 //        provided with the distribution.
-//
+// 
 //     3. Neither the name of the Sentry nor the names of its contributors may be used to
 //        endorse or promote products derived from this software without specific prior written
 //        permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 
 using Newtonsoft.Json;
@@ -47,6 +48,7 @@ namespace SharpRaven
     public partial class RavenClient : IRavenClient
     {
         private readonly Dsn currentDsn;
+        private readonly IDictionary<string, string> defaultTags;
         private readonly IJsonPacketFactory jsonPacketFactory;
         private readonly ISentryRequestFactory sentryRequestFactory;
         private readonly ISentryUserFactory sentryUserFactory;
@@ -62,6 +64,7 @@ namespace SharpRaven
             : this(new Dsn(Configuration.Settings.Dsn.Value), jsonPacketFactory)
         {
         }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RavenClient" /> class.
@@ -102,7 +105,7 @@ namespace SharpRaven
 
             Logger = "root";
             Timeout = TimeSpan.FromSeconds(5);
-            Tags = new Dictionary<string, string>();
+            this.defaultTags = new Dictionary<string, string>();
         }
 
 
@@ -152,9 +155,12 @@ namespace SharpRaven
         public string Environment { get; set; }
 
         /// <summary>
-        /// Default tags
+        /// Default tags sent on all events.
         /// </summary>
-        public IDictionary<string, string> Tags { get; set; }
+        public IDictionary<string, string> Tags
+        {
+            get { return this.defaultTags; }
+        }
 
         /// <summary>
         /// Gets or sets the timeout value in milliseconds for the HTTP communication with Sentry.
@@ -209,7 +215,7 @@ namespace SharpRaven
                                        string[] fingerprint = null,
                                        object extra = null)
         {
-            var finalTags = MergeDicts(Tags, tags);
+            var finalTags = MergeTags(tags);
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
                                                               exception,
                                                               message,
@@ -219,6 +225,7 @@ namespace SharpRaven
                                                               extra);
             return Send(packet);
         }
+
 
         /// <summary>
         /// Captures the message.
@@ -237,7 +244,7 @@ namespace SharpRaven
                                      string[] fingerprint = null,
                                      object extra = null)
         {
-            var finalTags = MergeDicts(Tags, tags);
+            var finalTags = MergeTags(tags);
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
                                                               message,
                                                               level,
@@ -280,12 +287,12 @@ namespace SharpRaven
                 // generated packet
                 packet = PreparePacket(packet);
 
-                var request = (HttpWebRequest)WebRequest.Create(currentDsn.SentryUri);
+                var request = (HttpWebRequest)WebRequest.Create(this.currentDsn.SentryUri);
                 request.Timeout = (int)Timeout.TotalMilliseconds;
                 request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
                 request.Method = "POST";
                 request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(currentDsn));
+                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(this.currentDsn));
                 request.UserAgent = PacketBuilder.UserAgent;
 
                 if (Compression)
@@ -341,25 +348,6 @@ namespace SharpRaven
             }
         }
 
-        private IDictionary<string, string> MergeDicts(IDictionary<string, string> one = null, IDictionary<string, string> two = null)
-        {
-            var result = new Dictionary<string, string>();
-            if (one != null) {
-                foreach (KeyValuePair<string, string> pair in one) {
-                    result.Add(pair.Key, pair.Value);
-                }
-            }
-            if (two != null) {
-                foreach (KeyValuePair<string, string> pair in two) {
-                    if (result.ContainsKey(pair.Key)) {
-                        result[pair.Key] = pair.Value;
-                    } else {
-                        result.Add(pair.Key, pair.Value);
-                    }
-                }
-            }
-            return result;
-        }
 
         private string HandleException(Exception exception)
         {
@@ -400,6 +388,18 @@ namespace SharpRaven
             }
 
             return null;
+        }
+
+
+        private IDictionary<string, string> MergeTags(IDictionary<string, string> tags = null)
+        {
+            if (tags == null)
+                return this.defaultTags;
+
+            return this.defaultTags
+                .Where(kv => !tags.Keys.Contains(kv.Key))
+                .Concat(tags)
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
         }
     }
 }
