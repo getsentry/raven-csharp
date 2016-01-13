@@ -199,7 +199,7 @@ namespace SharpRaven.UnitTests
             var client = new TestableRavenClient(dsnUri);
             client.Tags.Add("key", "value");
             client.Tags.Add("foo", "bar");
-            client.Tags = defaultTags;
+            // client.Tags = defaultTags;
             client.CaptureMessage("Test", ErrorLevel.Info);
 
             var lastEvent = client.LastEvent();
@@ -227,7 +227,6 @@ namespace SharpRaven.UnitTests
         private class TestableJsonPacketFactory : JsonPacketFactory
         {
             private readonly string project;
-            private JsonPacket m_lastEvent;
 
             public TestableJsonPacketFactory(string project)
             {
@@ -244,20 +243,23 @@ namespace SharpRaven.UnitTests
 
         private class TestableRavenClient : RavenClient
         {
+            private JsonPacket lastEvent;
+
+
             public TestableRavenClient(string dsn, IJsonPacketFactory jsonPacketFactory = null)
                 : base(dsn, jsonPacketFactory)
             {
             }
 
             public JsonPacket LastEvent() {
-                return m_lastEvent;
+                return this.lastEvent;
             }
 
             protected override string Send(JsonPacket packet)
             {
                 // TODO(dcramer): this is duped from RavenClient
                 packet = PreparePacket(packet);
-                m_lastEvent = packet;
+                this.lastEvent = packet;
                 return packet.Project;
             }
 
