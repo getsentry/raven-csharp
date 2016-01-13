@@ -31,6 +31,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRaven.Nancy", "app\Sha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRaven.Nancy.UnitTests", "tests\SharpRaven.Nancy.UnitTests\SharpRaven.Nancy.UnitTests.csproj", "{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D18000EF-446C-4756-87BD-632E3B71BD45}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug 4.0|Any CPU = Debug 4.0|Any CPU
