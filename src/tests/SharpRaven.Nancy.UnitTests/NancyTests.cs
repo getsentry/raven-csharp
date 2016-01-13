@@ -102,11 +102,12 @@ namespace SharpRaven.Nancy.UnitTests
                 cfg.Module<DefaultModule>();
                 cfg.ApplicationStartup((container, pipelines) =>
                 {
+                    // Register the DSN so we verify that it can be injected. @asbjornu
+                    container.Register(new Dsn(dsn));
+
                     // Override the IRavenClient implementation so we don't perform
                     // any HTTP request and can retrieve the GUID so we can later
                     // assert that it is the same we sent in. @asbjornu
-
-                    container.Register(new Dsn(dsn));
                     container.Register<IRavenClient, TestableRavenClient>();
                 });
             });
