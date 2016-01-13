@@ -28,7 +28,6 @@
 
 #endregion
 
-using System;
 using System.Configuration;
 
 namespace SharpRaven
@@ -80,9 +79,9 @@ namespace SharpRaven
             /// The value of the &lt;dsn/&gt; configuration element.
             /// </value>
             [ConfigurationProperty("value")]
-            public String Value
+            public string Value
             {
-                get { return (String)this["value"]; }
+                get { return (string)this["value"]; }
                 set { this["value"] = value; }
             }
         }

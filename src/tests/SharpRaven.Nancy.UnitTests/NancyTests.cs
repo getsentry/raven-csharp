@@ -118,7 +118,7 @@ namespace SharpRaven.Nancy.UnitTests
             var exception = Assert.Throws<DivideByZeroException>(throwing);
 
             // SentryRequestStartup.Initialize() should set the GUID in Exception.Data. @asbjornu
-            var loggedGuid = exception.Data[NancyConfiguration.Settings.SentryEventGuid];
+            var loggedGuid = exception.Data[NancyConfiguration.SentryEventGuidKey];
             Assert.That(loggedGuid, Is.EqualTo(guid));
         }
 

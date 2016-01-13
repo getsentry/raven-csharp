@@ -28,7 +28,6 @@
 
 #endregion
 
-using System;
 using System.Configuration;
 
 namespace SharpRaven.Nancy
@@ -40,6 +39,22 @@ namespace SharpRaven.Nancy
     {
         private const string CaptureExceptionOnErrorKey = "captureExceptionOnError";
         private const string PipelineNameKey = "pipelineName";
+
+        /// <summary>
+        /// Gets the nancy context data slot.
+        /// </summary>
+        /// <value>
+        /// The nancy context data slot.
+        /// </value>
+        public const string NancyContextDataSlot = "SharpRaven.Nancy.NancyContext";
+
+        /// <summary>
+        /// Gets the key for the GUID returned from Sentry after a successfully logged exception.
+        /// </summary>
+        /// <value>
+        /// The key for the GUID returned from Sentry after a successfully logged exception.
+        /// </value>
+        public const string SentryEventGuidKey = "SharpRaven.Nancy.SentryEventGuid";
 
         private static readonly NancyConfiguration settings =
             ConfigurationManager.GetSection("sharpRaven") as NancyConfiguration;
@@ -57,17 +72,6 @@ namespace SharpRaven.Nancy
         }
 
         /// <summary>
-        /// Gets the nancy context data slot.
-        /// </summary>
-        /// <value>
-        /// The nancy context data slot.
-        /// </value>
-        public string NancyContextDataSlot
-        {
-            get { return "SharpRaven.Nancy.NancyContext"; }
-        }
-
-        /// <summary>
         /// Gets the &lt;pipelineName /&gt; configuration element.
         /// </summary>
         /// <value>
@@ -77,17 +81,6 @@ namespace SharpRaven.Nancy
         public PipelineNameElement PipelineName
         {
             get { return (PipelineNameElement)base[PipelineNameKey]; }
-        }
-
-        /// <summary>
-        /// Gets the key for the GUID returned from Sentry after a successfully logged exception.
-        /// </summary>
-        /// <value>
-        /// The key for the GUID returned from Sentry after a successfully logged exception.
-        /// </value>
-        public string SentryEventGuid
-        {
-            get { return "SharpRaven.Nancy.SentryEventGuid"; }
         }
 
         /// <summary>
@@ -138,7 +131,7 @@ namespace SharpRaven.Nancy
             /// The value of the the &lt;pipelineName /&gt; configuration element.
             /// </value>
             [ConfigurationProperty("value", DefaultValue = "SharpRaven.Nancy")]
-            public String Value
+            public string Value
             {
                 get { return (string)this["value"]; }
                 set { this["value"] = value; }
