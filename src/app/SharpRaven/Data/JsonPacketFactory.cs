@@ -2,21 +2,21 @@
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
-//
+// 
 //     1. Redistributions of source code must retain the above copyright notice, this list of
 //        conditions and the following disclaimer.
-//
+// 
 //     2. Redistributions in binary form must reproduce the above copyright notice, this list of
 //        conditions and the following disclaimer in the documentation and/or other materials
 //        provided with the distribution.
-//
+// 
 //     3. Neither the name of the Sentry nor the names of its contributors may be used to
 //        endorse or promote products derived from this software without specific prior written
 //        permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -30,6 +30,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+
+using Newtonsoft.Json.Linq;
 
 namespace SharpRaven.Data
 {
@@ -67,7 +70,7 @@ namespace SharpRaven.Data
                 Level = level,
                 Tags = tags,
                 Fingerprint = fingerprint,
-                Extra = extra
+                Extra = Merge(extra)
             };
 
             return OnCreate(json);
@@ -110,7 +113,7 @@ namespace SharpRaven.Data
                 Level = level,
                 Tags = tags,
                 Fingerprint = fingerprint,
-                Extra = extra
+                Extra = Merge(extra, exception)
             };
 
             return OnCreate(json);
@@ -128,6 +131,53 @@ namespace SharpRaven.Data
         protected virtual JsonPacket OnCreate(JsonPacket jsonPacket)
         {
             return jsonPacket;
+        }
+
+
+        private static object Merge(object extra, Exception exception = null)
+        {
+            if (exception == null && extra == null)
+                return null;
+
+            if (extra != null && exception == null)
+                return extra;
+
+            var exceptionData = new ExceptionData(exception);
+
+            if (extra == null)
+                return exceptionData;
+
+            JObject result;
+
+            if (extra.GetType().IsArray)
+            {
+                result = new JObject();
+                var array = JArray.FromObject(extra);
+
+                foreach (var o in array)
+                {
+                    var jo = o as JObject;
+                    JProperty[] properties;
+
+                    if (jo == null || (properties = jo.Properties().ToArray()).Length != 2 || properties[0].Name != "Key"
+                        || properties[1].Name != "Value")
+                    {
+                        result.Merge(o);
+                        continue;
+                    }
+
+                    var key = properties[0].Value.ToString();
+                    var value = properties[1].Value;
+                    result.Add(key, value);
+                }
+            }
+            else
+                result = JObject.FromObject(extra);
+
+            var jExceptionData = JObject.FromObject(exceptionData);
+            result.Merge(jExceptionData);
+
+            return result;
         }
     }
 }

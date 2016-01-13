@@ -29,6 +29,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using NUnit.Framework;
 
@@ -48,6 +52,50 @@ namespace SharpRaven.UnitTests.Data
         }
 
         #endregion
+
+        [Test]
+        public void Create_ExtraIsDictionary_ExtraIsSerializedWithOnlyKeyValues()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            var extra = new Dictionary<string, string> { { "key", "value2" } };
+            var json = this.jsonPacketFactory.Create(project, exception, extra : extra);
+
+            var jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
+            Console.WriteLine(jsonString);
+
+            Assert.That(jsonString, Is.Not.StringContaining("Count"));
+            Assert.That(jsonString, Is.Not.StringContaining("Keys"));
+            Assert.That(jsonString, Is.Not.StringContaining("Values"));
+            Assert.That(jsonString, Is.Not.StringContaining("Comparer"));
+            Assert.That(jsonString, Is.StringContaining(@"""key"": ""value2"""));
+        }
+
+
+        [Test]
+        public void Create_ExtraIsEnumerable_ExtraIsSerializedWithOnlyKeyValues()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            var extra = new[] { new KeyValuePair<string, string>("key1", "value1"), new KeyValuePair<string, string>("key2", "value2") };
+            var json = this.jsonPacketFactory.Create(project, exception, extra : extra);
+
+            var jsonString = JsonConvert.SerializeObject(json.Extra, Formatting.Indented);
+            Console.WriteLine(jsonString);
+
+            Assert.That(jsonString, Is.Not.StringContaining("Count"));
+            Assert.That(jsonString, Is.Not.StringContaining("Keys"));
+            Assert.That(jsonString, Is.Not.StringContaining("Values"));
+            Assert.That(jsonString, Is.Not.StringContaining("Comparer"));
+            Assert.That(json.Extra, Is.TypeOf<JObject>());
+
+            var jExtra = (JObject)json.Extra;
+            Assert.That(jExtra.Property("key1"), Is.Not.Null, "key1");
+            Assert.That(jExtra.Property("key1").Value.ToString(), Is.EqualTo("value1"));
+            Assert.That(jExtra.Property("key2"), Is.Not.Null, "key2");
+            Assert.That(jExtra.Property("key2").Value.ToString(), Is.EqualTo("value2"));
+        }
+
 
         [Test]
         public void Create_InvokesOnCreate()
@@ -102,6 +150,60 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        public void Create_ProjectAndException_DataPropertyIsSavedInExtras()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            exception.Data.Add("key", "value");
+            var json = this.jsonPacketFactory.Create(project, exception);
+
+            Console.WriteLine(JsonConvert.SerializeObject(json.Extra, Formatting.Indented));
+
+            Assert.That(json.Extra, Has.Exactly(1).EqualTo(new KeyValuePair<string, object>("key", "value")));
+        }
+
+
+        [Test]
+        public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObject()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            exception.Data.Add("key", "value");
+            var json = this.jsonPacketFactory.Create(project, exception, extra : new { key2 = "value2" });
+
+            Console.WriteLine(JsonConvert.SerializeObject(json.Extra, Formatting.Indented));
+
+            Assert.That(json.Extra, Is.TypeOf<JObject>());
+            var extra = (JObject)json.Extra;
+
+            Assert.That(extra.Property("key"), Is.Not.Null, "key");
+            Assert.That(extra.Property("key").Value.ToString(), Is.EqualTo("value"));
+            Assert.That(extra.Property("key2"), Is.Not.Null, "key2");
+            Assert.That(extra.Property("key2").Value.ToString(), Is.EqualTo("value2"));
+        }
+
+
+        [Test]
+        public void Create_ProjectAndException_DataPropertyIsSavedInExtrasAlongWithExtrasObjectEvenWithTheSameKey()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            exception.Data.Add("key", "value");
+            var json = this.jsonPacketFactory.Create(project, exception, extra : new { ExceptionData = "ExceptionValue" });
+
+            Console.WriteLine(JsonConvert.SerializeObject(json.Extra, Formatting.Indented));
+
+            Assert.That(json.Extra, Is.TypeOf<JObject>());
+            var extra = (JObject)json.Extra;
+
+            Assert.That(extra.Property("key"), Is.Not.Null, "key");
+            Assert.That(extra.Property("key").Value.ToString(), Is.EqualTo("value"));
+            Assert.That(extra.Property("ExceptionData"), Is.Not.Null, "ExceptionData");
+            Assert.That(extra.Property("ExceptionData").Value.ToString(), Is.EqualTo("ExceptionValue"));
+        }
+
+
+        [Test]
         public void Create_ProjectAndException_EventIDIsValidGuid()
         {
             var project = Guid.NewGuid().ToString();
@@ -130,6 +232,39 @@ namespace SharpRaven.UnitTests.Data
             var json = this.jsonPacketFactory.Create(project, new Exception("Error"));
 
             Assert.That(json.Modules, Has.Count.GreaterThan(0));
+        }
+
+
+        [Test]
+        public void Create_ProjectAndException_NestedExceptionsAndExtraAreStoredInExtrasObject()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = Helper.GetException();
+            var json = this.jsonPacketFactory.Create(project, exception, extra : new { ExtraKey = "ExtraValue" });
+
+            Console.WriteLine(JsonConvert.SerializeObject(json.Extra, Formatting.Indented));
+
+            Assert.That(json.Extra, Is.TypeOf<JObject>());
+            var extra = (JObject)json.Extra;
+
+            Assert.That(extra.Property("ExtraKey"), Is.Not.Null, "ExtraKey");
+            Assert.That(extra.Property("ExtraKey").Value.ToString(), Is.EqualTo("ExtraValue"));
+            Assert.That(extra.Property("FirstLevelExceptionKey"), Is.Not.Null, "FirstLevelExceptionKey");
+            Assert.That(extra.Property("FirstLevelExceptionKey").Value.ToString(), Is.EqualTo("FirstLevelExceptionValue"));
+            Assert.That(extra.Property("System.InvalidOperationException.Data"), Is.Not.Null, "System.InvalidOperationException.Data");
+            Assert.That(extra.Property("System.InvalidOperationException.Data").Value, Is.TypeOf<JObject>());
+
+            var invalidOperationExceptionData = (JObject)extra.Property("System.InvalidOperationException.Data").Value;
+            Assert.That(invalidOperationExceptionData.Property("InvalidOperationExceptionKey"), Is.Not.Null, "InvalidOperationExceptionKey");
+            Assert.That(invalidOperationExceptionData.Property("InvalidOperationExceptionKey").Value.ToString(),
+                        Is.EqualTo("InvalidOperationExceptionValue"));
+            Assert.That(invalidOperationExceptionData.Property("System.DivideByZeroException.Data"), Is.Not.Null,
+                        "System.DivideByZeroException.Data");
+            Assert.That(invalidOperationExceptionData.Property("System.DivideByZeroException.Data").Value, Is.TypeOf<JObject>());
+
+            var divideByZeroExceptionData = (JObject)invalidOperationExceptionData.Property("System.DivideByZeroException.Data").Value;
+            Assert.That(divideByZeroExceptionData.Property("DivideByZeroKey"), Is.Not.Null, "DivideByZeroKey");
+            Assert.That(divideByZeroExceptionData.Property("DivideByZeroKey").Value.ToString(), Is.EqualTo("DivideByZeroValue"));
         }
 
 

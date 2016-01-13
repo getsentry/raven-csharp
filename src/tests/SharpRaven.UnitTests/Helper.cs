@@ -30,7 +30,7 @@
 
 using System;
 
-namespace SharpRaven.UnitTests.Integration
+namespace SharpRaven.UnitTests
 {
     public static class Helper
     {
@@ -42,7 +42,9 @@ namespace SharpRaven.UnitTests.Integration
             }
             catch (Exception e)
             {
-                throw new Exception("First Level Exception", e);
+                var exception = new Exception("First Level Exception", e);
+                exception.Data.Add("FirstLevelExceptionKey", "FirstLevelExceptionValue");
+                throw exception;
             }
         }
 
@@ -86,7 +88,13 @@ namespace SharpRaven.UnitTests.Integration
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Second Level Exception", e);
+                e.Data.Add("DivideByZeroKey", "DivideByZeroValue");
+
+                var invalidOperationException = new InvalidOperationException("Second Level Exception", e);
+
+                invalidOperationException.Data.Add("InvalidOperationExceptionKey", "InvalidOperationExceptionValue");
+
+                throw invalidOperationException;
             }
         }
     }
