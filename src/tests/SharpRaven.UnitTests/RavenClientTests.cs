@@ -49,6 +49,45 @@ namespace SharpRaven.UnitTests
     public class RavenClientTests
     {
         [Test]
+        public void CaptureMessage_ClientEnvironmentIsIgnored()
+        {
+            var jsonPacketFactory = new TestableJsonPacketFactory(environment : "keep-me");
+            var client = new TestableRavenClient(dsnUri, jsonPacketFactory) { Environment = "foobar" };
+            client.CaptureMessage("Test");
+
+            var lastEvent = client.LastPacket;
+
+            Assert.That(lastEvent.Environment, Is.EqualTo("keep-me"));
+        }
+
+
+        [Test]
+        public void CaptureMessage_ClientLoggerIsIgnored()
+        {
+            var jsonPacketFactory = new TestableJsonPacketFactory(logger : "keep-me");
+            var client = new TestableRavenClient(dsnUri, jsonPacketFactory) { Logger = "foobar" };
+            client.CaptureMessage("Test");
+
+            var lastEvent = client.LastPacket;
+
+            Assert.That(lastEvent.Logger, Is.EqualTo("keep-me"));
+        }
+
+
+        [Test]
+        public void CaptureMessage_ClientReleaseIsIgnored()
+        {
+            var jsonPacketFactory = new TestableJsonPacketFactory(release : "keep-me");
+            var client = new TestableRavenClient(dsnUri, jsonPacketFactory) { Release = "foobar" };
+            client.CaptureMessage("Test");
+
+            var lastEvent = client.LastPacket;
+
+            Assert.That(lastEvent.Release, Is.EqualTo("keep-me"));
+        }
+
+
+        [Test]
         public void CaptureMessage_InvokesSend_AndJsonPacketFactoryOnCreate()
         {
             var project = Guid.NewGuid().ToString();
@@ -228,18 +267,27 @@ namespace SharpRaven.UnitTests
 
         private class TestableJsonPacketFactory : JsonPacketFactory
         {
+            private readonly string environment;
+            private readonly string logger;
             private readonly string project;
+            private readonly string release;
 
 
-            public TestableJsonPacketFactory(string project)
+            public TestableJsonPacketFactory(string project = null, string release = null, string environment = null, string logger = null)
             {
                 this.project = project;
+                this.release = release;
+                this.environment = environment;
+                this.logger = logger;
             }
 
 
             protected override JsonPacket OnCreate(JsonPacket jsonPacket)
             {
                 jsonPacket.Project = this.project;
+                jsonPacket.Release = this.release;
+                jsonPacket.Environment = this.environment;
+                jsonPacket.Logger = this.logger;
                 return base.OnCreate(jsonPacket);
             }
         }
