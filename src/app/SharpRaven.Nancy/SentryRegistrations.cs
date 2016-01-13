@@ -58,17 +58,7 @@ namespace SharpRaven.Nancy
         /// </summary>
         public IEnumerable<InstanceRegistration> InstanceRegistrations
         {
-            get
-            {
-                return new[]
-                {
-                    //new InstanceRegistration(typeof(Dsn), new Dsn(Configuration.Settings.Dsn.Value)),
-                    // TODO: I don't like to register the concrete instance like this, see the above TODO. @asbjornu
-                    new InstanceRegistration(typeof(IRavenClient),
-                                             new RavenClient(new Dsn(NancyConfiguration.Settings.Dsn.Value),
-                                                             new NancyContextJsonPacketFactory())),
-                };
-            }
+            get { return null; }
         }
 
         /// <summary>
@@ -81,12 +71,10 @@ namespace SharpRaven.Nancy
                 return new[]
                 {
                     new TypeRegistration(typeof(IJsonPacketFactory),
-                                         typeof(NancyContextJsonPacketFactory),
-                                         Lifetime.Singleton),
-                    // TODO: I'd like to register the RavenClient like this so it's more composable and IoC friendly, but I'm seemingly unable to override their registration, which makes testing impossible. @asbjornu
-                    /*new TypeRegistration(typeof(IRavenClient),
+                                         typeof(NancyContextJsonPacketFactory)),
+                    new TypeRegistration(typeof(IRavenClient),
                                          typeof(RavenClient),
-                                         Lifetime.PerRequest),*/
+                                         Lifetime.Transient)
                 };
             }
         }
