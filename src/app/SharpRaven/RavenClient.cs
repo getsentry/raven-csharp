@@ -240,7 +240,7 @@ namespace SharpRaven
         /// </returns>
         public string CaptureMessage(SentryMessage message,
                                      ErrorLevel level = ErrorLevel.Info,
-                                     Dictionary<string, string> tags = null,
+                                     IDictionary<string, string> tags = null,
                                      string[] fingerprint = null,
                                      object extra = null)
         {

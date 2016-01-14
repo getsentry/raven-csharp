@@ -122,7 +122,7 @@ namespace SharpRaven
         /// </returns>
         string CaptureMessage(SentryMessage message,
                               ErrorLevel level = ErrorLevel.Info,
-                              Dictionary<string, string> tags = null,
+                              IDictionary<string, string> tags = null,
                               string[] fingerprint = null,
                               object extra = null);
 
@@ -162,7 +162,7 @@ namespace SharpRaven
         /// </returns>
         Task<string> CaptureMessageAsync(SentryMessage message,
                                          ErrorLevel level = ErrorLevel.Info,
-                                         Dictionary<string, string> tags = null,
+                                         IDictionary<string, string> tags = null,
                                          string[] fingerprint = null,
                                          object extra = null);
 #endif
