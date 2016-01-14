@@ -228,7 +228,7 @@ namespace SharpRaven
                                        object extra = null)
         {
             var finalTags = MergeTags(tags);
-            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
+            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
                                                               exception,
                                                               message,
                                                               level,
@@ -258,7 +258,7 @@ namespace SharpRaven
                                      object extra = null)
         {
             var finalTags = MergeTags(tags);
-            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
+            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
                                                               message,
                                                               level,
                                                               finalTags,
@@ -320,35 +320,35 @@ namespace SharpRaven
                 /*string data = packet.ToString(Formatting.Indented);
                     Console.WriteLine(data);*/
 
-                string data = packet.ToString(Formatting.None);
+                var data = packet.ToString(Formatting.None);
 
                 if (LogScrubber != null)
                     data = LogScrubber.Scrub(data);
 
                 // Write the messagebody.
-                using (Stream s = request.GetRequestStream())
+                using (var s = request.GetRequestStream())
                 {
                     if (Compression)
                         GzipUtil.Write(data, s);
                     else
                     {
-                        using (StreamWriter sw = new StreamWriter(s))
+                        using (var sw = new StreamWriter(s))
                         {
                             sw.Write(data);
                         }
                     }
                 }
 
-                using (HttpWebResponse wr = (HttpWebResponse)request.GetResponse())
+                using (var wr = (HttpWebResponse)request.GetResponse())
                 {
-                    using (Stream responseStream = wr.GetResponseStream())
+                    using (var responseStream = wr.GetResponseStream())
                     {
                         if (responseStream == null)
                             return null;
 
-                        using (StreamReader sr = new StreamReader(responseStream))
+                        using (var sr = new StreamReader(responseStream))
                         {
-                            string content = sr.ReadToEnd();
+                            var content = sr.ReadToEnd();
                             var response = JsonConvert.DeserializeObject<dynamic>(content);
                             return response.id;
                         }
@@ -377,17 +377,17 @@ namespace SharpRaven
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine(exception);
 
-                WebException webException = exception as WebException;
+                var webException = exception as WebException;
                 if (webException == null || webException.Response == null)
                     return null;
 
                 string messageBody;
-                using (Stream stream = webException.Response.GetResponseStream())
+                using (var stream = webException.Response.GetResponseStream())
                 {
                     if (stream == null)
                         return null;
 
-                    using (StreamReader sw = new StreamReader(stream))
+                    using (var sw = new StreamReader(stream))
                     {
                         messageBody = sw.ReadToEnd();
                     }
