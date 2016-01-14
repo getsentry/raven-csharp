@@ -176,7 +176,7 @@ namespace SharpRaven
         /// </summary>
         /// <param name="e">The <see cref="Exception" /> to capture.</param>
         /// <returns></returns>
-        [Obsolete("The more common CaptureException method should be used")]
+        [Obsolete("Use CaptureException() instead.", true)]
         public string CaptureEvent(Exception e)
         {
             return CaptureException(e);
@@ -189,7 +189,7 @@ namespace SharpRaven
         /// <param name="e">The <see cref="Exception" /> to capture.</param>
         /// <param name="tags">The tags to annotate the captured exception with.</param>
         /// <returns></returns>
-        [Obsolete("The more common CaptureException method should be used")]
+        [Obsolete("Use CaptureException() instead.", true)]
         public string CaptureEvent(Exception e, Dictionary<string, string> tags)
         {
             return CaptureException(e, tags : tags);
