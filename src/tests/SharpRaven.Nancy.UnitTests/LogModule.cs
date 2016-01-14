@@ -40,20 +40,19 @@ namespace SharpRaven.Nancy.UnitTests
         {
             Get["/log"] = _ =>
             {
-                string messageId = ravenClient.CaptureMessage("Hello world !!!");
+                var messageId = ravenClient.CaptureMessage("Hello world !!!");
                 return View["log.html", new { MessageId = messageId }];
             };
 
             Get["/log-async", runAsync : true] = async (_, token) =>
             {
-                HttpClient httpClient = new HttpClient();
+                var httpClient = new HttpClient();
                 var response = await httpClient.GetAsync("http://www.google.com");
 
                 response.EnsureSuccessStatusCode();
 
                 var result = await response.Content.ReadAsStringAsync();
-
-                string messageId = ravenClient.CaptureMessage("Hello world !!!");
+                var messageId = await ravenClient.CaptureMessageAsync("Hello world!!!");
 
                 return View["log.html", new { MessageId = messageId }];
             };
