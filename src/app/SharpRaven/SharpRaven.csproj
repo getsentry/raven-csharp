@@ -86,6 +86,7 @@
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
     <Compile Include="Data\IJsonPacketFactory.cs" />
+    <Compile Include="Data\SentryEvent.cs" />
     <Compile Include="Data\SentryMessage.cs" />
     <Compile Include="Data\SentryException.cs" />
     <Compile Include="Data\SentryRequest.cs" />

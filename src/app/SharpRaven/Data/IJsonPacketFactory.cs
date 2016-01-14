@@ -34,18 +34,14 @@ using System.Collections.Generic;
 namespace SharpRaven.Data
 {
     /// <summary>
-    /// Factory interface for creating
-    /// <see cref="JsonPacket" />s. To simply adjust the values of a
-    /// packet before it is sent to Sentry, inherit
-    /// <see cref="JsonPacketFactory" /> and override
-    /// its
-    /// <see cref="JsonPacketFactory.OnCreate" /> method.
+    /// Factory interface for creating <see cref="JsonPacket" />s.
+    /// To simply adjust the values of a packet before it is sent to Sentry, inherit
+    /// <see cref="JsonPacketFactory" /> and override its <see cref="JsonPacketFactory.OnCreate" /> method.
     /// </summary>
     public interface IJsonPacketFactory
     {
         /// <summary>
-        /// Creates a new instance of
-        /// <see cref="JsonPacket" /> for the specified
+        /// Creates a new instance of <see cref="JsonPacket" /> for the specified
         /// <paramref name="project" />.
         /// </summary>
         /// <param name="project">The project.</param>
@@ -66,11 +62,8 @@ namespace SharpRaven.Data
 
 
         /// <summary>
-        /// Creates a new instance of
-        /// <see cref="JsonPacket" /> for the specified
-        /// <paramref name="project" />, with the
-        /// given
-        /// <paramref name="exception" />.
+        /// Creates a new instance of <see cref="JsonPacket" /> for the specified
+        /// <paramref name="project" />, with the given <paramref name="exception" />.
         /// </summary>
         /// <param name="project">The project.</param>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
@@ -80,11 +73,8 @@ namespace SharpRaven.Data
         /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
-        /// A new instance of
-        /// <see cref="JsonPacket" /> for the specified
-        /// <paramref name="project" />, with the
-        /// given
-        /// <paramref name="exception" />.
+        /// A new instance of <see cref="JsonPacket" /> for the specified
+        /// <paramref name="project" />, with the given <paramref name="exception" />.
         /// </returns>
         JsonPacket Create(string project,
                           Exception exception,
@@ -93,5 +83,18 @@ namespace SharpRaven.Data
                           IDictionary<string, string> tags = null,
                           string[] fingerprint = null,
                           object extra = null);
+
+
+        /// <summary>
+        /// Creates a new instance of  <see cref="JsonPacket" /> for the specified
+        /// <paramref name="project" />, with the  given <paramref name="event" />.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="event">The event to capture.</param>
+        /// <returns>
+        /// A new instance of <see cref="JsonPacket" /> for the specified
+        /// <paramref name="project" />, with the given <paramref name="event" />.
+        /// </returns>
+        JsonPacket Create(string project, SentryEvent @event);
     }
 }

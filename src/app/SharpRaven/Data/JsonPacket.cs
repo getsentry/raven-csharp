@@ -2,21 +2,21 @@
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
-//
+// 
 //     1. Redistributions of source code must retain the above copyright notice, this list of
 //        conditions and the following disclaimer.
-//
+// 
 //     2. Redistributions in binary form must reproduce the above copyright notice, this list of
 //        conditions and the following disclaimer in the documentation and/or other materials
 //        provided with the distribution.
-//
+// 
 //     3. Neither the name of the Sentry nor the names of its contributors may be used to
 //        endorse or promote products derived from this software without specific prior written
 //        permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -55,46 +55,24 @@ namespace SharpRaven.Data
             if (exception == null)
                 throw new ArgumentNullException("exception");
 
-            Message = exception.Message;
+            Initialize(exception);
+        }
 
-            if (exception.TargetSite != null)
-            {
-                // ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
-                Culprit = String.Format("{0} in {1}",
-                                        ((exception.TargetSite.ReflectedType == null)
-                                            ? "<dynamic type>"
-                                            : exception.TargetSite.ReflectedType.FullName),
-                                        exception.TargetSite.Name);
-                // ReSharper restore ConditionIsAlwaysTrueOrFalse
-            }
 
-            Exceptions = new List<SentryException>();
+        /// <summary>Initializes a new instance of the <see cref="JsonPacket"/> class.</summary>
+        /// <param name="project">The project.</param>
+        /// <param name="event">The event.</param>
+        public JsonPacket(string project, SentryEvent @event)
+            : this(project)
+        {
+            if (@event == null)
+                throw new ArgumentNullException("event");
 
-            for (Exception currentException = exception;
-                currentException != null;
-                currentException = currentException.InnerException)
-            {
-                SentryException sentryException = new SentryException(currentException)
-                {
-                    Module = currentException.Source,
-                    Type = currentException.GetType().Name,
-                    Value = currentException.Message
-                };
+            if (@event.Exception != null)
+                Initialize(@event.Exception);
 
-                Exceptions.Add(sentryException);
-            }
-
-            // ReflectionTypeLoadException doesn't contain much useful info in itself, and needs special handling
-            ReflectionTypeLoadException reflectionTypeLoadException = exception as ReflectionTypeLoadException;
-            if (reflectionTypeLoadException != null)
-            {
-                foreach (Exception loaderException in reflectionTypeLoadException.LoaderExceptions)
-                {
-                    SentryException sentryException = new SentryException(loaderException);
-
-                    Exceptions.Add(sentryException);
-                }
-            }
+            Message = @event.Message != null ? @event.Message.ToString() : null;
+            MessageObject = @event.Message;
         }
 
 
@@ -157,6 +135,12 @@ namespace SharpRaven.Data
         public string Culprit { get; set; }
 
         /// <summary>
+        /// Identifies the operating environment (e.g. production).
+        /// </summary>
+        [JsonProperty(PropertyName = "environment", NullValueHandling = NullValueHandling.Ignore)]
+        public string Environment { get; set; }
+
+        /// <summary>
         /// Hexadecimal string representing a uuid4 value.
         /// </summary>
         [JsonProperty(PropertyName = "event_id", NullValueHandling = NullValueHandling.Ignore)]
@@ -176,6 +160,12 @@ namespace SharpRaven.Data
         /// </summary>
         [JsonProperty(PropertyName = "extra", NullValueHandling = NullValueHandling.Ignore)]
         public object Extra { get; set; }
+
+        /// <summary>
+        /// Gets or sets the fingerprint used for custom grouping
+        /// </summary>
+        [JsonProperty(PropertyName = "fingerprint", NullValueHandling = NullValueHandling.Ignore)]
+        public string[] Fingerprint { get; set; }
 
         /// <summary>
         /// The record severity.
@@ -251,18 +241,6 @@ namespace SharpRaven.Data
         public string ServerName { get; set; }
 
         /// <summary>
-        /// Gets or sets the fingerprint used for custom grouping
-        /// </summary>
-        [JsonProperty(PropertyName = "fingerprint", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Fingerprint { get; set; }
-
-        /// <summary>
-        /// Identifies the operating environment (e.g. production).
-        /// </summary>
-        [JsonProperty(PropertyName = "environment", NullValueHandling = NullValueHandling.Ignore)]
-        public string Environment { get; set; }
-
-        /// <summary>
         /// A map or list of tags for this event.
         /// </summary>
         [JsonProperty(PropertyName = "tags", NullValueHandling = NullValueHandling.Ignore)]
@@ -307,6 +285,51 @@ namespace SharpRaven.Data
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
+        }
+
+
+        private void Initialize(Exception exception)
+        {
+            Message = exception.Message;
+
+            if (exception.TargetSite != null)
+            {
+                // ReSharper disable ConditionIsAlwaysTrueOrFalse => not for dynamic types.
+                Culprit = String.Format("{0} in {1}",
+                                        ((exception.TargetSite.ReflectedType == null)
+                                            ? "<dynamic type>"
+                                            : exception.TargetSite.ReflectedType.FullName),
+                                        exception.TargetSite.Name);
+                // ReSharper restore ConditionIsAlwaysTrueOrFalse
+            }
+
+            Exceptions = new List<SentryException>();
+
+            for (Exception currentException = exception;
+                currentException != null;
+                currentException = currentException.InnerException)
+            {
+                SentryException sentryException = new SentryException(currentException)
+                {
+                    Module = currentException.Source,
+                    Type = currentException.GetType().Name,
+                    Value = currentException.Message
+                };
+
+                Exceptions.Add(sentryException);
+            }
+
+            // ReflectionTypeLoadException doesn't contain much useful info in itself, and needs special handling
+            ReflectionTypeLoadException reflectionTypeLoadException = exception as ReflectionTypeLoadException;
+            if (reflectionTypeLoadException != null)
+            {
+                foreach (Exception loaderException in reflectionTypeLoadException.LoaderExceptions)
+                {
+                    SentryException sentryException = new SentryException(loaderException);
+
+                    Exceptions.Add(sentryException);
+                }
+            }
         }
     }
 }

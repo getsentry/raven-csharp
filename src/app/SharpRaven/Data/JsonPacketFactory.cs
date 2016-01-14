@@ -121,6 +121,23 @@ namespace SharpRaven.Data
 
 
         /// <summary>
+        /// Creates a new instance of  <see cref="JsonPacket" /> for the specified
+        /// <paramref name="project" />, with the  given <paramref name="event" />.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="event">The event to capture.</param>
+        /// <returns>
+        /// A new instance of <see cref="JsonPacket" /> for the specified
+        /// <paramref name="project" />, with the given <paramref name="event" />.
+        /// </returns>
+        public JsonPacket Create(string project, SentryEvent @event)
+        {
+            var json = new JsonPacket(project, @event);
+            return OnCreate(json);
+        }
+
+
+        /// <summary>
         /// Called when the <see cref="JsonPacket"/> has been created. Can be overridden to
         /// adjust the values of the <paramref name="jsonPacket"/> before it is sent to Sentry.
         /// </summary>

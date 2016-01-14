@@ -111,11 +111,10 @@ namespace SharpRaven
 
         /// <summary>
         /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing
-        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
+        /// <see cref="Capture"/>.
         /// </summary>
         /// <value>
-        /// The <see cref="Action"/> to execute if an error occurs when executing
-        /// <see cref="CaptureException"/> or <see cref="CaptureMessage"/>.
+        /// The <see cref="Action"/> to execute if an error occurs when executing <see cref="Capture"/>.
         /// </value>
         public Action<Exception> ErrorOnCapture { get; set; }
 
@@ -171,6 +170,18 @@ namespace SharpRaven
         public TimeSpan Timeout { get; set; }
 
 
+        /// <summary>Captures the specified <paramref name="event"/>.</summary>
+        /// <param name="event">The event to capture.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
+        /// </returns>
+        public string Capture(SentryEvent @event)
+        {
+            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
+            return Send(packet);
+        }
+
+
         /// <summary>
         /// Captures the event.
         /// </summary>
@@ -208,6 +219,7 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
         /// </returns>
+        [Obsolete("Use Capture(SentryEvent) instead")]
         public string CaptureException(Exception exception,
                                        SentryMessage message = null,
                                        ErrorLevel level = ErrorLevel.Error,
@@ -238,6 +250,7 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
         /// </returns>
+        [Obsolete("Use Capture(SentryEvent) instead")]
         public string CaptureMessage(SentryMessage message,
                                      ErrorLevel level = ErrorLevel.Info,
                                      IDictionary<string, string> tags = null,
