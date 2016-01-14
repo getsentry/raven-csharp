@@ -200,7 +200,7 @@ namespace SharpRaven
         /// Captures the <see cref="Exception" />.
         /// </summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
-        /// <param name="message">The optional messge to capture. Default: <see cref="Exception.Message" />.</param>
+        /// <param name="message">The optional message to capture. Default: <see cref="Exception.Message" />.</param>
         /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error"/>.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
         /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
