@@ -78,10 +78,10 @@ The full argument specs are:
                             object extra = null)
 
     string CaptureMessage(SentryMessage message,
-                            ErrorLevel level = ErrorLevel.Info,
-                            IDictionary<string, string> tags = null,
-                            string[] fingerprint = null,
-                            object extra = null)
+                          ErrorLevel level = ErrorLevel.Info,
+                          IDictionary<string, string> tags = null,
+                          string[] fingerprint = null,
+                          object extra = null)
 
 
 Async Support
@@ -92,17 +92,17 @@ above methods as well:
 .. sourcecode:: csharp
 
     Task<string> CaptureExceptionAsync(Exception exception,
-                                        SentryMessage message = null,
-                                        ErrorLevel level = ErrorLevel.Error,
-                                        IDictionary<string, string> tags = null,
-                                        string[] fingerprint = null,
-                                        object extra = null);
+                                       SentryMessage message = null,
+                                       ErrorLevel level = ErrorLevel.Error,
+                                       IDictionary<string, string> tags = null,
+                                       string[] fingerprint = null,
+                                       object extra = null);
 
     Task<string> CaptureMessageAsync(SentryMessage message,
-                                        ErrorLevel level = ErrorLevel.Info,
-                                        IDictionary<string, string> tags = null,
-                                        string[] fingerprint = null,
-                                        object extra = null);
+                                     ErrorLevel level = ErrorLevel.Info,
+                                     IDictionary<string, string> tags = null,
+                                     string[] fingerprint = null,
+                                     object extra = null);
 
 Nancy Support
 -------------

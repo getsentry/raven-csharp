@@ -46,10 +46,10 @@ string CaptureException(Exception exception,
                         object extra = null)
 
 string CaptureMessage(SentryMessage message,
-                        ErrorLevel level = ErrorLevel.Info,
-                        IDictionary<string, string> tags = null,
-                        string[] fingerprint = null,
-                        object extra = null)
+                      ErrorLevel level = ErrorLevel.Info,
+                      IDictionary<string, string> tags = null,
+                      string[] fingerprint = null,
+                      object extra = null)
 
 ```
 
@@ -59,17 +59,17 @@ In the .NET 4.5 build of SharpRaven, there are `async` versions of the above met
 
 ```csharp
 Task<string> CaptureExceptionAsync(Exception exception,
-                                    SentryMessage message = null,
-                                    ErrorLevel level = ErrorLevel.Error,
-                                    IDictionary<string, string> tags = null,
-                                    string[] fingerprint = null,
-                                    object extra = null);
+                                   SentryMessage message = null,
+                                   ErrorLevel level = ErrorLevel.Error,
+                                   IDictionary<string, string> tags = null,
+                                   string[] fingerprint = null,
+                                   object extra = null);
 
 Task<string> CaptureMessageAsync(SentryMessage message,
-                                    ErrorLevel level = ErrorLevel.Info,
-                                    IDictionary<string, string> tags = null,
-                                    string[] fingerprint = null,
-                                    object extra = null);
+                                 ErrorLevel level = ErrorLevel.Info,
+                                 IDictionary<string, string> tags = null,
+                                 string[] fingerprint = null,
+                                 object extra = null);
 ```
 
 Nancy Support
