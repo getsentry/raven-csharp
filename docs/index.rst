@@ -86,7 +86,7 @@ The full argument specs are:
 
 Async Support
 -------------
-In the .NET 4.5 build of SharpRaven, there are `async` versions of the
+In the .NET 4.5 build of SharpRaven, there are ``async`` versions of the
 above methods as well:
 
 .. sourcecode:: csharp
