@@ -76,7 +76,7 @@ namespace SharpRaven
                                                               fingerprint,
                                                               extra);
 
-            return await SendAsync(packet, CurrentDsn);
+            return await SendAsync(packet);
         }
 
 
@@ -99,7 +99,7 @@ namespace SharpRaven
         {
             JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, fingerprint, extra);
 
-            return await SendAsync(packet, CurrentDsn);
+            return await SendAsync(packet);
         }
 
 
@@ -111,18 +111,18 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
-        protected virtual async Task<string> SendAsync(JsonPacket packet, Dsn dsn)
+        protected virtual async Task<string> SendAsync(JsonPacket packet)
         {
             try
             {
                 packet = PreparePacket(packet);
 
-                var request = (HttpWebRequest)WebRequest.Create(dsn.SentryUri);
+                var request = (HttpWebRequest)WebRequest.Create(CurrentDsn.SentryUri);
                 request.Timeout = (int)Timeout.TotalMilliseconds;
                 request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
                 request.Method = "POST";
                 request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
+                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(CurrentDsn));
                 request.UserAgent = PacketBuilder.UserAgent;
 
                 if (Compression)

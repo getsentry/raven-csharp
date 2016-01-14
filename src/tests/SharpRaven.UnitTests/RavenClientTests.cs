@@ -313,7 +313,7 @@ namespace SharpRaven.UnitTests
 
 
 #if(!net40)
-            protected override Task<string> SendAsync(JsonPacket packet, Dsn dsn)
+            protected override Task<string> SendAsync(JsonPacket packet)
             {
                 return Task.FromResult(packet.Project);
             }
