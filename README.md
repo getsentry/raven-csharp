@@ -115,6 +115,19 @@ public class LoggingModule : NancyModule
 }
 ````
 
+Debugging SharpRaven
+--------------------
+
+If an exception is raised internally to `RavenClient` it is logged to the Console. To extend this behaviour use
+the property `ErrorOnCapture`:
+
+```csharp
+ravenClient.ErrorOnCapture = exception => {
+	// custom code here
+};
+````
+
+
 Get it!
 -------
 You can clone and build SharpRaven yourself, but for those of us who are happy with prebuilt binaries, there's [a NuGet package](https://www.nuget.org/packages/SharpRaven).
