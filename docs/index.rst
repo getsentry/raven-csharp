@@ -61,6 +61,22 @@ You can capture a message without being bound by an exception:
 Additional Data
 ---------------
 
+You can add additional data to the `Exception.Data <https://msdn.microsoft.com/en-us/library/system.exception.data.aspx>`
+property on exceptions thrown about in your solution:
+
+.. sourcecode:: csharp
+
+    try
+    {
+        // ...
+    }
+    catch (Exception exception)
+    {
+        exception.Data.Add("SomeKey", "SomeValue");
+        throw;
+    }
+
+
 The capture methods allow you to provide additional data to be sent with
 your request. ``CaptureException`` supports both the ``tags`` and extra
 ``properties``, and ``CaptureMessage`` additionally supports the

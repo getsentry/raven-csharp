@@ -32,8 +32,26 @@ ravenClient.CaptureMessage("Hello World!");
 
 Additional Data
 ---------------
-The capture methods allow you to provide additional data to be sent with your request. `CaptureException` supports both the
-`tags` and `extra` properties, and `CaptureMessage` additionally supports the `level` property.
+You can add additional data to the [`Exception.Data`](https://msdn.microsoft.com/en-us/library/system.exception.data.aspx)
+property on exceptions thrown about in your solution:
+
+```csharp
+try
+{
+    // ...    
+}
+catch (Exception exception)
+{
+    exception.Data.Add("SomeKey", "SomeValue");
+    throw;
+}
+```
+
+The data `SomeKey` and `SomeValue` will be captured and presented in the `extra` property on Sentry.
+
+Additionally, the capture methods allow you to provide additional data to be sent with your request.
+`CaptureException` supports both the `tags` and `extra` properties, and `CaptureMessage` additionally
+supports the `level` property.
 
 The full argument specs are:
 
@@ -123,7 +141,7 @@ the property `ErrorOnCapture`:
 
 ```csharp
 ravenClient.ErrorOnCapture = exception => {
-	// custom code here
+    // custom code here
 };
 ````
 
