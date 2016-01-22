@@ -60,10 +60,24 @@ namespace SharpRaven.Data
             }
 
             var method = frame.GetMethod();
+            if (method != null)
+            {
+                Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null;
+                Function = method.Name;
+                Source = method.ToString();
+            }
+            else
+            {
+                // on some platforms (e.g. on mono), StackFrame.GetMethod() may return null
+                // e.g. for this stack frame:
+                //   at (wrapper dynamic-method) System.Object:lambda_method (System.Runtime.CompilerServices.Closure,object,object))
+
+                Module = "(unknown)";
+                Function = "(unknown)";
+                Source = "(unknown)";
+            }
+
             Filename = frame.GetFileName();
-            Module = (method.DeclaringType != null) ? method.DeclaringType.FullName : null;
-            Function = method.Name;
-            Source = method.ToString();
             LineNumber = lineNo;
             ColumnNumber = frame.GetFileColumnNumber();
         }
