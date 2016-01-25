@@ -61,9 +61,17 @@ namespace SharpRaven.UnitTests.Data
         #endregion
 
         [Test]
+        public void Constructor_NullEvent_ThrowsArgumentNullException()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(String.Empty, (SentryEvent)null));
+            Assert.That(exception.ParamName, Is.EqualTo("event"));
+        }
+
+
+        [Test]
         public void Constructor_NullException_ThrowsArgumentNullException()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(String.Empty, null));
+            var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(String.Empty, (Exception)null));
             Assert.That(exception.ParamName, Is.EqualTo("exception"));
         }
 
@@ -77,9 +85,17 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
+        public void Constructor_NullProjectAndEvent_ThrowsArgumentNullException()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(null, (SentryEvent)null));
+            Assert.That(exception.ParamName, Is.EqualTo("project"));
+        }
+
+
+        [Test]
         public void Constructor_NullProjectAndException_ThrowsArgumentNullException()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(null, null));
+            var exception = Assert.Throws<ArgumentNullException>(() => new JsonPacket(null, (Exception)null));
             Assert.That(exception.ParamName, Is.EqualTo("project"));
         }
 

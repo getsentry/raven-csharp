@@ -30,17 +30,16 @@
 
 #if !(net40)
 
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 
 using Newtonsoft.Json;
 
-using SharpRaven.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 using SharpRaven.Data;
+using SharpRaven.Utilities;
 
 namespace SharpRaven
 {
@@ -49,6 +48,18 @@ namespace SharpRaven
     /// </summary>
     public partial class RavenClient
     {
+        /// <summary>Captures the event.</summary>
+        /// <param name="event">The event.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
+        /// </returns>
+        public async Task<string> CaptureAsync(SentryEvent @event)
+        {
+            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
+            return await SendAsync(packet);
+        }
+
+
         /// <summary>
         /// Captures the <see cref="Exception" />.
         /// </summary>
@@ -61,6 +72,7 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
         /// </returns>
+        [Obsolete("Use CaptureAsync(SentryEvent) instead.")]
         public async Task<string> CaptureExceptionAsync(Exception exception,
                                                         SentryMessage message = null,
                                                         ErrorLevel level = ErrorLevel.Error,
@@ -68,15 +80,26 @@ namespace SharpRaven
                                                         string[] fingerprint = null,
                                                         object extra = null)
         {
-            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
-                                                              exception,
-                                                              message,
-                                                              level,
-                                                              tags,
-                                                              fingerprint,
-                                                              extra);
+            var @event = new SentryEvent(exception)
+            {
+                Message = message,
+                Level = level,
+                Extra = extra
+            };
 
-            return await SendAsync(packet);
+            if (tags != null)
+            {
+                foreach (var tag in tags)
+                    @event.Tags.Add(tag.Key, tag.Value);
+            }
+
+            if (fingerprint != null)
+            {
+                foreach (var f in fingerprint)
+                    @event.Fingerprint.Add(f);
+            }
+
+            return await CaptureAsync(@event);
         }
 
 
@@ -91,25 +114,39 @@ namespace SharpRaven
         /// <returns>
         /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
         /// </returns>
+        [Obsolete("Use CaptureAsync(SentryEvent) instead.")]
         public async Task<string> CaptureMessageAsync(SentryMessage message,
                                                       ErrorLevel level = ErrorLevel.Info,
                                                       IDictionary<string, string> tags = null,
                                                       string[] fingerprint = null,
                                                       object extra = null)
         {
-            JsonPacket packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, message, level, tags, fingerprint, extra);
+            var @event = new SentryEvent(message)
+            {
+                Level = level,
+                Extra = extra
+            };
 
-            return await SendAsync(packet);
+            if (tags != null)
+            {
+                foreach (var tag in tags)
+                    @event.Tags.Add(tag.Key, tag.Value);
+            }
+
+            if (fingerprint != null)
+            {
+                foreach (var f in fingerprint)
+                    @event.Fingerprint.Add(f);
+            }
+
+            return await CaptureAsync(@event);
         }
 
 
-        /// <summary>
-        /// Sends the specified packet to Sentry.
-        /// </summary>
+        /// <summary>Sends the specified packet to Sentry.</summary>
         /// <param name="packet">The packet to send.</param>
-        /// <param name="dsn">The Data Source Name in Sentry.</param>
         /// <returns>
-        /// The <see cref="JsonPacket.EventID"/> of the successfully captured JSON packet, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
         protected virtual async Task<string> SendAsync(JsonPacket packet)
         {

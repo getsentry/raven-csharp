@@ -2,21 +2,21 @@
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
-//
+// 
 //     1. Redistributions of source code must retain the above copyright notice, this list of
 //        conditions and the following disclaimer.
-//
+// 
 //     2. Redistributions in binary form must reproduce the above copyright notice, this list of
 //        conditions and the following disclaimer in the documentation and/or other materials
 //        provided with the distribution.
-//
+// 
 //     3. Neither the name of the Sentry nor the names of its contributors may be used to
 //        endorse or promote products derived from this software without specific prior written
 //        permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -53,6 +53,11 @@ namespace SharpRaven
         Dsn CurrentDsn { get; }
 
         /// <summary>
+        /// The environment (e.g. production)
+        /// </summary>
+        string Environment { get; set; }
+
+        /// <summary>
         /// Logger. Default is "root"
         /// </summary>
         string Logger { get; set; }
@@ -67,11 +72,6 @@ namespace SharpRaven
         /// Release.
         /// </summary>
         string Release { get; set; }
-
-        /// <summary>
-        /// The environment (e.g. production)
-        /// </summary>
-        string Environment { get; set; }
 
         /// <summary>
         /// Default tags
@@ -89,6 +89,14 @@ namespace SharpRaven
         TimeSpan Timeout { get; set; }
 
 
+        /// <summary>Captures the specified <paramref name="event"/>.</summary>
+        /// <param name="event">The event to capture.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
+        /// </returns>
+        string Capture(SentryEvent @event);
+
+
         /// <summary>
         /// Captures the <see cref="Exception" />.
         /// </summary>
@@ -96,11 +104,12 @@ namespace SharpRaven
         /// <param name="message">The optional message to capture instead of the default <see cref="Exception.Message" />.</param>
         /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error" />.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
-        /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="fingerprint">The custom fingerprint to identify the captured <paramref name="message" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
         /// </returns>
+        [Obsolete("Use Capture(SentryEvent) instead.")]
         string CaptureException(Exception exception,
                                 SentryMessage message = null,
                                 ErrorLevel level = ErrorLevel.Error,
@@ -115,11 +124,12 @@ namespace SharpRaven
         /// <param name="message">The message to capture.</param>
         /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message" />. Default <see cref="ErrorLevel.Info" />.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="message" /> with.</param>
-        /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="fingerprint">The custom fingerprint to identify the captured <paramref name="message" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="message" />.</param>
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="message" />, or <c>null</c> if it fails.
         /// </returns>
+        [Obsolete("Use Capture(SentryEvent) instead")]
         string CaptureMessage(SentryMessage message,
                               ErrorLevel level = ErrorLevel.Info,
                               IDictionary<string, string> tags = null,
@@ -128,6 +138,13 @@ namespace SharpRaven
 
 
 #if (!net40)
+        /// <summary>Captures the event.</summary>
+        /// <param name="event">The event to capture.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
+        /// </returns>
+        Task<string> CaptureAsync(SentryEvent @event);
+
 
         /// <summary>
         /// Captures the <see cref="Exception" />.
@@ -136,11 +153,12 @@ namespace SharpRaven
         /// <param name="message">The optional message to capture instead of the default <see cref="Exception.Message" />.</param>
         /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error"/>.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
-        /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="fingerprint">The custom fingerprint to identify the captured <paramref name="message" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
         /// </returns>
+        [Obsolete("Use CaptureAsync(SentryEvent) instead.")]
         Task<string> CaptureExceptionAsync(Exception exception,
                                            SentryMessage message = null,
                                            ErrorLevel level = ErrorLevel.Error,
@@ -155,16 +173,18 @@ namespace SharpRaven
         /// <param name="message">The message to capture.</param>
         /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message"/>. Default <see cref="ErrorLevel.Info"/>.</param>
         /// <param name="tags">The tags to annotate the captured <paramref name="message"/> with.</param>
-        /// <param name="fingerprint">The custom fingerprint to annotate the captured <paramref name="message" /> with.</param>
+        /// <param name="fingerprint">The custom fingerprint to identify the captured <paramref name="message" /> with.</param>
         /// <param name="extra">The extra metadata to send with the captured <paramref name="message"/>.</param>
         /// <returns>
         /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
         /// </returns>
+        [Obsolete("Use CaptureAsync(SentryEvent) instead.")]
         Task<string> CaptureMessageAsync(SentryMessage message,
                                          ErrorLevel level = ErrorLevel.Info,
                                          IDictionary<string, string> tags = null,
                                          string[] fingerprint = null,
                                          object extra = null);
+
 #endif
 
         #region Deprecated Methods
