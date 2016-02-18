@@ -48,9 +48,10 @@ namespace SharpRaven.Utilities
         public static IDictionary<string, string> GetModules()
         {
             var assemblies = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .Select(a => a.GetName())
-                .OrderBy(a => a.Name);
+                                      .GetAssemblies()
+                                      .Where(q => !q.IsDynamic)
+                                      .Select(a => a.GetName())
+                                      .OrderBy(a => a.Name);
 
             var dictionary = new Dictionary<string, string>();
 
