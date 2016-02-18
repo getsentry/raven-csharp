@@ -49,6 +49,7 @@ namespace SharpRaven.Utilities
         {
             var assemblies = AppDomain.CurrentDomain
                                       .GetAssemblies()
+                                      .Where(q => !q.IsDynamic)
                                       .Select(a => a.GetName())
                                       .OrderBy(a => a.Name);
 
