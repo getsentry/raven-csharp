@@ -33,10 +33,5 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly : AssemblyTitle("SharpRaven")]
-[assembly : AssemblyDescription("SharpRaven is a C# client for Sentry https://www.getsentry.com")]
-[assembly : AssemblyCompany("Sentry")]
-[assembly : AssemblyProduct("SharpRaven")]
-[assembly : AssemblyCopyright("Copyright © Sentry")]
-[assembly : ComVisible(false)]
 [assembly : Guid("b5683941-1254-484e-b074-87cedd4fc78e")]
 [assembly : InternalsVisibleTo("SharpRaven.UnitTests")]

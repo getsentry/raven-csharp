@@ -30,8 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Dynamic;
 
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
@@ -52,16 +50,6 @@ namespace SharpRaven.UnitTests
             var exception = TestHelper.GetException();
 
             // TODO: This packet should preferably be "complete", i.e. contain as much information as possible. --asbjornu
-            dynamic httpContext = new ExpandoObject();
-            httpContext.Request = new ExpandoObject();
-            httpContext.Request.Url = "http://example.com/";
-            httpContext.Request.HttpMethod = "GET";
-            httpContext.Request.ServerVariables = new NameValueCollection();
-            httpContext.Request.Headers = new NameValueCollection();
-            httpContext.Request.Cookies = new NameValueCollection();
-            httpContext.Request.Form = new NameValueCollection();
-            httpContext.Request.QueryString = new NameValueCollection();
-
             JsonPacket packet = new JsonPacket("https://public:secret@app.getsentry.com/1337", exception)
             {
                 Level = ErrorLevel.Fatal,
@@ -70,7 +58,7 @@ namespace SharpRaven.UnitTests
                     { "key1", "value1" },
                     { "key2", "value2" },
                 },
-                Request = new SentryRequest(httpContext)
+                Request = new SentryRequest
                 {
                     QueryString = "?a=b&c=d",
                     Data = new

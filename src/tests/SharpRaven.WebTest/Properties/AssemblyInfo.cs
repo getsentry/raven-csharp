@@ -32,7 +32,4 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly : AssemblyTitle("SharpRaven.WebTest")]
-[assembly : AssemblyProduct("SharpRaven")]
-[assembly : AssemblyCopyright("Copyright © Sentry")]
-[assembly : ComVisible(false)]
 [assembly : Guid("7a9427ee-49db-4893-9fc6-60dda06f39fa")]

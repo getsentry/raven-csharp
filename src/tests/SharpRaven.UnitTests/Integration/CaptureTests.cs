@@ -42,7 +42,7 @@ namespace SharpRaven.UnitTests.Integration
     [TestFixture]
     public class CaptureTests
     {
-        #region Setup/Teardown
+        #region SetUp/Teardown
 
         [SetUp]
         public void Setup()
@@ -121,6 +121,23 @@ namespace SharpRaven.UnitTests.Integration
 
 
         [Test]
+        public void CaptureException_WithFingerprint_ReturnsValidID()
+        {
+            try
+            {
+                Helper.FirstLevelException();
+            }
+            catch (Exception exception)
+            {
+                var id = this.ravenClient.CaptureException(exception, fingerprint : new[] { "f", "i", "n", "g", "e", "r" });
+
+                Assert.That(id, Is.Not.Null);
+                Assert.That(Guid.Parse(id), Is.Not.Null);
+            }
+        }
+
+
+        [Test]
         public void CaptureException_WithMessageFormat_ReturnsValidID()
         {
             object[] args = Enumerable.Range(0, 5).Select(i => Guid.NewGuid()).Cast<object>().ToArray();
@@ -129,6 +146,17 @@ namespace SharpRaven.UnitTests.Integration
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
+        }
+
+
+        [Test]
+        public void CaptureException_WithoutStacktrace_ReturnsValidID()
+        {
+            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
+            //Console.WriteLine("Sent packet: " + id);
+
+            Assert.That(id, Is.Not.Null.Or.Empty);
             Assert.That(Guid.Parse(id), Is.Not.Null);
         }
 
@@ -149,24 +177,13 @@ namespace SharpRaven.UnitTests.Integration
                 tags["TAG"] = "TAG1";
                 extra["extra"] = "EXTRA1";
 
-                var id = this.ravenClient.CaptureException(e, tags: tags, extra: extra);
+                var id = this.ravenClient.CaptureException(e, tags : tags, extra : extra);
 
                 //Console.WriteLine("Sent packet: " + id);
 
                 Assert.That(id, Is.Not.Null);
                 Assert.That(Guid.Parse(id), Is.Not.Null);
             }
-        }
-
-
-        [Test]
-        public void CaptureException_WithoutStacktrace_ReturnsValidID()
-        {
-            var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
-            //Console.WriteLine("Sent packet: " + id);
-
-            Assert.That(id, Is.Not.Null.Or.Empty);
-            Assert.That(Guid.Parse(id), Is.Not.Null);
         }
 
 
@@ -252,53 +269,5 @@ namespace SharpRaven.UnitTests.Integration
             "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
 
         private IRavenClient ravenClient;
-
-        #region Nested type: Helper
-
-        private static class Helper
-        {
-            public static void FirstLevelException()
-            {
-                try
-                {
-                    SecondLevelException();
-                }
-                catch (Exception e)
-                {
-                    throw new Exception("First Level Exception", e);
-                }
-            }
-
-
-            public static void PrintInfo(string info)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write("[INFO] ");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(info);
-            }
-
-
-            private static void PerformDivideByZero()
-            {
-                int i2 = 0;
-                int i = 10 / i2;
-            }
-
-
-            private static void SecondLevelException()
-            {
-                try
-                {
-                    PerformDivideByZero();
-                }
-                catch (Exception e)
-                {
-                    throw new InvalidOperationException("Second Level Exception", e);
-                }
-            }
-        }
-
-        #endregion
     }
 }

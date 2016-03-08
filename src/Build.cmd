@@ -30,5 +30,6 @@ echo ===  NuGet Pack   ===
 echo =====================
 echo.
 NuGet pack app\SharpRaven\SharpRaven.csproj -Properties ReleaseNotes='Test'
+NuGet pack app\SharpRaven.Nancy\SharpRaven.Nancy.csproj -Properties ReleaseNotes='Test'
 echo.
 ENDLOCAL

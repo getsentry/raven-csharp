@@ -41,27 +41,29 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class SentryRequestTests
     {
-        private static void SimulateHttpRequest(Action<SentryRequest> test)
-        {
-            using (var simulator = new HttpSimulator())
-            {
-                simulator.SetFormVariable("Form1", "Value1");
-                simulator.SetHeader("UserAgent", "SharpRaven");
-                simulator.SetCookie("Cookie", "Monster");
+        #region SetUp/Teardown
 
-                using (simulator.SimulateRequest())
-                {
-                    var request = SentryRequest.GetRequest();
-                    test.Invoke(request);
-                }
-            }
+        [SetUp]
+        public void SetUp()
+        {
+            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
+            SentryRequestFactory.HttpContext = null;
         }
 
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
+            SentryRequestFactory.HttpContext = null;
+        }
+
+        #endregion
 
         [Test]
         public void GetRequest_NoHttpContext_ReturnsNull()
         {
-            var request = SentryRequest.GetRequest();
+            var request = requestFactory.Create();
             Assert.That(request, Is.Null);
         }
 
@@ -86,7 +88,7 @@ namespace SharpRaven.UnitTests.Data
             {
                 Assert.That(request.Data, Is.TypeOf<Dictionary<string, string>>());
 
-                var data = (Dictionary<string, string>) request.Data;
+                var data = (Dictionary<string, string>)request.Data;
 
                 Assert.That(data, Has.Count.EqualTo(1));
                 Assert.That(data["Form1"], Is.EqualTo("Value1"));
@@ -111,6 +113,26 @@ namespace SharpRaven.UnitTests.Data
         public void GetRequest_WithHttpContext_RequestIsNotNull()
         {
             SimulateHttpRequest(request => Assert.That(request, Is.Not.Null));
+        }
+
+
+        private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
+
+
+        private static void SimulateHttpRequest(Action<ISentryRequest> test)
+        {
+            using (var simulator = new HttpSimulator())
+            {
+                simulator.SetFormVariable("Form1", "Value1");
+                simulator.SetHeader("UserAgent", "SharpRaven");
+                simulator.SetCookie("Cookie", "Monster");
+
+                using (simulator.SimulateRequest())
+                {
+                    var request = requestFactory.Create();
+                    test.Invoke(request);
+                }
+            }
         }
     }
 }

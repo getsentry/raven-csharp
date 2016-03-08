@@ -39,9 +39,9 @@ using SharpRaven.Logging.Filters;
 namespace SharpRaven.UnitTests.Logging
 {
     [TestFixture]
-    public class @LogScrubberTests
+    public class LogScrubberTests
     {
-        #region Setup/Teardown
+        #region SetUp/Teardown
 
         [SetUp]
         public void SetUp()
@@ -50,9 +50,6 @@ namespace SharpRaven.UnitTests.Logging
         }
 
         #endregion
-
-        private LogScrubber scrubber;
-
 
         [Test]
         public void Filters_ContainCreditCardFilter()
@@ -71,17 +68,9 @@ namespace SharpRaven.UnitTests.Logging
 
 
         [Test]
-        public void Filters_ContainSocialSecurityFilter()
-        {
-            Assert.That(this.scrubber.Filters.OfType<SocialSecurityFilter>().ToArray(),
-                        Has.Length.EqualTo(1));
-        }
-
-
-        [Test]
         public void Filters_HasExpectedCount()
         {
-            Assert.That(this.scrubber.Filters, Has.Count.EqualTo(3));
+            Assert.That(this.scrubber.Filters, Has.Count.EqualTo(2));
         }
 
 
@@ -132,5 +121,8 @@ namespace SharpRaven.UnitTests.Logging
             Assert.That(output, Is.Not.StringContaining(validCreditCardNumber));
             Assert.That(output, Is.Not.StringContaining(validPhoneNumber));
         }
+
+
+        private LogScrubber scrubber;
     }
 }

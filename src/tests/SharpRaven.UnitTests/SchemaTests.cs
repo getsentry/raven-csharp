@@ -53,11 +53,15 @@ namespace SharpRaven.UnitTests
             var path = SchemaHelper.GetSchemaPath();
 
             using (var fileStream = File.OpenWrite(path))
-            using (var fileWriter = new StreamWriter(fileStream))
-            using (var jsonTextWriter = new JsonTextWriter(fileWriter))
             {
-                jsonTextWriter.Formatting = Formatting.Indented;
-                schema.WriteTo(jsonTextWriter);
+                using (var fileWriter = new StreamWriter(fileStream))
+                {
+                    using (var jsonTextWriter = new JsonTextWriter(fileWriter))
+                    {
+                        jsonTextWriter.Formatting = Formatting.Indented;
+                        schema.WriteTo(jsonTextWriter);
+                    }
+                }
             }
         }
 

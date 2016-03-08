@@ -1,0 +1,7 @@
+language: csharp
+solution: src/SharpRaven.sln
+sudo: false
+install:
+  - make
+script:
+  - make test

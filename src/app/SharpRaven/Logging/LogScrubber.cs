@@ -45,15 +45,15 @@ namespace SharpRaven.Logging
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LogScrubber"/> class.
+        /// Initializes a new instance of the <see cref="LogScrubber"/> class and adds CreditCardFilter and US-style PhoneNumberFilter
+        /// to the filter collection used to scrub the JSON packet. 
         /// </summary>
         public LogScrubber()
         {
             this.filters = new List<IFilter>
             {
                 new CreditCardFilter(),
-                new PhoneNumberFilter(),
-                new SocialSecurityFilter()
+                new PhoneNumberFilter()
             };
         }
 
@@ -81,8 +81,8 @@ namespace SharpRaven.Logging
         public string Scrub(string input)
         {
             return !String.IsNullOrWhiteSpace(input)
-                       ? this.filters.Aggregate(input, (current, f) => f.Filter(current))
-                       : input;
+                ? this.filters.Aggregate(input, (current, f) => f.Filter(current))
+                : input;
         }
     }
 }

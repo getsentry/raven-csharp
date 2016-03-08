@@ -40,7 +40,7 @@ namespace SharpRaven.UnitTests.Logging
         [Test]
         public void InvalidPhoneNumber_IsNotScrubbed()
         {
-            base.InvalidValueIsNotScrubbed("1531");
+            InvalidValueIsNotScrubbed("1531");
         }
 
 

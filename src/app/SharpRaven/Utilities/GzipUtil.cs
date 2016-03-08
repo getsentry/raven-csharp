@@ -31,6 +31,10 @@
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+#if (!net40)
+using System.Threading.Tasks;
+
+#endif
 
 namespace SharpRaven.Utilities
 {
@@ -50,7 +54,26 @@ namespace SharpRaven.Utilities
             byte[] data = Encoding.UTF8.GetBytes(json);
 
             using (GZipStream gzip = new GZipStream(stream, CompressionMode.Compress))
+            {
                 gzip.Write(data, 0, data.Length);
+            }
         }
+
+
+#if(!net40)
+        /// <summary>
+        /// Compress a JSON string with base-64 encoded gzip compressed string.
+        /// </summary>
+        /// <param name="json">The JSON to write.</param>
+        /// <param name="stream">The stream.</param>
+        public static async Task WriteAsync(string json, Stream stream)
+        {
+            byte[] data = Encoding.UTF8.GetBytes(json);
+            using (GZipStream gzip = new GZipStream(stream, CompressionMode.Compress))
+            {
+                await gzip.WriteAsync(data, 0, data.Length);
+            }
+        }
+#endif
     }
 }

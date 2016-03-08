@@ -127,8 +127,8 @@ namespace SharpRaven.Data
         public static implicit operator SentryMessage(string message)
         {
             return message != null
-                       ? new SentryMessage(message)
-                       : null;
+                ? new SentryMessage(message)
+                : null;
         }
 
 
@@ -142,8 +142,8 @@ namespace SharpRaven.Data
         public static implicit operator string(SentryMessage message)
         {
             return message != null
-                       ? message.ToString()
-                       : null;
+                ? message.ToString()
+                : null;
         }
 
         #endregion

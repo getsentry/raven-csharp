@@ -54,6 +54,17 @@ namespace SharpRaven.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="SentryUser"/> class.
         /// </summary>
+        /// <param name="identity">The identity.</param>
+        public SentryUser(IIdentity identity)
+        {
+            if (identity != null)
+                Username = identity.Name;
+        }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SentryUser"/> class.
+        /// </summary>
         /// <param name="username">The username.</param>
         public SentryUser(string username)
         {
@@ -96,5 +107,17 @@ namespace SharpRaven.Data
         /// </value>
         [JsonProperty(PropertyName = "username", NullValueHandling = NullValueHandling.Ignore)]
         public string Username { get; set; }
+
+
+        /// <summary>
+        /// Gets the user.
+        /// </summary>
+        /// <returns>
+        /// If an HTTP context is available, an instance of <see cref="SentryUser"/>, otherwise <c>null</c>.
+        /// </returns>
+        public static SentryUser GetUser(ISentryUserFactory factory)
+        {
+            return factory != null ? factory.Create() : null;
+        }
     }
 }
