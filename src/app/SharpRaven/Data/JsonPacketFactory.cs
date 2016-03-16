@@ -132,8 +132,10 @@ namespace SharpRaven.Data
         /// </returns>
         public JsonPacket Create(string project, SentryEvent @event)
         {
-            var json = new JsonPacket(project, @event);
-            return OnCreate(json);
+
+            return @event.Exception == null ?
+                Create(project, @event.Message, @event.Level, @event.Tags, @event.Fingerprint.ToArray(), @event.Extra) :
+                Create(project, @event.Exception, @event.Message, @event.Level, @event.Tags, @event.Fingerprint.ToArray(), @event.Extra);
         }
 
 
