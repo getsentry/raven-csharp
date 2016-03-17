@@ -28,6 +28,7 @@
 
 #endregion
 
+using System;
 using System.Threading.Tasks;
 
 using NUnit.Framework;
@@ -76,7 +77,11 @@ namespace SharpRaven.UnitTests
         [Test]
         public async Task InvokesSendAndJsonPacketFactoryOnCreate()
         {
-            // this.tester.InvokesSendAndJsonPacketFactoryOnCreate(async client => await client.CaptureMessageAsync("Test"));
+            var project = Guid.NewGuid().ToString();
+            var client = this.tester.GetTestableRavenClient(project);
+            var result = await client.CaptureMessageAsync("Test");
+
+            Assert.That(result, Is.EqualTo(project));
         }
 
 
