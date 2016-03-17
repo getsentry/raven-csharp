@@ -55,6 +55,7 @@ namespace SharpRaven
         /// </returns>
         public async Task<string> CaptureAsync(SentryEvent @event)
         {
+            @event.Tags = MergeTags(@event.Tags);
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
             return await SendAsync(packet);
         }
@@ -85,7 +86,7 @@ namespace SharpRaven
                 Message = message,
                 Level = level,
                 Extra = extra,
-                Tags = MergeTags(tags),
+                Tags = tags,
                 Fingerprint = fingerprint
             };
 
@@ -115,7 +116,7 @@ namespace SharpRaven
             {
                 Level = level,
                 Extra = extra,
-                Tags = MergeTags(tags),
+                Tags = tags,
                 Fingerprint = fingerprint
             };
 
