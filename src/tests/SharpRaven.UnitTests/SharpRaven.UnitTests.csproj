@@ -90,6 +90,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="Logging\LogScrubberTests.cs" />
     <Compile Include="Integration\CaptureTests.cs" />
+    <Compile Include="RavenClient.CaptureTests.cs" />
     <Compile Include="RavenClient.CaptureAsyncTests.cs" />
     <Compile Include="RavenClient.CaptureMessageAsyncTests.cs" />
     <Compile Include="RavenClient.CaptureMessageTests.cs" />
