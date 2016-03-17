@@ -35,10 +35,10 @@ using NUnit.Framework;
 
 using SharpRaven.Data;
 
-namespace SharpRaven.UnitTests
+namespace SharpRaven.UnitTests.RavenClientTests
 {
     [TestFixture]
-    public class RavenClientCaptureMessageAsyncTests
+    public class CaptureMessageAsyncTests
     {
         #region SetUp/Teardown
 

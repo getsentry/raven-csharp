@@ -43,7 +43,7 @@ using System.Threading.Tasks;
 
 #endif
 
-namespace SharpRaven.UnitTests
+namespace SharpRaven.UnitTests.RavenClientTests
 {
     public class RavenClientTester
     {
