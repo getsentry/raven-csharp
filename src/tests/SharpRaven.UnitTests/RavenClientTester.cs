@@ -46,7 +46,7 @@ using System.Threading.Tasks;
 namespace SharpRaven.UnitTests
 {
     [TestFixture]
-    public partial class RavenClientTests
+    public class RavenClientTester
     {
         [Test]
         public void CaptureMessage_ClientEnvironmentIsIgnored()
@@ -205,6 +205,21 @@ namespace SharpRaven.UnitTests
         }
 
 
+#if (!net40)
+        [Test]
+        public async Task CaptureMessageAsync_InvokesSend_AndJsonPacketFactoryOnCreate()
+        {
+            const string dsnUri =
+                "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
+            var project = Guid.NewGuid().ToString();
+            var jsonPacketFactory = new TestableJsonPacketFactory(project);
+            var client = new TestableRavenClient(dsnUri, jsonPacketFactory);
+            var result = await client.CaptureMessageAsync("Test");
+
+            Assert.That(result, Is.EqualTo(project));
+        }
+#endif
+
 
         [Test]
         public void Constructor_NullDsn_ThrowsArgumentNullException()
@@ -300,8 +315,6 @@ namespace SharpRaven.UnitTests
 #if(!net40)
             protected override Task<string> SendAsync(JsonPacket packet)
             {
-                packet = PreparePacket(packet);
-                LastPacket = packet;
                 return Task.FromResult(packet.Project);
             }
 #endif
