@@ -53,19 +53,19 @@ namespace SharpRaven.UnitTests
         [Test]
         public void ClientEnvironmentIsIgnored()
         {
-            this.tester.ClientEnvironmentIsIgnored(client => { client.CaptureAsync(new SentryEvent("Test")).GetAwaiter().GetResult(); });
+            this.tester.ClientEnvironmentIsIgnored(client => client.CaptureAsync(new SentryEvent("Test")));
         }
 
 
         [Test]
-        public async Task ClientLoggerIsIgnored()
+        public void ClientLoggerIsIgnored()
         {
             this.tester.ClientLoggerIsIgnored(async client => await client.CaptureAsync(new SentryEvent("Test")));
         }
 
 
         [Test]
-        public async Task ClientReleaseIsIgnored()
+        public void ClientReleaseIsIgnored()
         {
             this.tester.ClientReleaseIsIgnored(async client => await client.CaptureAsync(new SentryEvent("Test")));
         }
@@ -83,14 +83,14 @@ namespace SharpRaven.UnitTests
 
 
         [Test]
-        public async Task OnlyDefaultTags()
+        public void OnlyDefaultTags()
         {
             this.tester.OnlyDefaultTags(async client => await client.CaptureAsync(new SentryEvent("Test")));
         }
 
 
         [Test]
-        public async Task OnlyMessageTags()
+        public void OnlyMessageTags()
         {
             this.tester.OnlyMessageTags(async (client, tags) => await client.CaptureAsync(new SentryEvent("Test")
             {
@@ -101,35 +101,35 @@ namespace SharpRaven.UnitTests
 
 
         [Test]
-        public async Task ScrubberIsInvoked()
+        public void ScrubberIsInvoked()
         {
             this.tester.ScrubberIsInvoked(async (client, message) => await client.CaptureAsync(new SentryEvent(message)));
         }
 
 
         [Test]
-        public async Task SendsEnvironment()
+        public void SendsEnvironment()
         {
             this.tester.SendsEnvironment(async client => await client.CaptureAsync(new SentryEvent("Test")));
         }
 
 
         [Test]
-        public async Task SendsLogger()
+        public void SendsLogger()
         {
             this.tester.SendsLogger(async client => await client.CaptureAsync(new SentryEvent("Test")));
         }
 
 
         [Test]
-        public async Task SendsRelease()
+        public void SendsRelease()
         {
             this.tester.SendsRelease(async client => await client.CaptureAsync(new SentryEvent("Test")));
         }
 
 
         [Test]
-        public async Task TagHandling()
+        public void TagHandling()
         {
             this.tester.TagHandling(async (client, tags) => await client.CaptureAsync(new SentryEvent("Test")
             {
