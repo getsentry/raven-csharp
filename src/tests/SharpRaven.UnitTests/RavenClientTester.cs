@@ -45,68 +45,51 @@ using System.Threading.Tasks;
 
 namespace SharpRaven.UnitTests
 {
-    [TestFixture]
     public class RavenClientTester
     {
-        [Test]
-        public void CaptureMessage_ClientEnvironmentIsIgnored()
-        {
-            var jsonPacketFactory = new TestableJsonPacketFactory(environment : "keep-me");
-            var client = new TestableRavenClient(dsnUri, jsonPacketFactory) { Environment = "foobar" };
-            client.CaptureMessage("Test");
-
-            var lastEvent = client.LastPacket;
-
-            Assert.That(lastEvent.Environment, Is.EqualTo("keep-me"));
-        }
+        private const string dsnUri =
+            "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
 
 
-        [Test]
-        public void CaptureMessage_ClientLoggerIsIgnored()
+        public void ClientLoggerIsIgnored(Action<IRavenClient> capture)
         {
             var jsonPacketFactory = new TestableJsonPacketFactory(logger : "keep-me");
             var client = new TestableRavenClient(dsnUri, jsonPacketFactory) { Logger = "foobar" };
-            client.CaptureMessage("Test");
-
+            capture.Invoke(client);
             var lastEvent = client.LastPacket;
 
             Assert.That(lastEvent.Logger, Is.EqualTo("keep-me"));
         }
 
 
-        [Test]
-        public void CaptureMessage_ClientReleaseIsIgnored()
+        public void ClientReleaseIsIgnored(Action<IRavenClient> capture)
         {
             var jsonPacketFactory = new TestableJsonPacketFactory(release : "keep-me");
             var client = new TestableRavenClient(dsnUri, jsonPacketFactory) { Release = "foobar" };
-            client.CaptureMessage("Test");
-
+            capture.Invoke(client);
             var lastEvent = client.LastPacket;
 
             Assert.That(lastEvent.Release, Is.EqualTo("keep-me"));
         }
 
 
-        [Test]
-        public void CaptureMessage_InvokesSend_AndJsonPacketFactoryOnCreate()
+        public void InvokesSendAndJsonPacketFactoryOnCreate(Func<IRavenClient, string> capture)
         {
             var project = Guid.NewGuid().ToString();
             var jsonPacketFactory = new TestableJsonPacketFactory(project);
             var client = new TestableRavenClient(dsnUri, jsonPacketFactory);
-            var result = client.CaptureMessage("Test");
+            var result = capture.Invoke(client);
 
             Assert.That(result, Is.EqualTo(project));
         }
 
 
-        [Test]
-        public void CaptureMessage_OnlyDefaultTags()
+        public void OnlyDefaultTags(Action<IRavenClient> capture)
         {
             var client = new TestableRavenClient(dsnUri);
             client.Tags.Add("key", "value");
             client.Tags.Add("foo", "bar");
-            // client.Tags = defaultTags;
-            client.CaptureMessage("Test", ErrorLevel.Info);
+            capture.Invoke(client);
 
             var lastEvent = client.LastPacket;
 
@@ -115,14 +98,11 @@ namespace SharpRaven.UnitTests
         }
 
 
-        [Test]
-        public void CaptureMessage_OnlyMessageTags()
+        public void OnlyMessageTags(Action<IRavenClient, IDictionary<string, string>> capture)
         {
             var messageTags = new Dictionary<string, string> { { "key", "value" }, { "foo", "bar" } };
-
             var client = new TestableRavenClient(dsnUri);
-            client.CaptureMessage("Test", ErrorLevel.Info, messageTags);
-
+            capture.Invoke(client, messageTags);
             var lastEvent = client.LastPacket;
 
             Assert.That(lastEvent.Tags["key"], Is.EqualTo("value"));
@@ -130,45 +110,42 @@ namespace SharpRaven.UnitTests
         }
 
 
-        [Test]
-        public void CaptureMessage_ScrubberIsInvoked()
+        public void ScrubberIsInvoked(Action<IRavenClient, string> capture)
         {
-            string message = Guid.NewGuid().ToString("n");
-
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-            ravenClient.LogScrubber = Substitute.For<IScrubber>();
+            var message = Guid.NewGuid().ToString("n");
+            var ravenClient = new RavenClient(TestHelper.DsnUri)
+            {
+                LogScrubber = Substitute.For<IScrubber>()
+            };
             ravenClient.LogScrubber.Scrub(Arg.Any<string>())
                 .Returns(c =>
                 {
-                    string json = c.Arg<string>();
+                    var json = c.Arg<string>();
                     Assert.That(json, Is.StringContaining(message));
                     return json;
                 });
 
-            ravenClient.CaptureMessage(message);
+            capture.Invoke(ravenClient, message);
 
             // Verify that we actually received a Scrub() call:
             ravenClient.LogScrubber.Received().Scrub(Arg.Any<string>());
         }
 
 
-        [Test]
-        public void CaptureMessage_SendsEnvironment()
+        public void SendsEnvironment(Action<IRavenClient> capture)
         {
             var client = new TestableRavenClient(dsnUri) { Environment = "foobar" };
-            client.CaptureMessage("Test");
-
+            capture.Invoke(client);
             var lastEvent = client.LastPacket;
 
             Assert.That(lastEvent.Environment, Is.EqualTo("foobar"));
         }
 
 
-        [Test]
-        public void CaptureMessage_SendsLogger()
+        public void SendsLogger(Action<IRavenClient> capture)
         {
             var client = new TestableRavenClient(dsnUri) { Logger = "foobar" };
-            client.CaptureMessage("Test");
+            capture.Invoke(client);
 
             var lastEvent = client.LastPacket;
 
@@ -176,11 +153,10 @@ namespace SharpRaven.UnitTests
         }
 
 
-        [Test]
-        public void CaptureMessage_SendsRelease()
+        public void SendsRelease(Action<IRavenClient> capture)
         {
             var client = new TestableRavenClient(dsnUri) { Release = "foobar" };
-            client.CaptureMessage("Test");
+            capture.Invoke(client);
 
             var lastEvent = client.LastPacket;
 
@@ -188,15 +164,14 @@ namespace SharpRaven.UnitTests
         }
 
 
-        [Test]
-        public void CaptureMessage_TagHandling()
+        public void TagHandling(Action<IRavenClient, IDictionary<string, string>> capture)
         {
             var messageTags = new Dictionary<string, string> { { "key", "another value" } };
 
             var client = new TestableRavenClient(dsnUri);
             client.Tags.Add("key", "value");
             client.Tags.Add("foo", "bar");
-            client.CaptureMessage("Test", ErrorLevel.Info, messageTags);
+            capture.Invoke(client, messageTags);
 
             var lastEvent = client.LastPacket;
 
@@ -206,7 +181,7 @@ namespace SharpRaven.UnitTests
 
 
 #if (!net40)
-        [Test]
+
         public async Task CaptureMessageAsync_InvokesSend_AndJsonPacketFactoryOnCreate()
         {
             const string dsnUri =
@@ -221,7 +196,18 @@ namespace SharpRaven.UnitTests
 #endif
 
 
-        [Test]
+        public void ClientEnvironmentIsIgnored(Action<IRavenClient> capture)
+        {
+            var jsonPacketFactory = new TestableJsonPacketFactory(environment : "keep-me");
+            var client = new TestableRavenClient(dsnUri, jsonPacketFactory) { Environment = "foobar" };
+            capture.Invoke(client);
+
+            var lastEvent = client.LastPacket;
+
+            Assert.That(lastEvent.Environment, Is.EqualTo("keep-me"));
+        }
+
+
         public void Constructor_NullDsn_ThrowsArgumentNullException()
         {
             var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn)null));
@@ -229,7 +215,6 @@ namespace SharpRaven.UnitTests
         }
 
 
-        [Test]
         public void Constructor_NullDsnString_ThrowsArgumentNullException()
         {
             var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string)null));
@@ -237,7 +222,6 @@ namespace SharpRaven.UnitTests
         }
 
 
-        [Test]
         public void Constructor_StringDsn_CurrentDsnEqualsDsn()
         {
             IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
@@ -245,7 +229,6 @@ namespace SharpRaven.UnitTests
         }
 
 
-        [Test]
         public void Logger_IsRoot()
         {
             IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
@@ -253,7 +236,6 @@ namespace SharpRaven.UnitTests
         }
 
 
-        [Test]
         public void Release_IsNullByDefault()
         {
             IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
@@ -261,9 +243,6 @@ namespace SharpRaven.UnitTests
             Assert.That(ravenClient.Release, Is.Null);
         }
 
-
-        private const string dsnUri =
-            "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
 
         private class TestableJsonPacketFactory : JsonPacketFactory
         {
