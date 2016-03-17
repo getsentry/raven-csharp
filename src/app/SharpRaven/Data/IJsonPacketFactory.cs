@@ -53,6 +53,7 @@ namespace SharpRaven.Data
         /// <returns>
         /// A new instance of <see cref="JsonPacket" /> for the specified <paramref name="project" />.
         /// </returns>
+        [Obsolete("Use Create(string, SentryEvent) instead.")]
         JsonPacket Create(string project,
                           SentryMessage message,
                           ErrorLevel level = ErrorLevel.Info,
@@ -76,6 +77,7 @@ namespace SharpRaven.Data
         /// A new instance of <see cref="JsonPacket" /> for the specified
         /// <paramref name="project" />, with the given <paramref name="exception" />.
         /// </returns>
+        [Obsolete("Use Create(string, SentryEvent) instead.")]
         JsonPacket Create(string project,
                           Exception exception,
                           SentryMessage message = null,

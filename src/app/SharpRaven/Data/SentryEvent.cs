@@ -39,8 +39,9 @@ namespace SharpRaven.Data
     public class SentryEvent
     {
         private readonly Exception exception;
-        private readonly IList<string> fingerprint;
-        private readonly IDictionary<string, string> tags;
+        private IList<string> fingerprint;
+        private SentryMessage message;
+        private IDictionary<string, string> tags;
 
 
         /// <summary>Initializes a new instance of the <see cref="SentryEvent" /> class.</summary>
@@ -65,8 +66,8 @@ namespace SharpRaven.Data
         /// <summary>Prevents a default instance of the <see cref="SentryEvent"/> class from being created.</summary>
         private SentryEvent()
         {
-            this.tags = new Dictionary<string, string>();
-            this.fingerprint = new List<string>();
+            Tags = new Dictionary<string, string>();
+            Fingerprint = new List<string>();
         }
 
 
@@ -92,6 +93,7 @@ namespace SharpRaven.Data
         public IList<string> Fingerprint
         {
             get { return this.fingerprint; }
+            internal set { this.fingerprint = value ?? new List<string>(); }
         }
 
         /// <summary>
@@ -108,7 +110,11 @@ namespace SharpRaven.Data
         /// <value>
         /// The optional message to capture instead of the default <see cref="T:Exception.Message" />.
         /// </value>
-        public SentryMessage Message { get; set; }
+        public SentryMessage Message
+        {
+            get { return this.message ?? (Exception != null ? Exception.Message : null); }
+            set { this.message = value; }
+        }
 
         /// <summary>Gets the tags to annotate the captured <see name="Exception" /> or <see cref="Message" /> with.</summary>
         /// <value>
@@ -117,6 +123,7 @@ namespace SharpRaven.Data
         public IDictionary<string, string> Tags
         {
             get { return this.tags; }
+            internal set { this.tags = value ?? new Dictionary<string, string>(); }
         }
     }
 }

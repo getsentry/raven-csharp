@@ -30,9 +30,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using SharpRaven.Serialization;
 using SharpRaven.Utilities;
@@ -72,7 +74,60 @@ namespace SharpRaven.Data
                 Initialize(@event.Exception);
 
             Message = @event.Message != null ? @event.Message.ToString() : null;
+            Extra = Merge(@event);
+            Tags = @event.Tags;
+            Fingerprint = @event.Fingerprint.ToArray();
             MessageObject = @event.Message;
+        }
+
+
+        private static object Merge(SentryEvent @event)
+        {
+            var exception = @event.Exception;
+            var extra = @event.Extra;
+
+            if (exception == null && extra == null)
+                return null;
+
+            if (extra != null && exception == null)
+                return extra;
+
+            var exceptionData = new ExceptionData(exception);
+
+            if (extra == null)
+                return exceptionData;
+
+            JObject result;
+
+            if (extra.GetType().IsArray)
+            {
+                result = new JObject();
+                var array = JArray.FromObject(extra);
+
+                foreach (var o in array)
+                {
+                    var jo = o as JObject;
+                    JProperty[] properties;
+
+                    if (jo == null || (properties = jo.Properties().ToArray()).Length != 2 || properties[0].Name != "Key"
+                        || properties[1].Name != "Value")
+                    {
+                        result.Merge(o);
+                        continue;
+                    }
+
+                    var key = properties[0].Value.ToString();
+                    var value = properties[1].Value;
+                    result.Add(key, value);
+                }
+            }
+            else
+                result = JObject.FromObject(extra);
+
+            var jExceptionData = JObject.FromObject(exceptionData);
+            result.Merge(jExceptionData);
+
+            return result;
         }
 
 

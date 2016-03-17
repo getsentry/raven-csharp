@@ -84,20 +84,10 @@ namespace SharpRaven
             {
                 Message = message,
                 Level = level,
-                Extra = extra
+                Extra = extra,
+                Tags = MergeTags(tags),
+                Fingerprint = fingerprint
             };
-
-            if (tags != null)
-            {
-                foreach (var tag in tags)
-                    @event.Tags.Add(tag.Key, tag.Value);
-            }
-
-            if (fingerprint != null)
-            {
-                foreach (var f in fingerprint)
-                    @event.Fingerprint.Add(f);
-            }
 
             return await CaptureAsync(@event);
         }
@@ -124,20 +114,10 @@ namespace SharpRaven
             var @event = new SentryEvent(message)
             {
                 Level = level,
-                Extra = extra
+                Extra = extra,
+                Tags = MergeTags(tags),
+                Fingerprint = fingerprint
             };
-
-            if (tags != null)
-            {
-                foreach (var tag in tags)
-                    @event.Tags.Add(tag.Key, tag.Value);
-            }
-
-            if (fingerprint != null)
-            {
-                foreach (var f in fingerprint)
-                    @event.Fingerprint.Add(f);
-            }
 
             return await CaptureAsync(@event);
         }

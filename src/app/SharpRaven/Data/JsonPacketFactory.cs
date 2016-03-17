@@ -32,8 +32,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Newtonsoft.Json.Linq;
-
 namespace SharpRaven.Data
 {
     /// <summary>
@@ -56,6 +54,7 @@ namespace SharpRaven.Data
         /// <returns>
         /// A new instance of <see cref="JsonPacket" /> for the specified <paramref name="project" />.
         /// </returns>
+        [Obsolete("Use Create(string, SentryEvent) instead.")]
         public JsonPacket Create(string project,
                                  SentryMessage message,
                                  ErrorLevel level = ErrorLevel.Info,
@@ -63,17 +62,15 @@ namespace SharpRaven.Data
                                  string[] fingerprint = null,
                                  object extra = null)
         {
-            var json = new JsonPacket(project)
+            var @event = new SentryEvent(message)
             {
-                Message = message != null ? message.ToString() : null,
-                MessageObject = message,
                 Level = level,
+                Extra = extra,
                 Tags = tags,
-                Fingerprint = fingerprint,
-                Extra = Merge(extra)
+                Fingerprint = fingerprint
             };
 
-            return OnCreate(json);
+            return Create(project, @event);
         }
 
 
@@ -98,6 +95,7 @@ namespace SharpRaven.Data
         /// given
         /// <paramref name="exception" />.
         /// </returns>
+        [Obsolete("Use Create(string, SentryEvent) instead.")]
         public JsonPacket Create(string project,
                                  Exception exception,
                                  SentryMessage message = null,
@@ -106,17 +104,16 @@ namespace SharpRaven.Data
                                  string[] fingerprint = null,
                                  object extra = null)
         {
-            var json = new JsonPacket(project, exception)
+            var @event = new SentryEvent(exception)
             {
-                Message = message != null ? message.ToString() : exception.Message,
-                MessageObject = message,
+                Message = message,
                 Level = level,
+                Extra = extra,
                 Tags = tags,
                 Fingerprint = fingerprint,
-                Extra = Merge(extra, exception)
             };
 
-            return OnCreate(json);
+            return Create(project, @event);
         }
 
 
@@ -132,10 +129,8 @@ namespace SharpRaven.Data
         /// </returns>
         public JsonPacket Create(string project, SentryEvent @event)
         {
-
-            return @event.Exception == null ?
-                Create(project, @event.Message, @event.Level, @event.Tags, @event.Fingerprint.ToArray(), @event.Extra) :
-                Create(project, @event.Exception, @event.Message, @event.Level, @event.Tags, @event.Fingerprint.ToArray(), @event.Extra);
+            var json = new JsonPacket(project, @event);
+            return OnCreate(json);
         }
 
 
@@ -150,53 +145,6 @@ namespace SharpRaven.Data
         protected virtual JsonPacket OnCreate(JsonPacket jsonPacket)
         {
             return jsonPacket;
-        }
-
-
-        private static object Merge(object extra, Exception exception = null)
-        {
-            if (exception == null && extra == null)
-                return null;
-
-            if (extra != null && exception == null)
-                return extra;
-
-            var exceptionData = new ExceptionData(exception);
-
-            if (extra == null)
-                return exceptionData;
-
-            JObject result;
-
-            if (extra.GetType().IsArray)
-            {
-                result = new JObject();
-                var array = JArray.FromObject(extra);
-
-                foreach (var o in array)
-                {
-                    var jo = o as JObject;
-                    JProperty[] properties;
-
-                    if (jo == null || (properties = jo.Properties().ToArray()).Length != 2 || properties[0].Name != "Key"
-                        || properties[1].Name != "Value")
-                    {
-                        result.Merge(o);
-                        continue;
-                    }
-
-                    var key = properties[0].Value.ToString();
-                    var value = properties[1].Value;
-                    result.Add(key, value);
-                }
-            }
-            else
-                result = JObject.FromObject(extra);
-
-            var jExceptionData = JObject.FromObject(exceptionData);
-            result.Merge(jExceptionData);
-
-            return result;
         }
     }
 }
