@@ -28,6 +28,8 @@
 
 #endregion
 
+#if (!net40)
+
 using System;
 using System.Threading.Tasks;
 
@@ -128,10 +130,13 @@ namespace SharpRaven.UnitTests.RavenClientTests
         [Test]
         public void TagHandling()
         {
-            this.tester.TagHandling(async (client, tags) => await client.CaptureExceptionAsync(new Exception("Test"), level: ErrorLevel.Info, tags: tags));
+            this.tester.TagHandling(
+                async (client, tags) => await client.CaptureExceptionAsync(new Exception("Test"), level : ErrorLevel.Info, tags : tags));
         }
 
 
         private RavenClientTester tester;
     }
 }
+
+#endif

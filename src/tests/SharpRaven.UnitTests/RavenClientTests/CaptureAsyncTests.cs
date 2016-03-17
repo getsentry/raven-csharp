@@ -28,6 +28,8 @@
 
 #endregion
 
+#if (!net40)
+
 using System;
 using System.Threading.Tasks;
 
@@ -142,3 +144,5 @@ namespace SharpRaven.UnitTests.RavenClientTests
         private RavenClientTester tester;
     }
 }
+
+#endif

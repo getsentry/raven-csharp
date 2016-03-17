@@ -53,7 +53,6 @@ namespace SharpRaven.UnitTests.RavenClientTests
         public void ClientEnvironmentIsIgnored()
         {
             this.tester.ClientEnvironmentIsIgnored(client => client.Capture(new SentryEvent("Test")));
-            ;
         }
 
 
