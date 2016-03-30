@@ -74,6 +74,7 @@ namespace SharpRaven.Data
                 Initialize(@event.Exception);
 
             Message = @event.Message != null ? @event.Message.ToString() : null;
+            Level = @event.Level;
             Extra = Merge(@event);
             Tags = @event.Tags;
             Fingerprint = @event.Fingerprint.ToArray();
