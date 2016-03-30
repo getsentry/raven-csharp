@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
@@ -50,6 +51,9 @@ namespace SharpRaven.Data
             get { return HttpContext != null; }
         }
 
+        [JsonIgnore]
+        internal static bool CheckedForHttpContext { get; set; }
+
         /// <summary>
         /// Gets or sets the HTTP context.
         /// </summary>
@@ -58,6 +62,20 @@ namespace SharpRaven.Data
         /// </value>
         internal static dynamic HttpContext { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets the CurrentHttpContextProperty
+        /// </summary>
+        /// <value>
+        /// The current httpcontext property
+        /// </value>
+        internal static dynamic CurrentHttpContextProperty { get; set; }
+
+        [JsonIgnore]
+        internal static bool HasCurrentHttpContextProperty
+        {
+            get { return CurrentHttpContextProperty != null; }
+        }
 
         /// <summary>
         /// Creates a new instance of <see cref="SentryRequest"/>
@@ -157,7 +175,7 @@ namespace SharpRaven.Data
         }
 
 
-        private static void GetHttpContext()
+        private static void TryGetHttpContextPropertyFromAppDomain()
         {
             if (HasHttpContext)
                 return;
@@ -168,26 +186,49 @@ namespace SharpRaven.Data
                     .GetAssemblies()
                     .FirstOrDefault(assembly => assembly.FullName.StartsWith("System.Web,"));
 
-                if (HasHttpContext || systemWeb == null)
+                if (systemWeb == null)
                     return;
 
                 var httpContextType = systemWeb.GetExportedTypes()
                     .FirstOrDefault(type => type.Name == "HttpContext");
 
-                if (HasHttpContext || httpContextType == null)
+                if (httpContextType == null)
                     return;
 
                 var currentHttpContextProperty = httpContextType.GetProperty("Current",
                                                                              BindingFlags.Static | BindingFlags.Public);
 
-                if (HasHttpContext || currentHttpContextProperty == null)
+                if (currentHttpContextProperty == null)
                     return;
 
-                HttpContext = currentHttpContextProperty.GetValue(null, null);
+                CurrentHttpContextProperty = currentHttpContextProperty;
             }
             catch (Exception exception)
             {
-                Console.WriteLine("An error occurred while retrieving the HTTP context: {0}", exception);
+                Console.WriteLine("An error occurred while retrieving the HTTP contextproperty: {0}", exception);
+            }
+        }
+
+        private static void GetHttpContext()
+        {
+            // [Meilu] Since reflection is performance heavy, check if we have the httpcontext only once.
+            if (!CheckedForHttpContext)
+            {
+                TryGetHttpContextPropertyFromAppDomain();
+                CheckedForHttpContext = true;
+            }
+
+            // [Meilu] If the currentHttpcontext property is not available we couldnt retrieve it, dont continue
+            if (!HasCurrentHttpContextProperty)
+                return;
+
+            try
+            {
+                HttpContext = CurrentHttpContextProperty.GetValue(null, null);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("An error occurred while retrieving the current HTTP context: {0}", exception);
             }
         }
     }
