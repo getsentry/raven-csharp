@@ -71,6 +71,13 @@ namespace SharpRaven.UnitTests.RavenClientTests
 
 
         [Test]
+        public void ErrorLevelIsDebug()
+        {
+            this.tester.ErrorLevelIsDebug(client => client.CaptureException(new Exception("Test"), level : ErrorLevel.Debug));
+        }
+
+
+        [Test]
         public void InvokesSendAndJsonPacketFactoryOnCreate()
         {
             this.tester.InvokesSendAndJsonPacketFactoryOnCreate(client => client.CaptureException(new Exception("Test")));
@@ -87,7 +94,8 @@ namespace SharpRaven.UnitTests.RavenClientTests
         [Test]
         public void OnlyMessageTags()
         {
-            this.tester.OnlyMessageTags((client, tags) => client.CaptureException(new Exception("Test"), level: ErrorLevel.Info, tags: tags));
+            this.tester.OnlyMessageTags(
+                (client, tags) => client.CaptureException(new Exception("Test"), level : ErrorLevel.Info, tags : tags));
         }
 
 
@@ -122,7 +130,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
         [Test]
         public void TagHandling()
         {
-            this.tester.TagHandling((client, tags) => client.CaptureException(new Exception("Test"), level: ErrorLevel.Info, tags: tags));
+            this.tester.TagHandling((client, tags) => client.CaptureException(new Exception("Test"), level : ErrorLevel.Info, tags : tags));
         }
 
 

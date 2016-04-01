@@ -106,6 +106,17 @@ namespace SharpRaven.UnitTests.RavenClientTests
         }
 
 
+        public void ErrorLevelIsDebug(Action<IRavenClient> capture)
+        {
+            var client = new TestableRavenClient(dsnUri);
+            capture.Invoke(client);
+
+            var lastEvent = client.LastPacket;
+
+            Assert.That(lastEvent.Level, Is.EqualTo(ErrorLevel.Debug));
+        }
+
+
         public IRavenClient GetTestableRavenClient(string project)
         {
             var jsonPacketFactory = new TestableJsonPacketFactory(project);

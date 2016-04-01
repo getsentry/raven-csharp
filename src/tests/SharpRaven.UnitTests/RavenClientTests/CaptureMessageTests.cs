@@ -69,6 +69,13 @@ namespace SharpRaven.UnitTests.RavenClientTests
 
 
         [Test]
+        public void ErrorLevelIsDebug()
+        {
+            this.tester.ErrorLevelIsDebug(client => client.CaptureMessage("Test", ErrorLevel.Debug));
+        }
+
+
+        [Test]
         public void InvokesSendAndJsonPacketFactoryOnCreate()
         {
             this.tester.InvokesSendAndJsonPacketFactoryOnCreate(client => client.CaptureMessage("Test"));

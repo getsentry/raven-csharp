@@ -74,6 +74,14 @@ namespace SharpRaven.UnitTests.RavenClientTests
 
 
         [Test]
+        public void ErrorLevelIsDebug()
+        {
+            this.tester.ErrorLevelIsDebug(
+                async client => await client.CaptureExceptionAsync(new Exception("Test"), level : ErrorLevel.Debug));
+        }
+
+
+        [Test]
         public async Task InvokesSendAndJsonPacketFactoryOnCreate()
         {
             var project = Guid.NewGuid().ToString();
