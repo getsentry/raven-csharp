@@ -96,7 +96,8 @@
     <Compile Include="RavenClientTests\CaptureAsyncTests.cs" />
     <Compile Include="RavenClientTests\CaptureMessageAsyncTests.cs" />
     <Compile Include="RavenClientTests\CaptureMessageTests.cs" />
-    <Compile Include="RavenClientTests\RavenClientTester.cs" />
+    <Compile Include="RavenClientTests\CaptureTester.cs" />
+    <Compile Include="RavenClientTests\RavenClientTests.cs" />
     <Compile Include="Utilities\HttpSimulator.cs" />
     <Compile Include="Utilities\PacketBuilderTests.cs" />
     <Compile Include="Utilities\ReflectionHelper.cs" />

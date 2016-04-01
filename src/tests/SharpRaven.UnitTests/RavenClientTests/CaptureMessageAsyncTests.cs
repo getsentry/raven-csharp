@@ -47,7 +47,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
         [SetUp]
         public void SetUp()
         {
-            this.tester = new RavenClientTester();
+            this.tester = new CaptureTester();
         }
 
         #endregion
@@ -140,7 +140,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
         }
 
 
-        private RavenClientTester tester;
+        private CaptureTester tester;
     }
 }
 

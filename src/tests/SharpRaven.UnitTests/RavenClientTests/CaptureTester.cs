@@ -30,6 +30,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 using NSubstitute;
 
@@ -45,8 +48,50 @@ using System.Threading.Tasks;
 
 namespace SharpRaven.UnitTests.RavenClientTests
 {
-    public class RavenClientTester
+    [TestFixture]
+    public class CaptureTester
     {
+        [Test]
+        public void AllMethodsAreTested()
+        {
+            var testerMethods = GetType()
+                .GetMethods(BindingFlags.DeclaredOnly)
+                .Where(m => m.GetCustomAttribute(typeof(TestAttribute), false) == null)
+                .Where(m => m.GetCustomAttribute(typeof(IgnoreAttribute), false) == null)
+                .ToList();
+
+            var ravenClientTests = new[]
+            {
+                typeof(CaptureAsyncTests),
+                typeof(CaptureExceptionAsyncTests),
+                typeof(CaptureExceptionTests),
+                typeof(CaptureMessageAsyncTests),
+                typeof(CaptureMessageTests),
+                typeof(CaptureTests)
+            };
+
+            var sb = new StringBuilder();
+
+            foreach (var ravenClientTestType in ravenClientTests)
+            {
+                var testMethods = ravenClientTestType
+                    .GetMethods()
+                    .Where(m => m.GetCustomAttributes(typeof(TestAttribute), false).Any())
+                    .ToList();
+
+                foreach (var testerMethod in testerMethods.Where(testerMethod => testMethods.All(m => m.Name != testerMethod.Name)))
+                {
+                    sb.AppendFormat("{0}.{1} is missing or not properly decorated with a [Test] attribute.", ravenClientTestType.FullName,
+                                    testerMethod.Name);
+                    sb.AppendLine();
+                }
+            }
+
+            if (sb.Length > 0)
+                Assert.Fail(sb.ToString());
+        }
+
+
         private const string dsnUri =
             "http://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";
 
@@ -85,27 +130,6 @@ namespace SharpRaven.UnitTests.RavenClientTests
         }
 
 
-        public void Constructor_NullDsn_ThrowsArgumentNullException()
-        {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn)null));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
-        }
-
-
-        public void Constructor_NullDsnString_ThrowsArgumentNullException()
-        {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string)null));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
-        }
-
-
-        public void Constructor_StringDsn_CurrentDsnEqualsDsn()
-        {
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-            Assert.That(ravenClient.CurrentDsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
-        }
-
-
         public void ErrorLevelIsDebug(Action<IRavenClient> capture)
         {
             var client = new TestableRavenClient(dsnUri);
@@ -117,6 +141,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
         }
 
 
+        [Ignore]
         public IRavenClient GetTestableRavenClient(string project)
         {
             var jsonPacketFactory = new TestableJsonPacketFactory(project);
@@ -133,12 +158,6 @@ namespace SharpRaven.UnitTests.RavenClientTests
             Assert.That(result, Is.EqualTo(project));
         }
 
-
-        public void Logger_IsRoot()
-        {
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-            Assert.That(ravenClient.Logger, Is.EqualTo("root"));
-        }
 
 
         public void OnlyDefaultTags(Action<IRavenClient> capture)
@@ -164,14 +183,6 @@ namespace SharpRaven.UnitTests.RavenClientTests
 
             Assert.That(lastEvent.Tags["key"], Is.EqualTo("value"));
             Assert.That(lastEvent.Tags["foo"], Is.EqualTo("bar"));
-        }
-
-
-        public void Release_IsNullByDefault()
-        {
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-
-            Assert.That(ravenClient.Release, Is.Null);
         }
 
 
