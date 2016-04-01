@@ -56,16 +56,18 @@ namespace SharpRaven.UnitTests.RavenClientTests
         {
             var testerMethods = GetType()
                 .GetMethods(BindingFlags.DeclaredOnly)
-                .Where(m => m.GetCustomAttribute(typeof(TestAttribute), false) == null)
-                .Where(m => m.GetCustomAttribute(typeof(IgnoreAttribute), false) == null)
+                .Where(m => !m.GetCustomAttributes(typeof(TestAttribute), false).Any())
+                .Where(m => !m.GetCustomAttributes(typeof(IgnoreAttribute), false).Any())
                 .ToList();
 
             var ravenClientTests = new[]
             {
+#if (!net40)
                 typeof(CaptureAsyncTests),
                 typeof(CaptureExceptionAsyncTests),
-                typeof(CaptureExceptionTests),
                 typeof(CaptureMessageAsyncTests),
+#endif
+                typeof(CaptureExceptionTests),
                 typeof(CaptureMessageTests),
                 typeof(CaptureTests)
             };
