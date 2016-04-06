@@ -70,6 +70,12 @@ namespace SharpRaven.Data
                 return;
 
             var exceptionData = new ExceptionData(exception.InnerException);
+
+            if (exceptionData.Count == 0)
+            {
+                return;
+            }
+
             exceptionData.AddTo(this);
         }
 

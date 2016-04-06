@@ -177,6 +177,10 @@ namespace SharpRaven
         /// </returns>
         public string Capture(SentryEvent @event)
         {
+            if (@event == null)
+                throw new ArgumentNullException("event");
+
+            @event.Tags = MergeTags(@event.Tags);
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
             return Send(packet);
         }
@@ -227,15 +231,16 @@ namespace SharpRaven
                                        string[] fingerprint = null,
                                        object extra = null)
         {
-            var finalTags = MergeTags(tags);
-            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
-                                                              exception,
-                                                              message,
-                                                              level,
-                                                              finalTags,
-                                                              fingerprint,
-                                                              extra);
-            return Send(packet);
+            var @event = new SentryEvent(exception)
+            {
+                Message = message,
+                Level = level,
+                Extra = extra,
+                Tags = MergeTags(tags),
+                Fingerprint = fingerprint
+            };
+
+            return Capture(@event);
         }
 
 
@@ -257,14 +262,15 @@ namespace SharpRaven
                                      string[] fingerprint = null,
                                      object extra = null)
         {
-            var finalTags = MergeTags(tags);
-            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID,
-                                                              message,
-                                                              level,
-                                                              finalTags,
-                                                              fingerprint,
-                                                              extra);
-            return Send(packet);
+            var @event = new SentryEvent(message)
+            {
+                Level = level,
+                Extra = extra,
+                Tags = MergeTags(tags),
+                Fingerprint = fingerprint
+            };
+
+            return Capture(@event);
         }
 
 
