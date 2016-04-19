@@ -121,27 +121,29 @@ namespace SharpRaven.Data
         }
 
 
-        private static string BodyConvert()
+        private static object BodyConvert()
         {
             if (!HasHttpContext)
                 return null;
-
-            string body = String.Empty;
 
             try
             {
                 if (HttpContext.Request.Form.Count > 0)
                 {
-                    body = HttpContext.Request.Form;
+                    return Convert(x => x.Request.Form);
                 }
                 else
                 {
+                    string body = String.Empty;
+
                     using (MemoryStream stream = new MemoryStream())
                     {
                         HttpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
                         HttpContext.Request.InputStream.CopyTo(stream);
                         body = Encoding.UTF8.GetString(stream.ToArray());
                     }
+
+                    return body;
                 }
             }
             catch (Exception exception)
@@ -149,7 +151,7 @@ namespace SharpRaven.Data
                 Console.WriteLine(exception);
             }
 
-            return body;
+            return null;
         }
 
 
