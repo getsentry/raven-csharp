@@ -36,6 +36,8 @@ using System.Linq;
 using System.Reflection;
 
 using Newtonsoft.Json;
+using System.IO;
+using System.Text;
 
 namespace SharpRaven.Data
 {
@@ -97,7 +99,7 @@ namespace SharpRaven.Data
                 Environment = Convert(x => x.Request.ServerVariables),
                 Headers = Convert(x => x.Request.Headers),
                 Cookies = Convert(x => x.Request.Cookies),
-                Data = Convert(x => x.Request.Form),
+                Data = BodyConvert(),
                 QueryString = HttpContext.Request.QueryString.ToString()
             };
 
@@ -116,6 +118,40 @@ namespace SharpRaven.Data
         public virtual SentryRequest OnCreate(SentryRequest request)
         {
             return request;
+        }
+
+
+        private static object BodyConvert()
+        {
+            if (!HasHttpContext)
+                return null;
+
+            try
+            {
+                if (HttpContext.Request.Form.Count > 0)
+                {
+                    return Convert(x => x.Request.Form);
+                }
+                else
+                {
+                    string body = String.Empty;
+
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        HttpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
+                        HttpContext.Request.InputStream.CopyTo(stream);
+                        body = Encoding.UTF8.GetString(stream.ToArray());
+                    }
+
+                    return body;
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return null;
         }
 
 
