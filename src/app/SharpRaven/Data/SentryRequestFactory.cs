@@ -143,20 +143,34 @@ namespace SharpRaven.Data
 
             try
             {
-                if (HttpContext.Request.Form.Count > 0)
-                {
-                    return Convert(x => x.Request.Form);
-                }
-                var body = string.Empty;
+                IDictionary<string, IMediaType> mediaTypes =
+                    new Dictionary<string, IMediaType>();
 
-                using (var stream = new MemoryStream())
-                {
-                    HttpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
-                    HttpContext.Request.InputStream.CopyTo(stream);
-                    body = Encoding.UTF8.GetString(stream.ToArray());
-                }
+                mediaTypes.Add("FormMediaType", new FormMediaType());
+                mediaTypes.Add("MultiPartFormMediaType", new MultiPartFormMediaType());
+                mediaTypes.Add("JsonMediaType", new JsonMediaType());
+                mediaTypes.Add("DefaultMediaType", new DefaultMediaType());
 
-                return body;
+                foreach (var item in mediaTypes)
+                {
+                    IMediaType mediaType = item.Value;
+
+                    if (mediaType.IsValid(HttpContext.Request.ContentType))
+                    {
+                        object data = mediaType.Convert(HttpContext);
+
+                        // when the result is null let's try with the next
+                        // media type supported
+                        if (data == null)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            return data;
+                        }
+                    }
+                }
             }
             catch (Exception exception)
             {
