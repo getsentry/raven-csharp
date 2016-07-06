@@ -28,6 +28,8 @@
 
 #endregion
 
+using System;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -36,9 +38,9 @@ using SharpRaven.Data;
 namespace SharpRaven.Serialization
 {
     /// <summary>
-    /// Converts <see cref="ErrorLevel"/> to a <see cref="System.String"/>.
+    /// Converts enum to a <see cref="System.String"/>.ToLowerInvariant.
     /// </summary>
-    public class ErrorLevelConverter : StringEnumConverter
+    public class LowerInvariantConverter : StringEnumConverter
     {
         /// <summary>
         /// Writes the JSON representation of the object.
@@ -48,11 +50,13 @@ namespace SharpRaven.Serialization
         /// <param name="serializer">The calling serializer.</param>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            if (!(value is ErrorLevel))
-                base.WriteJson(writer, value, serializer);
+            if (!(value is Enum))
+            {
+                return;
+            }
 
-            var level = value.ToString().ToLowerInvariant();
-            writer.WriteValue(level);
+            var stringEnum = value.ToString().ToLowerInvariant();
+            writer.WriteValue(stringEnum);
         }
     }
 }

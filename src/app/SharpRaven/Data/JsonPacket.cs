@@ -228,7 +228,7 @@ namespace SharpRaven.Data
         /// Defaults to error.
         /// </summary>
         [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore, Required = Required.Always)]
-        [JsonConverter(typeof(ErrorLevelConverter))]
+        [JsonConverter(typeof(LowerInvariantConverter))]
         public ErrorLevel Level { get; set; }
 
         /// <summary>

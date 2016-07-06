@@ -51,6 +51,7 @@ namespace SharpRaven.UnitTests.Data
         public void Constructor_BreadcrumbsRecord_TimestampNow()
         {
             var now = DateTime.UtcNow;
+
             var breadcrumbsRecord = new BreadcrumbsRecord();
 
             Assert.That(breadcrumbsRecord.Timestamp, Is.GreaterThanOrEqualTo(now));
@@ -79,8 +80,7 @@ namespace SharpRaven.UnitTests.Data
         [TestCase("  foo message   ")]
         public void Should_Retain_Espaces_in_Message(string message)
         {
-            var breadcrumbsRecord = new BreadcrumbsRecord();
-            breadcrumbsRecord.Message = message;
+            var breadcrumbsRecord = new BreadcrumbsRecord { Message = message };
 
             Assert.That(breadcrumbsRecord.Message, Is.EqualTo(message));
         }
