@@ -310,6 +310,15 @@ namespace SharpRaven.Data
         public DateTime TimeStamp { get; set; }
 
         /// <summary>
+        /// Gets or sets the breadcrumbs records <see cref="BreadcrumbsRecord"/> class.
+        /// </summary>
+        /// <value>
+        /// The breadcrumbs.
+        /// </value>
+        [JsonProperty(PropertyName = "breadcrumbs", NullValueHandling = NullValueHandling.Ignore)]
+        public List<BreadcrumbsRecord> BreadcrumbsRecords { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="SentryUser"/> object, which describes the authenticated User for a request.
         /// </summary>
         /// <value>

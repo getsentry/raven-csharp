@@ -79,6 +79,7 @@
     </Compile>
     <Compile Include="Data\ExceptionFrameTests.cs" />
     <Compile Include="Data\JsonPacketFactoryTests.cs" />
+    <Compile Include="Data\BreadcrumbsRecordTests.cs" />
     <Compile Include="Data\JsonPacketTests.cs" />
     <Compile Include="Data\SentryExceptionTests.cs" />
     <Compile Include="Data\SentryMessageTests.cs" />
