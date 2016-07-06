@@ -62,7 +62,6 @@ namespace SharpRaven.UnitTests.RavenClientTests
             Assert.That(ravenClient.CurrentDsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
         }
 
-
         [Test]
         public void Logger_IsRoot()
         {

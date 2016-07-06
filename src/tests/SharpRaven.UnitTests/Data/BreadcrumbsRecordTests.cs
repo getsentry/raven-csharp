@@ -48,11 +48,29 @@ namespace SharpRaven.UnitTests.Data
         }
 
         [Test]
+        public void Constructor_BreadcrumbsRecord_WithType_CategoryDefaultLog()
+        {
+            var breadcrumbsRecord = new BreadcrumbsRecord(BreadcrumbsType.Navigation);
+
+            Assert.That(breadcrumbsRecord.Category, Is.EqualTo("log"));
+        }
+
+        [Test]
         public void Constructor_BreadcrumbsRecord_TimestampNow()
         {
             var now = DateTime.UtcNow;
 
             var breadcrumbsRecord = new BreadcrumbsRecord();
+
+            Assert.That(breadcrumbsRecord.Timestamp, Is.GreaterThanOrEqualTo(now));
+        }
+
+        [Test]
+        public void Constructor_BreadcrumbsRecord_WithType_TimestampNow()
+        {
+            var now = DateTime.UtcNow;
+
+            var breadcrumbsRecord = new BreadcrumbsRecord(BreadcrumbsType.Navigation);
 
             Assert.That(breadcrumbsRecord.Timestamp, Is.GreaterThanOrEqualTo(now));
         }

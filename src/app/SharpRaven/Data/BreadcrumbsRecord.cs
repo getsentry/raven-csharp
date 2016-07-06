@@ -12,13 +12,17 @@ namespace SharpRaven.Data {
     public class BreadcrumbsRecord {
         private readonly DateTime timestamp;
 
-        public BreadcrumbsRecord() {
+        public BreadcrumbsRecord() 
+        {
             Category = "log";
-            timestamp = DateTime.UtcNow;
+            this.timestamp = DateTime.UtcNow;
         }
 
 
-        public BreadcrumbsRecord(BreadcrumbsType type) {
+        public BreadcrumbsRecord(BreadcrumbsType type)
+        {
+            Category = "log";
+            this.timestamp = DateTime.UtcNow;
             Type = type;
         }
 
