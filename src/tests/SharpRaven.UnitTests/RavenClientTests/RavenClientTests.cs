@@ -77,5 +77,13 @@ namespace SharpRaven.UnitTests.RavenClientTests
 
             Assert.That(ravenClient.Release, Is.Null);
         }
+
+        [Test]
+        public void IgnoreBreadcrumbs_IsFalseByDefault()
+        {
+            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+
+            Assert.That(ravenClient.IgnoreBreadcrumbs, Is.False);
+        }
     }
 }
