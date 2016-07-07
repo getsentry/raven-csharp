@@ -98,6 +98,7 @@
     <Compile Include="RavenClientTests\CaptureMessageAsyncTests.cs" />
     <Compile Include="RavenClientTests\CaptureMessageTests.cs" />
     <Compile Include="RavenClientTests\CaptureTester.cs" />
+    <Compile Include="RavenClientTests\BreadcrumbsRavenClientTests.cs" />
     <Compile Include="RavenClientTests\RavenClientTests.cs" />
     <Compile Include="Serialization\LowerInvariantConverterTests.cs" />
     <Compile Include="Utilities\HttpSimulator.cs" />

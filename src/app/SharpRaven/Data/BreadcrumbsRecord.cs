@@ -19,10 +19,8 @@ namespace SharpRaven.Data {
         }
 
 
-        public BreadcrumbsRecord(BreadcrumbsType type)
+        public BreadcrumbsRecord(BreadcrumbsType type):this()
         {
-            Category = "log";
-            this.timestamp = DateTime.UtcNow;
             Type = type;
         }
 
