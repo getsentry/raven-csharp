@@ -53,7 +53,8 @@ namespace SharpRaven
         private readonly ISentryRequestFactory sentryRequestFactory;
         private readonly ISentryUserFactory sentryUserFactory;
 
-
+        private List<BreadcrumbsRecord> breadcrumbsRecords;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="RavenClient" /> class. Sentry
         /// Data Source Name will be read from sharpRaven section in your app.config or
@@ -169,6 +170,33 @@ namespace SharpRaven
         /// </value>
         public TimeSpan Timeout { get; set; }
 
+        /// <summary>
+        /// Not register the <see cref="BreadcrumbsRecord"/> for tracking.
+        /// </summary>
+        public bool IgnoreBreadcrumbs { get; set; }
+        
+        /// <summary>
+        /// Captures the <see cref="BreadcrumbsRecord" />.
+        /// </summary>
+        /// <param name="breadcrumbsRecord">The <see cref="BreadcrumbsRecord" /> to capture.</param>
+        public void AddTrail(BreadcrumbsRecord breadcrumbsRecord)
+        {
+            if (IgnoreBreadcrumbs || breadcrumbsRecord == null)
+                return;
+
+            if (breadcrumbsRecords == null)
+                breadcrumbsRecords = new List<BreadcrumbsRecord>();
+
+            breadcrumbsRecords.Add(breadcrumbsRecord);
+        }
+
+        /// <summary>
+        /// Restart the capture of the <see cref="BreadcrumbsRecord"/> for tracking.
+        /// </summary>
+        public void RestartTrails()
+        {
+            breadcrumbsRecords = null;
+        }
 
         /// <summary>Captures the specified <paramref name="event"/>.</summary>
         /// <param name="event">The event to capture.</param>
@@ -181,8 +209,12 @@ namespace SharpRaven
                 throw new ArgumentNullException("event");
 
             @event.Tags = MergeTags(@event.Tags);
-            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
-            return Send(packet);
+            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event, breadcrumbsRecords);
+
+            var eventId = Send(packet);
+            RestartTrails();
+
+            return eventId;
         }
 
 
