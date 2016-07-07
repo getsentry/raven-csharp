@@ -26,7 +26,7 @@ namespace SharpRaven.Data {
 
         [JsonProperty(PropertyName = "type", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(LowerInvariantConverter))]
-        public BreadcrumbsType? Type { get; }
+        public BreadcrumbsType? Type { get; set; }
 
         [JsonProperty(PropertyName = "category", NullValueHandling = NullValueHandling.Ignore)]
         public string Category { get; set; }
