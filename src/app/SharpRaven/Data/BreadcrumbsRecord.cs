@@ -32,7 +32,10 @@ namespace SharpRaven.Data {
         public string Category { get; set; }
 
         [JsonProperty(PropertyName = "timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime Timestamp => this.timestamp;
+        public DateTime Timestamp
+        {
+            get { return this.timestamp; }
+        }
 
         [JsonProperty(PropertyName = "message", NullValueHandling = NullValueHandling.Ignore)]
         public string Message { get; set; }
