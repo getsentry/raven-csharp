@@ -228,7 +228,7 @@ namespace SharpRaven.Data
         /// Defaults to error.
         /// </summary>
         [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore, Required = Required.Always)]
-        [JsonConverter(typeof(LowerInvariantConverter))]
+        [JsonConverter(typeof(LowerInvariantStringEnumConverter))]
         public ErrorLevel Level { get; set; }
 
         /// <summary>
@@ -310,13 +310,13 @@ namespace SharpRaven.Data
         public DateTime TimeStamp { get; set; }
 
         /// <summary>
-        /// Gets or sets the breadcrumbs records <see cref="BreadcrumbsRecord"/> class.
+        /// Gets or sets the breadcrumbs <see cref="Breadcrumb"/> class.
         /// </summary>
         /// <value>
         /// The breadcrumbs.
         /// </value>
         [JsonProperty(PropertyName = "breadcrumbs", NullValueHandling = NullValueHandling.Ignore)]
-        public List<BreadcrumbsRecord> BreadcrumbsRecords { get; set; }
+        public List<Breadcrumb> Breadcrumbs { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="SentryUser"/> object, which describes the authenticated User for a request.

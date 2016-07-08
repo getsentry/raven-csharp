@@ -97,18 +97,18 @@ namespace SharpRaven
         string Capture(SentryEvent @event);
 
         /// <summary>
-        /// Captures the <see cref="BreadcrumbsRecord"/> for tracking.
+        /// Captures the <see cref="Breadcrumb"/> for tracking.
         /// </summary>
-        /// <param name="breadcrumbsRecord">The <see cref="BreadcrumbsRecord" /> to capture.</param>
-        void AddTrail(BreadcrumbsRecord breadcrumbsRecord);
+        /// <param name="breadcrumb">The <see cref="Breadcrumb" /> to capture.</param>
+        void AddTrail(Breadcrumb breadcrumb);
 
         /// <summary>
-        /// Restart the capture of the <see cref="BreadcrumbsRecord"/> for tracking.
+        /// Restart the capture of the <see cref="Breadcrumb"/> for tracking.
         /// </summary>
         void RestartTrails();
 
         /// <summary>
-        /// Not register the <see cref="BreadcrumbsRecord"/> for tracking.
+        /// Not register the <see cref="Breadcrumb"/> for tracking.
         /// </summary>
         bool IgnoreBreadcrumbs { get; set; }
 

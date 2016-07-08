@@ -53,7 +53,7 @@ namespace SharpRaven
         private readonly ISentryRequestFactory sentryRequestFactory;
         private readonly ISentryUserFactory sentryUserFactory;
 
-        private List<BreadcrumbsRecord> breadcrumbsRecords;
+        private List<Breadcrumb> breadcrumbs;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="RavenClient" /> class. Sentry
@@ -171,31 +171,31 @@ namespace SharpRaven
         public TimeSpan Timeout { get; set; }
 
         /// <summary>
-        /// Not register the <see cref="BreadcrumbsRecord"/> for tracking.
+        /// Not register the <see cref="Breadcrumb"/> for tracking.
         /// </summary>
         public bool IgnoreBreadcrumbs { get; set; }
         
         /// <summary>
-        /// Captures the <see cref="BreadcrumbsRecord" />.
+        /// Captures the <see cref="Breadcrumb" />.
         /// </summary>
-        /// <param name="breadcrumbsRecord">The <see cref="BreadcrumbsRecord" /> to capture.</param>
-        public void AddTrail(BreadcrumbsRecord breadcrumbsRecord)
+        /// <param name="breadcrumb">The <see cref="Breadcrumb" /> to capture.</param>
+        public void AddTrail(Breadcrumb breadcrumb)
         {
-            if (IgnoreBreadcrumbs || breadcrumbsRecord == null)
+            if (IgnoreBreadcrumbs || breadcrumb == null)
                 return;
 
-            if (breadcrumbsRecords == null)
-                breadcrumbsRecords = new List<BreadcrumbsRecord>();
+            if (this.breadcrumbs == null)
+                this.breadcrumbs = new List<Breadcrumb>();
 
-            breadcrumbsRecords.Add(breadcrumbsRecord);
+            this.breadcrumbs.Add(breadcrumb);
         }
 
         /// <summary>
-        /// Restart the capture of the <see cref="BreadcrumbsRecord"/> for tracking.
+        /// Restart the capture of the <see cref="Breadcrumb"/> for tracking.
         /// </summary>
         public void RestartTrails()
         {
-            breadcrumbsRecords = null;
+            this.breadcrumbs = null;
         }
 
         /// <summary>Captures the specified <paramref name="event"/>.</summary>
@@ -209,7 +209,7 @@ namespace SharpRaven
                 throw new ArgumentNullException("event");
 
             @event.Tags = MergeTags(@event.Tags);
-            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event, breadcrumbsRecords);
+            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event, this.breadcrumbs);
 
             var eventId = Send(packet);
             RestartTrails();

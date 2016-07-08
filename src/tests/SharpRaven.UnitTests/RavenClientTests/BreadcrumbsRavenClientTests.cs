@@ -43,7 +43,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
 
         [Test]
         public void Should_Call_JsonFactory_to_Breadcrumbs() {
-            var breadcrumbsRecord = new BreadcrumbsRecord();
+            var breadcrumbsRecord = new Breadcrumb();
 
             var jsonPacketFactory = Substitute.For<IJsonPacketFactory>();
 
@@ -55,7 +55,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
 
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
                                                 Arg.Any<SentryEvent>(),
-                                                Arg.Is<List<BreadcrumbsRecord>>(br => br.Contains(breadcrumbsRecord)));
+                                                Arg.Is<List<Breadcrumb>>(br => br.Contains(breadcrumbsRecord)));
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
 
             IRavenClient ravenClient = new RavenClientTestable(TestHelper.DsnUri, jsonPacketFactory);
             
-            ravenClient.AddTrail(new BreadcrumbsRecord());
+            ravenClient.AddTrail(new Breadcrumb());
             ravenClient.RestartTrails();
 
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
@@ -109,7 +109,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             IRavenClient ravenClient = new RavenClientTestable(TestHelper.DsnUri, jsonPacketFactory);
             ravenClient.IgnoreBreadcrumbs = true;
 
-            ravenClient.AddTrail(new BreadcrumbsRecord());
+            ravenClient.AddTrail(new Breadcrumb());
 
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
 
@@ -121,7 +121,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
 
         [Test]
         public void Should_RestartTrails_After_Send_Package() {
-            var breadcrumbsRecord = new BreadcrumbsRecord();
+            var breadcrumbsRecord = new Breadcrumb();
 
             var jsonPacketFactory = Substitute.For<IJsonPacketFactory>();
 
@@ -132,7 +132,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
                                                 Arg.Any<SentryEvent>(),
-                                                Arg.Is<List<BreadcrumbsRecord>>(br => br.Contains(breadcrumbsRecord)));
+                                                Arg.Is<List<Breadcrumb>>(br => br.Contains(breadcrumbsRecord)));
 
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
             jsonPacketFactory.Received().Create(Arg.Any<string>(),

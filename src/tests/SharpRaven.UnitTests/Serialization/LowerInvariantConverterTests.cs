@@ -14,7 +14,7 @@ namespace SharpRaven.UnitTests.Serialization {
         [TestCase(EnumTestable.ThreE, "three")]
         public void Should_Convert_Enum_To_Lowercase(EnumTestable enumTestable, string result)
         {
-            var lowerInvariantConverter = new LowerInvariantConverter();
+            var lowerInvariantConverter = new LowerInvariantStringEnumConverter();
 
             var jsonWriter = Substitute.For<JsonWriter>();
             
@@ -26,7 +26,7 @@ namespace SharpRaven.UnitTests.Serialization {
         [Test]
         public void Should_Not_Call_Write_Null_value()
         {
-            var lowerInvariantConverter = new LowerInvariantConverter();
+            var lowerInvariantConverter = new LowerInvariantStringEnumConverter();
 
             var jsonWriter = Substitute.For<JsonWriter>();
             
@@ -38,7 +38,7 @@ namespace SharpRaven.UnitTests.Serialization {
         [Test]
         public void Should_Not_Call_Write_If_Not_Enum_Object()
         {
-            var lowerInvariantConverter = new LowerInvariantConverter();
+            var lowerInvariantConverter = new LowerInvariantStringEnumConverter();
 
             var jsonWriter = Substitute.For<JsonWriter>();
             

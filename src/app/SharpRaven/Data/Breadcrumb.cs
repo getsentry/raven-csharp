@@ -7,25 +7,25 @@ using SharpRaven.Serialization;
 
 namespace SharpRaven.Data {
     /// <summary>
-    /// BreadcrumbsRecord trail.
+    /// Breadcrumb trail.
     /// </summary>
-    public class BreadcrumbsRecord {
+    public class Breadcrumb {
         private readonly DateTime timestamp;
 
-        public BreadcrumbsRecord() 
+        public Breadcrumb() 
         {
             Category = "log";
             this.timestamp = DateTime.UtcNow;
         }
 
 
-        public BreadcrumbsRecord(BreadcrumbsType type):this()
+        public Breadcrumb(BreadcrumbsType type):this()
         {
             Type = type;
         }
 
         [JsonProperty(PropertyName = "type", NullValueHandling = NullValueHandling.Ignore)]
-        [JsonConverter(typeof(LowerInvariantConverter))]
+        [JsonConverter(typeof(LowerInvariantStringEnumConverter))]
         public BreadcrumbsType? Type { get; set; }
 
         [JsonProperty(PropertyName = "category", NullValueHandling = NullValueHandling.Ignore)]
@@ -44,7 +44,7 @@ namespace SharpRaven.Data {
         public IDictionary<string, string> Data { get; set; }
 
         [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore)]
-        [JsonConverter(typeof(LowerInvariantConverter))]
+        [JsonConverter(typeof(LowerInvariantStringEnumConverter))]
         public BreadcrumbsLevel? Level { get; set; }
     }
 }

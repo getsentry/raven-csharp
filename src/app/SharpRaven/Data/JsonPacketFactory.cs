@@ -127,11 +127,11 @@ namespace SharpRaven.Data
         /// A new instance of <see cref="JsonPacket" /> for the specified
         /// <paramref name="project" />, with the given <paramref name="event" />.
         /// </returns>
-        public JsonPacket Create(string project, SentryEvent @event, List<BreadcrumbsRecord> breadcrumbsRecords)
+        public JsonPacket Create(string project, SentryEvent @event, List<Breadcrumb> breadcrumbsRecords)
         {
             var json = new JsonPacket(project, @event)
             {
-                BreadcrumbsRecords = breadcrumbsRecords
+                Breadcrumbs = breadcrumbsRecords
             };
 
             return OnCreate(json);

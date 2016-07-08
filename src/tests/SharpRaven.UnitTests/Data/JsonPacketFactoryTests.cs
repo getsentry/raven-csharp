@@ -293,7 +293,7 @@ namespace SharpRaven.UnitTests.Data
             var exception = new Exception("Error");
             
             var json = this.jsonPacketFactory.Create(project, exception);
-            json.BreadcrumbsRecords = new List<BreadcrumbsRecord> { new BreadcrumbsRecord(BreadcrumbsType.Http) };
+            json.Breadcrumbs = new List<Breadcrumb> { new Breadcrumb(BreadcrumbsType.Http) };
 
             var jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
             Console.WriteLine(jsonString);

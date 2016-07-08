@@ -33,14 +33,12 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-using SharpRaven.Data;
-
 namespace SharpRaven.Serialization
 {
     /// <summary>
     /// Converts enum to a <see cref="System.String"/>.ToLowerInvariant.
     /// </summary>
-    public class LowerInvariantConverter : StringEnumConverter
+    public class LowerInvariantStringEnumConverter : StringEnumConverter
     {
         /// <summary>
         /// Writes the JSON representation of the object.

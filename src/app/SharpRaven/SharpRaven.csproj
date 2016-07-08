@@ -80,7 +80,7 @@
     </Compile>
     <Compile Include="Data\BreadcrumbsLevel.cs" />
     <Compile Include="Data\BreadcrumbsType.cs" />
-    <Compile Include="Data\BreadcrumbsRecord.cs" />
+    <Compile Include="Data\Breadcrumb.cs" />
     <Compile Include="Data\ExceptionData.cs" />
     <Compile Include="Data\ISentryRequestFactory.cs" />
     <Compile Include="Data\ISentryUserFactory.cs" />
@@ -109,7 +109,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenClient.Net45.cs" />
     <Compile Include="RavenClient.cs" />
-    <Compile Include="Serialization\LowerInvariantConverter.cs" />
+    <Compile Include="Serialization\LowerInvariantStringEnumConverter.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Utilities\GzipUtil.cs" />
     <Compile Include="Utilities\PacketBuilder.cs" />
