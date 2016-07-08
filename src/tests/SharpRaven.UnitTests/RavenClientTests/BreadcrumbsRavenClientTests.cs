@@ -41,7 +41,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
 
         [Test]
         public void Should_Call_JsonFactory_to_Breadcrumbs() {
-            var breadcrumbsRecord = new Breadcrumb();
+            var breadcrumbsRecord = new Breadcrumb("foo");
 
             var jsonPacketFactory = Substitute.For<IJsonPacketFactory>();
 
@@ -87,7 +87,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
 
             IRavenClient ravenClient = new RavenClientTestable(TestHelper.DsnUri, jsonPacketFactory);
             
-            ravenClient.AddTrail(new Breadcrumb());
+            ravenClient.AddTrail(new Breadcrumb("foo"));
             ravenClient.RestartTrails();
 
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
@@ -103,7 +103,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             IRavenClient ravenClient = new RavenClientTestable(TestHelper.DsnUri, jsonPacketFactory);
             ravenClient.IgnoreBreadcrumbs = true;
 
-            ravenClient.AddTrail(new Breadcrumb());
+            ravenClient.AddTrail(new Breadcrumb("foo"));
 
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
 
@@ -114,7 +114,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
 
         [Test]
         public void Should_RestartTrails_After_Send_Package() {
-            var breadcrumbsRecord = new Breadcrumb();
+            var breadcrumbsRecord = new Breadcrumb("foo");
 
             var jsonPacketFactory = Substitute.For<IJsonPacketFactory>();
 

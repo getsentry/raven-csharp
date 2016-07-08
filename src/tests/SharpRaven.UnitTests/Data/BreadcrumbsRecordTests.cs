@@ -40,17 +40,17 @@ namespace SharpRaven.UnitTests.Data
     public class BreadcrumbsRecordTests {
         
         [Test]
-        public void Constructor_BreadcrumbsRecord_CategoryDefaultLog()
+        public void Constructor_BreadcrumbsRecord_Category_With_Log()
         {
-            var breadcrumbsRecord = new Breadcrumb();
+            var breadcrumbsRecord = new Breadcrumb("log");
 
             Assert.That(breadcrumbsRecord.Category, Is.EqualTo("log"));
         }
 
         [Test]
-        public void Constructor_BreadcrumbsRecord_WithType_CategoryDefaultLog()
+        public void Constructor_BreadcrumbsRecord_WithType_Category_With_Log()
         {
-            var breadcrumbsRecord = new Breadcrumb(BreadcrumbsType.Navigation);
+            var breadcrumbsRecord = new Breadcrumb("log", BreadcrumbsType.Navigation);
 
             Assert.That(breadcrumbsRecord.Category, Is.EqualTo("log"));
         }
@@ -60,7 +60,7 @@ namespace SharpRaven.UnitTests.Data
         {
             var now = DateTime.UtcNow;
 
-            var breadcrumbsRecord = new Breadcrumb();
+            var breadcrumbsRecord = new Breadcrumb("foo");
 
             Assert.That(breadcrumbsRecord.Timestamp, Is.GreaterThanOrEqualTo(now));
         }
@@ -70,7 +70,7 @@ namespace SharpRaven.UnitTests.Data
         {
             var now = DateTime.UtcNow;
 
-            var breadcrumbsRecord = new Breadcrumb(BreadcrumbsType.Navigation);
+            var breadcrumbsRecord = new Breadcrumb("foo", BreadcrumbsType.Navigation);
 
             Assert.That(breadcrumbsRecord.Timestamp, Is.GreaterThanOrEqualTo(now));
         }
@@ -79,7 +79,7 @@ namespace SharpRaven.UnitTests.Data
         [TestCase(BreadcrumbsType.Http)]
         public void Constructor_BreadcrumbsRecord_WithCategories(BreadcrumbsType type)
         {
-            var breadcrumbsRecord = new Breadcrumb(type);
+            var breadcrumbsRecord = new Breadcrumb("foo", type);
 
             Assert.That(breadcrumbsRecord.Type, Is.EqualTo(type));
         }
@@ -87,7 +87,7 @@ namespace SharpRaven.UnitTests.Data
         [Test]
         public void Constructor_BreadcrumbsRecord_TypeNull()
         {
-            var breadcrumbsRecord = new Breadcrumb();
+            var breadcrumbsRecord = new Breadcrumb("foo");
 
             Assert.That(breadcrumbsRecord.Type, Is.Null);
         }
@@ -98,7 +98,7 @@ namespace SharpRaven.UnitTests.Data
         [TestCase("  foo message   ")]
         public void Should_Retain_Espaces_in_Message(string message)
         {
-            var breadcrumbsRecord = new Breadcrumb { Message = message };
+            var breadcrumbsRecord = new Breadcrumb("foo") { Message = message };
 
             Assert.That(breadcrumbsRecord.Message, Is.EqualTo(message));
         }
