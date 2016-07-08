@@ -69,7 +69,7 @@ namespace SharpRaven.Data
                 Fingerprint = fingerprint
             };
 
-            return Create(project, @event, null);
+            return Create(project, @event);
         }
 
 
@@ -112,7 +112,7 @@ namespace SharpRaven.Data
                 Fingerprint = fingerprint,
             };
 
-            return Create(project, @event, null);
+            return Create(project, @event);
         }
 
 
@@ -122,16 +122,15 @@ namespace SharpRaven.Data
         /// </summary>
         /// <param name="project">The project.</param>
         /// <param name="event">The event to capture.</param>
-        /// <param name="breadcrumbsRecords"></param>
         /// <returns>
         /// A new instance of <see cref="JsonPacket" /> for the specified
         /// <paramref name="project" />, with the given <paramref name="event" />.
         /// </returns>
-        public JsonPacket Create(string project, SentryEvent @event, List<Breadcrumb> breadcrumbsRecords)
+        public JsonPacket Create(string project, SentryEvent @event)
         {
             var json = new JsonPacket(project, @event)
             {
-                Breadcrumbs = breadcrumbsRecords
+                Breadcrumbs = @event.Breadcrumbs
             };
 
             return OnCreate(json);

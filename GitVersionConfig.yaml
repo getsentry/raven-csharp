@@ -1,4 +1,4 @@
-next-version: 2.2
+next-version: 2.1
 branches:
   feature[/-]:
     mode: ContinuousDeployment

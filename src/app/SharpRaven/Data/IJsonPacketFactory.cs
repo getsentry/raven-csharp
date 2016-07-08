@@ -93,11 +93,10 @@ namespace SharpRaven.Data
         /// </summary>
         /// <param name="project">The project.</param>
         /// <param name="event">The event to capture.</param>
-        /// <param name="breadcrumbsRecords">Trail to more investigation.</param>
         /// <returns>
         /// A new instance of <see cref="JsonPacket" /> for the specified
         /// <paramref name="project" />, with the given <paramref name="event" />.
         /// </returns>
-        JsonPacket Create(string project, SentryEvent @event, List<Breadcrumb> breadcrumbsRecords);
+        JsonPacket Create(string project, SentryEvent @event);
     }
 }

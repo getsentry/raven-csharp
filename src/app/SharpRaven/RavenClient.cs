@@ -209,7 +209,8 @@ namespace SharpRaven
                 throw new ArgumentNullException("event");
 
             @event.Tags = MergeTags(@event.Tags);
-            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event, this.breadcrumbs);
+            @event.Breadcrumbs = breadcrumbs;
+            var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
 
             var eventId = Send(packet);
             RestartTrails();
