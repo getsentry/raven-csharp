@@ -28,8 +28,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-
 using NSubstitute;
 
 using NUnit.Framework;
@@ -54,8 +52,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
 
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
-                                                Arg.Any<SentryEvent>(),
-                                                Arg.Is<List<Breadcrumb>>(br => br.Contains(breadcrumbsRecord)));
+                                                Arg.Is<SentryEvent>(se => se.Breadcrumbs.Contains(breadcrumbsRecord)));
         }
 
         [Test]
@@ -67,8 +64,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
 
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
-                                                Arg.Any<SentryEvent>(),
-                                                null);
+                                                Arg.Is<SentryEvent>(se => se.Breadcrumbs == null));
         }
 
         [Test]
@@ -82,8 +78,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo1")));
 
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
-                                                Arg.Any<SentryEvent>(),
-                                                null);
+                                                Arg.Is<SentryEvent>(se => se.Breadcrumbs == null));
         }
 
         [Test]
@@ -98,8 +93,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
 
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
-                                                Arg.Any<SentryEvent>(),
-                                                null);
+                                                Arg.Is<SentryEvent>(se => se.Breadcrumbs == null));
         }
 
         [Test]
@@ -114,8 +108,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
 
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
-                                                Arg.Any<SentryEvent>(),
-                                                null);
+                                                Arg.Is<SentryEvent>(se => se.Breadcrumbs == null));
         }
 
 
@@ -131,13 +124,11 @@ namespace SharpRaven.UnitTests.RavenClientTests {
 
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
-                                                Arg.Any<SentryEvent>(),
-                                                Arg.Is<List<Breadcrumb>>(br => br.Contains(breadcrumbsRecord)));
+                                                Arg.Is<SentryEvent>(se => se.Breadcrumbs.Contains(breadcrumbsRecord)));
 
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
-                                                Arg.Any<SentryEvent>(),
-                                                null);
+                                                Arg.Is<SentryEvent>(se => se.Breadcrumbs == null));
         }
 
         public class RavenClientTestable : RavenClient {
