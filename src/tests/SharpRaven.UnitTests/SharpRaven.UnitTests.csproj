@@ -102,6 +102,7 @@
     <Compile Include="RavenClientTests\RavenClientTests.cs" />
     <Compile Include="Serialization\LowerInvariantConverterTests.cs" />
     <Compile Include="Utilities\HttpSimulator.cs" />
+    <Compile Include="Utilities\CircularBufferTests.cs" />
     <Compile Include="Utilities\PacketBuilderTests.cs" />
     <Compile Include="Utilities\ReflectionHelper.cs" />
     <Compile Include="Utilities\SimulatedHttpRequest.cs" />

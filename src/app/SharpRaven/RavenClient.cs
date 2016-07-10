@@ -53,7 +53,7 @@ namespace SharpRaven
         private readonly ISentryRequestFactory sentryRequestFactory;
         private readonly ISentryUserFactory sentryUserFactory;
 
-        private List<Breadcrumb> breadcrumbs;
+        private readonly CircularBuffer<Breadcrumb> breadcrumbs;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="RavenClient" /> class. Sentry
@@ -107,6 +107,7 @@ namespace SharpRaven
             Logger = "root";
             Timeout = TimeSpan.FromSeconds(5);
             this.defaultTags = new Dictionary<string, string>();
+            breadcrumbs = new CircularBuffer<Breadcrumb>();
         }
 
 
@@ -176,17 +177,14 @@ namespace SharpRaven
         public bool IgnoreBreadcrumbs { get; set; }
         
         /// <summary>
-        /// Captures the <see cref="Breadcrumb" />.
+        /// Captures the last 100 <see cref="Breadcrumb" />.
         /// </summary>
         /// <param name="breadcrumb">The <see cref="Breadcrumb" /> to capture.</param>
         public void AddTrail(Breadcrumb breadcrumb)
         {
             if (IgnoreBreadcrumbs || breadcrumb == null)
                 return;
-
-            if (this.breadcrumbs == null)
-                this.breadcrumbs = new List<Breadcrumb>();
-
+            
             this.breadcrumbs.Add(breadcrumb);
         }
 
@@ -195,7 +193,7 @@ namespace SharpRaven
         /// </summary>
         public void RestartTrails()
         {
-            this.breadcrumbs = null;
+            this.breadcrumbs.Clear();
         }
 
         /// <summary>Captures the specified <paramref name="event"/>.</summary>
@@ -209,7 +207,9 @@ namespace SharpRaven
                 throw new ArgumentNullException("event");
 
             @event.Tags = MergeTags(@event.Tags);
-            @event.Breadcrumbs = breadcrumbs;
+            if (!breadcrumbs.IsEmpty())
+                @event.Breadcrumbs = breadcrumbs.ToList();
+
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
 
             var eventId = Send(packet);

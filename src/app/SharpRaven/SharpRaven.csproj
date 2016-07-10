@@ -111,6 +111,7 @@
     <Compile Include="RavenClient.cs" />
     <Compile Include="Serialization\LowerInvariantStringEnumConverter.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Utilities\CircularBuffer.cs" />
     <Compile Include="Utilities\GzipUtil.cs" />
     <Compile Include="Utilities\PacketBuilder.cs" />
     <Compile Include="Utilities\SystemUtil.cs" />
