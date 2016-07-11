@@ -39,7 +39,7 @@ namespace SharpRaven.Utilities {
         
         public bool IsEmpty()
         {
-            return queue.Count <= 0;
+            return queue.IsEmpty;
         }
     }
 }
