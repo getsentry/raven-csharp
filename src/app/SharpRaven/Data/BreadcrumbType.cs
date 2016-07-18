@@ -3,7 +3,7 @@
     /// <summary>
     /// Indicates the descriptions of individual breadcrumb types, and what their data properties look like.
     /// </summary>
-    public enum BreadcrumbsType
+    public enum BreadcrumbType
     {
         /// <summary>
         /// Describes a navigation breadcrumb. A navigation event can be a URL change in a web application, or a UI transition in a mobile or desktop application, etc.

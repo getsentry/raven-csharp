@@ -28,6 +28,9 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
+
 using NSubstitute;
 
 using NUnit.Framework;
@@ -131,9 +134,29 @@ namespace SharpRaven.UnitTests.RavenClientTests {
                                                 Arg.Is<SentryEvent>(se => se.Breadcrumbs == null));
         }
 
+
+        [Test]
+        public void foo()
+        {
+            Queue<string> queu = new Queue<string>(2);
+            queu.Enqueue("a");
+            queu.Enqueue("b");
+            queu.Enqueue("c");
+
+            queu.Dequeue();
+            queu.Enqueue("d");
+
+            var list = queu.ToArray();
+            Assert.That(list.Count, Is.EqualTo(3));
+            Assert.That(list[0], Is.EqualTo("b"));
+            Assert.That(list[1], Is.EqualTo("c"));
+            Assert.That(list[2], Is.EqualTo("d"));
+        }
+
+
         public class RavenClientTestable : RavenClient {
-            public RavenClientTestable(string dsnUri, IJsonPacketFactory jsonPacketFactory1)
-                : base(dsnUri, jsonPacketFactory1) {
+            public RavenClientTestable(string dsnUri, IJsonPacketFactory jsonPacketFactory)
+                : base(dsnUri, jsonPacketFactory) {
 
             }
             

@@ -50,7 +50,7 @@ namespace SharpRaven.UnitTests.Data
         [Test]
         public void Constructor_BreadcrumbsRecord_WithType_Category_With_Log()
         {
-            var breadcrumbsRecord = new Breadcrumb("log", BreadcrumbsType.Navigation);
+            var breadcrumbsRecord = new Breadcrumb("log", BreadcrumbType.Navigation);
 
             Assert.That(breadcrumbsRecord.Category, Is.EqualTo("log"));
         }
@@ -70,14 +70,14 @@ namespace SharpRaven.UnitTests.Data
         {
             var now = DateTime.UtcNow;
 
-            var breadcrumbsRecord = new Breadcrumb("foo", BreadcrumbsType.Navigation);
+            var breadcrumbsRecord = new Breadcrumb("foo", BreadcrumbType.Navigation);
 
             Assert.That(breadcrumbsRecord.Timestamp, Is.GreaterThanOrEqualTo(now));
         }
 
-        [TestCase(BreadcrumbsType.Navigation)]
-        [TestCase(BreadcrumbsType.Http)]
-        public void Constructor_BreadcrumbsRecord_WithCategories(BreadcrumbsType type)
+        [TestCase(BreadcrumbType.Navigation)]
+        [TestCase(BreadcrumbType.Http)]
+        public void Constructor_BreadcrumbsRecord_WithCategories(BreadcrumbType type)
         {
             var breadcrumbsRecord = new Breadcrumb("foo", type);
 

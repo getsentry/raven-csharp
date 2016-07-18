@@ -19,14 +19,14 @@ namespace SharpRaven.Data {
         }
 
 
-        public Breadcrumb(string category, BreadcrumbsType type):this(category)
+        public Breadcrumb(string category, BreadcrumbType type):this(category)
         {
             Type = type;
         }
 
         [JsonProperty(PropertyName = "type", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(LowerInvariantStringEnumConverter))]
-        public BreadcrumbsType? Type { get; set; }
+        public BreadcrumbType? Type { get; set; }
 
         [JsonProperty(PropertyName = "category", NullValueHandling = NullValueHandling.Ignore)]
         public string Category { get; set; }
@@ -45,6 +45,6 @@ namespace SharpRaven.Data {
 
         [JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(LowerInvariantStringEnumConverter))]
-        public BreadcrumbsLevel? Level { get; set; }
+        public BreadcrumbLevel? Level { get; set; }
     }
 }
