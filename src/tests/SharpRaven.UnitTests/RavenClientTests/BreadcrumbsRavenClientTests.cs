@@ -28,9 +28,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
-
 using NSubstitute;
 
 using NUnit.Framework;
@@ -49,7 +46,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             var jsonPacketFactory = Substitute.For<IJsonPacketFactory>();
 
             IRavenClient ravenClient = new RavenClientTestable(TestHelper.DsnUri, jsonPacketFactory);
-            
+
             ravenClient.AddTrail(breadcrumbsRecord);
 
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
@@ -63,7 +60,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             var jsonPacketFactory = Substitute.For<IJsonPacketFactory>();
 
             IRavenClient ravenClient = new RavenClientTestable(TestHelper.DsnUri, jsonPacketFactory);
-            
+
             ravenClient.Capture(new SentryEvent(new SentryMessage("foo")));
 
             jsonPacketFactory.Received().Create(Arg.Any<string>(),
@@ -89,7 +86,7 @@ namespace SharpRaven.UnitTests.RavenClientTests {
             var jsonPacketFactory = Substitute.For<IJsonPacketFactory>();
 
             IRavenClient ravenClient = new RavenClientTestable(TestHelper.DsnUri, jsonPacketFactory);
-            
+
             ravenClient.AddTrail(new Breadcrumb("foo"));
             ravenClient.RestartTrails();
 
@@ -135,31 +132,12 @@ namespace SharpRaven.UnitTests.RavenClientTests {
         }
 
 
-        [Test]
-        public void foo()
-        {
-            Queue<string> queu = new Queue<string>(2);
-            queu.Enqueue("a");
-            queu.Enqueue("b");
-            queu.Enqueue("c");
-
-            queu.Dequeue();
-            queu.Enqueue("d");
-
-            var list = queu.ToArray();
-            Assert.That(list.Count, Is.EqualTo(3));
-            Assert.That(list[0], Is.EqualTo("b"));
-            Assert.That(list[1], Is.EqualTo("c"));
-            Assert.That(list[2], Is.EqualTo("d"));
-        }
-
-
         public class RavenClientTestable : RavenClient {
             public RavenClientTestable(string dsnUri, IJsonPacketFactory jsonPacketFactory)
                 : base(dsnUri, jsonPacketFactory) {
 
             }
-            
+
             protected override string Send(JsonPacket packet) {
                 return null;
             }
