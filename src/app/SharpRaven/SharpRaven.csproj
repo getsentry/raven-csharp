@@ -78,6 +78,9 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Data\BreadcrumbLevel.cs" />
+    <Compile Include="Data\BreadcrumbType.cs" />
+    <Compile Include="Data\Breadcrumb.cs" />
     <Compile Include="Data\ExceptionData.cs" />
     <Compile Include="Data\ISentryRequestFactory.cs" />
     <Compile Include="Data\ISentryUserFactory.cs" />
@@ -106,8 +109,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenClient.Net45.cs" />
     <Compile Include="RavenClient.cs" />
-    <Compile Include="Serialization\ErrorLevelConverter.cs" />
+    <Compile Include="Serialization\LowerInvariantStringEnumConverter.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Utilities\CircularBuffer.cs" />
     <Compile Include="Utilities\GzipUtil.cs" />
     <Compile Include="Utilities\PacketBuilder.cs" />
     <Compile Include="Utilities\SystemUtil.cs" />

@@ -88,7 +88,7 @@ namespace SharpRaven
         /// </value>
         TimeSpan Timeout { get; set; }
 
-
+        
         /// <summary>Captures the specified <paramref name="event"/>.</summary>
         /// <param name="event">The event to capture.</param>
         /// <returns>
@@ -96,6 +96,21 @@ namespace SharpRaven
         /// </returns>
         string Capture(SentryEvent @event);
 
+        /// <summary>
+        /// Captures the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        /// <param name="breadcrumb">The <see cref="Breadcrumb" /> to capture.</param>
+        void AddTrail(Breadcrumb breadcrumb);
+
+        /// <summary>
+        /// Restart the capture of the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        void RestartTrails();
+
+        /// <summary>
+        /// Not register the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        bool IgnoreBreadcrumbs { get; set; }
 
         /// <summary>
         /// Captures the <see cref="Exception" />.
@@ -208,5 +223,7 @@ namespace SharpRaven
         string CaptureEvent(Exception e, Dictionary<string, string> tags);
 
         #endregion
+
+        
     }
 }

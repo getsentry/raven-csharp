@@ -287,6 +287,21 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(json.ServerName, Is.EqualTo(Environment.MachineName));
         }
 
+        [Test]
+        public void Create_Breadcrumbs_SerializedWithType() {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            
+            var json = this.jsonPacketFactory.Create(project, exception);
+            json.Breadcrumbs = new List<Breadcrumb> { new Breadcrumb("foo", BreadcrumbType.Http) };
+
+            var jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
+            Console.WriteLine(jsonString);
+
+            Assert.That(jsonString, Is.StringContaining("breadcrumbs"));
+            Assert.That(jsonString, Is.StringContaining("type"));
+            Assert.That(jsonString, Is.StringContaining("http"));
+        }
 
         private IJsonPacketFactory jsonPacketFactory;
 

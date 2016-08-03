@@ -28,62 +28,57 @@
 
 #endregion
 
-using System;
-
 using NUnit.Framework;
 
-using SharpRaven.UnitTests.Utilities;
+using SharpRaven.Utilities;
 
-namespace SharpRaven.UnitTests.RavenClientTests
+namespace SharpRaven.UnitTests.Utilities
 {
     [TestFixture]
-    public class RavenClientTests
+    public class CircularBufferTests
     {
         [Test]
-        public void Constructor_NullDsn_ThrowsArgumentNullException()
+        public void Should_Create_Empty()
         {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((Dsn)null));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
-        }
+            var circularBuffer = new CircularBuffer<string>();
 
-
-        [Test]
-        public void Constructor_NullDsnString_ThrowsArgumentNullException()
-        {
-            var exception = Assert.Throws<ArgumentNullException>(() => new RavenClient((string)null));
-            Assert.That(exception.ParamName, Is.EqualTo("dsn"));
-        }
-
-
-        [Test]
-        public void Constructor_StringDsn_CurrentDsnEqualsDsn()
-        {
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-            Assert.That(ravenClient.CurrentDsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
+            Assert.That(circularBuffer.IsEmpty(), Is.True);
         }
 
         [Test]
-        public void Logger_IsRoot()
+        public void Should_Put_One_Item()
         {
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-            Assert.That(ravenClient.Logger, Is.EqualTo("root"));
-        }
+            var circularBuffer = new CircularBuffer<string>();
 
+            circularBuffer.Add("One");
 
-        [Test]
-        public void Release_IsNullByDefault()
-        {
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
-
-            Assert.That(ravenClient.Release, Is.Null);
+            Assert.That(circularBuffer.ToList().Count, Is.EqualTo(1));
         }
 
         [Test]
-        public void IgnoreBreadcrumbs_IsFalseByDefault()
+        public void Should_Retain_Last_Two_Items()
         {
-            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+            var circularBuffer = new CircularBuffer<string>(2);
 
-            Assert.That(ravenClient.IgnoreBreadcrumbs, Is.False);
+            circularBuffer.Add("One");
+            circularBuffer.Add("Two");
+            circularBuffer.Add("Three");
+
+            Assert.That(circularBuffer.ToList().Count, Is.EqualTo(2));
+            Assert.That(circularBuffer.ToList()[0], Is.EqualTo("Two"));
+            Assert.That(circularBuffer.ToList()[1], Is.EqualTo("Three"));
+        }
+
+        [Test]
+        public void Should_Be_Empty_When_Clear()
+        {
+            var circularBuffer = new CircularBuffer<string>(2);
+
+            circularBuffer.Add("One");
+
+            circularBuffer.Clear();
+
+            Assert.That(circularBuffer.ToList().Count, Is.EqualTo(0));
         }
     }
 }

@@ -53,7 +53,8 @@ namespace SharpRaven
         private readonly ISentryRequestFactory sentryRequestFactory;
         private readonly ISentryUserFactory sentryUserFactory;
 
-
+        private readonly CircularBuffer<Breadcrumb> breadcrumbs;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="RavenClient" /> class. Sentry
         /// Data Source Name will be read from sharpRaven section in your app.config or
@@ -106,6 +107,7 @@ namespace SharpRaven
             Logger = "root";
             Timeout = TimeSpan.FromSeconds(5);
             this.defaultTags = new Dictionary<string, string>();
+            breadcrumbs = new CircularBuffer<Breadcrumb>();
         }
 
 
@@ -169,6 +171,30 @@ namespace SharpRaven
         /// </value>
         public TimeSpan Timeout { get; set; }
 
+        /// <summary>
+        /// Not register the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        public bool IgnoreBreadcrumbs { get; set; }
+        
+        /// <summary>
+        /// Captures the last 100 <see cref="Breadcrumb" />.
+        /// </summary>
+        /// <param name="breadcrumb">The <see cref="Breadcrumb" /> to capture.</param>
+        public void AddTrail(Breadcrumb breadcrumb)
+        {
+            if (IgnoreBreadcrumbs || breadcrumb == null)
+                return;
+            
+            this.breadcrumbs.Add(breadcrumb);
+        }
+
+        /// <summary>
+        /// Restart the capture of the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        public void RestartTrails()
+        {
+            this.breadcrumbs.Clear();
+        }
 
         /// <summary>Captures the specified <paramref name="event"/>.</summary>
         /// <param name="event">The event to capture.</param>
@@ -181,8 +207,15 @@ namespace SharpRaven
                 throw new ArgumentNullException("event");
 
             @event.Tags = MergeTags(@event.Tags);
+            if (!breadcrumbs.IsEmpty())
+                @event.Breadcrumbs = breadcrumbs.ToList();
+
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
-            return Send(packet);
+
+            var eventId = Send(packet);
+            RestartTrails();
+
+            return eventId;
         }
 
 
