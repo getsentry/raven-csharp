@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using NUnit.Framework;
 
@@ -238,12 +239,27 @@ namespace SharpRaven.UnitTests.Data
             });
         }
 
+        [Test]
+        [Category("NoMono")]
+        public void Constructor_WithHttpContext_UsertIsNotNull_Threaded()
+        {
+            Parallel.For(0, 100, i =>
+            {
+                var userName = i.ToString();
+                SimulateHttpRequest(json =>
+                {
+                    Assert.That(json.User, Is.Not.Null);
+                    Assert.That(json.User.Username, Is.EqualTo(userName));
+                }, userName);
+            });
+        }
+
 
         private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
         private static readonly ISentryUserFactory userFactory = new SentryUserFactory();
 
 
-        private static void SimulateHttpRequest(Action<JsonPacket> test)
+        private static void SimulateHttpRequest(Action<JsonPacket> test, string userName = null)
         {
             using (var simulator = new HttpSimulator())
             {
@@ -254,6 +270,10 @@ namespace SharpRaven.UnitTests.Data
 
                 using (simulator.SimulateRequest())
                 {
+                    if (userName != null)
+                    {
+                        simulator.SetUser(userName);
+                    }
                     var json = new JsonPacket(Guid.NewGuid().ToString("n"));
                     json.User = userFactory.Create();
                     json.Request = requestFactory.Create();
