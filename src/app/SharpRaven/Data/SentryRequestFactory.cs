@@ -62,8 +62,8 @@ namespace SharpRaven.Data
         {
             get
             {
-	            TryGetHttpContextPropertyFromAppDomain();
-				
+                TryGetHttpContextPropertyFromAppDomain();
+    			
                 // [Meilu] If the currentHttpcontext property is not available we couldnt retrieve it, dont continue
                 if (!HasCurrentHttpContextProperty)
                     return null;
