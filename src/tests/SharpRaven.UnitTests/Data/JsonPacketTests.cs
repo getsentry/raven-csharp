@@ -41,25 +41,6 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class JsonPacketTests
     {
-        #region SetUp/Teardown
-
-        [SetUp]
-        public void SetUp()
-        {
-            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
-            SentryRequestFactory.HttpContext = null;
-        }
-
-
-        [TearDown]
-        public void TearDown()
-        {
-            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
-            SentryRequestFactory.HttpContext = null;
-        }
-
-        #endregion
-
         [Test]
         public void Constructor_NullEvent_ThrowsArgumentNullException()
         {
@@ -274,8 +255,8 @@ namespace SharpRaven.UnitTests.Data
                 using (simulator.SimulateRequest())
                 {
                     var json = new JsonPacket(Guid.NewGuid().ToString("n"));
-                    json.Request = requestFactory.Create();
                     json.User = userFactory.Create();
+                    json.Request = requestFactory.Create();
                     test.Invoke(json);
                 }
             }

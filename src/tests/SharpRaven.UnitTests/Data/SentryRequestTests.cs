@@ -41,25 +41,6 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class SentryRequestTests
     {
-        #region SetUp/Teardown
-
-        [SetUp]
-        public void SetUp()
-        {
-            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
-            SentryRequestFactory.HttpContext = null;
-        }
-
-
-        [TearDown]
-        public void TearDown()
-        {
-            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
-            SentryRequestFactory.HttpContext = null;
-        }
-
-        #endregion
-
         [Test]
         public void GetRequest_NoHttpContext_ReturnsNull()
         {
