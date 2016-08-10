@@ -245,12 +245,12 @@ namespace SharpRaven.UnitTests.Data
         {
             Parallel.For(0, 100, i =>
             {
-                var userName = i.ToString();
+                var username = i.ToString();
                 SimulateHttpRequest(json =>
                 {
                     Assert.That(json.User, Is.Not.Null);
-                    Assert.That(json.User.Username, Is.EqualTo(userName));
-                }, userName);
+                    Assert.That(json.User.Username, Is.EqualTo(username));
+                }, username);
             });
         }
 
@@ -259,7 +259,7 @@ namespace SharpRaven.UnitTests.Data
         private static readonly ISentryUserFactory userFactory = new SentryUserFactory();
 
 
-        private static void SimulateHttpRequest(Action<JsonPacket> test, string userName = null)
+        private static void SimulateHttpRequest(Action<JsonPacket> test, string username = null)
         {
             using (var simulator = new HttpSimulator())
             {
@@ -270,9 +270,9 @@ namespace SharpRaven.UnitTests.Data
 
                 using (simulator.SimulateRequest())
                 {
-                    if (userName != null)
+                    if (username != null)
                     {
-                        simulator.SetUser(userName);
+                        simulator.SetUser(username);
                     }
                     var json = new JsonPacket(Guid.NewGuid().ToString("n"));
                     json.User = userFactory.Create();
