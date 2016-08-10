@@ -30,7 +30,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Principal;
 using System.Threading.Tasks;
+using System.Web;
 
 using NUnit.Framework;
 
@@ -230,7 +232,7 @@ namespace SharpRaven.UnitTests.Data
 
         [Test]
         [Category("NoMono")]
-        public void Constructor_WithHttpContext_UsertIsNotNull()
+        public void Constructor_WithHttpContext_UserIsNotNull()
         {
             SimulateHttpRequest(json =>
             {
@@ -241,7 +243,7 @@ namespace SharpRaven.UnitTests.Data
 
         [Test]
         [Category("NoMono")]
-        public void Constructor_WithHttpContext_UsertIsNotNull_Threaded()
+        public void Constructor_WithHttpContext_UserIsNotNull_Threaded()
         {
             Parallel.For(0, 100, i =>
             {
@@ -272,7 +274,7 @@ namespace SharpRaven.UnitTests.Data
                 {
                     if (username != null)
                     {
-                        simulator.SetUser(username);
+                        SetUsername(username);
                     }
                     var json = new JsonPacket(Guid.NewGuid().ToString("n"));
                     json.User = userFactory.Create();
@@ -280,6 +282,11 @@ namespace SharpRaven.UnitTests.Data
                     test.Invoke(json);
                 }
             }
+        }
+
+        private static void SetUsername(string username)
+        {
+            HttpContext.Current.User = new GenericPrincipal(new GenericIdentity(username), null);
         }
     }
 }

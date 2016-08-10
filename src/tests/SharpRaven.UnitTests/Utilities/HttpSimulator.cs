@@ -830,10 +830,5 @@ namespace SharpRaven.UnitTests.Utilities
         }
 
         #endregion
-
-        public void SetUser(string username)
-        {
-            HttpContext.Current.User = new GenericPrincipal(new GenericIdentity(username), null);
-        }
     }
 }
