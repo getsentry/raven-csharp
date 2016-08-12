@@ -143,33 +143,24 @@ namespace SharpRaven.Data
 
             try
             {
-                IDictionary<string, IMediaType> mediaTypes =
-                    new Dictionary<string, IMediaType>();
-
-                mediaTypes.Add("FormMediaType", new FormMediaType());
-                mediaTypes.Add("MultiPartFormMediaType", new MultiPartFormMediaType());
-                mediaTypes.Add("JsonMediaType", new JsonMediaType());
-                mediaTypes.Add("DefaultMediaType", new DefaultMediaType());
+                var mediaTypes = new Dictionary<string, IMediaType>
+                {
+                    { "FormMediaType", new FormMediaType() },
+                    { "MultiPartFormMediaType", new MultiPartFormMediaType() },
+                    { "JsonMediaType", new JsonMediaType() },
+                    { "DefaultMediaType", new DefaultMediaType() }
+                };
 
                 foreach (var item in mediaTypes)
                 {
-                    IMediaType mediaType = item.Value;
+                    var mediaType = item.Value;
 
-                    if (mediaType.Matches(HttpContext.Request.ContentType))
-                    {
-                        object data = mediaType.Convert(HttpContext);
+                    if (!mediaType.Matches(HttpContext.Request.ContentType))
+                        continue;
 
-                        // when the result is null let's try with the next
-                        // media type supported
-                        if (data == null)
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            return data;
-                        }
-                    }
+                    object data;
+                    if (mediaType.TryConvert(HttpContext, out data))
+                        return data;
                 }
             }
             catch (Exception exception)

@@ -37,8 +37,20 @@ using System.Text;
 
 namespace SharpRaven.Data
 {
+    /// <summary>
+    /// HTTP media type converter for JSON.
+    /// </summary>
     public class JsonMediaType : IMediaType
     {
+        /// <summary>
+        /// Checks whether the specified <paramref name="mediaType"/> can be converted by this
+        /// <see cref="IMediaType"/> implementation or not.
+        /// </summary>
+        /// <param name="mediaType">The media type to match.</param>
+        /// <returns>
+        /// Returns <c>true</c> if the <see cref="IMediaType"/> implementation can convert
+        /// the specified <paramref name="mediaType"/> cref="contentType"/>; otherwise <c>false</c>.
+        /// </returns>
         public bool Matches(string mediaType)
         {
             if (String.IsNullOrEmpty(mediaType))
@@ -54,32 +66,48 @@ namespace SharpRaven.Data
                 mimeType.EndsWith("+json", StringComparison.OrdinalIgnoreCase);
         }
 
-        public object Convert(dynamic httpContext)
+        /// <summary>
+        /// Tries to convert the HTTP request body of the specified <paramref name="httpContext"/> to
+        /// a structured type.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context containing the request body to convert.</param>
+        /// <param name="converted">
+        /// The converted, structured type for the specified <paramref name="httpContext"/>'s request
+        /// body or <c>null</c> if the <paramref name="httpContext"/> is null, or the somehow conversion
+        /// fails.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the conversion succeeds; otherwise <c>false</c>.
+        /// </returns>
+        public bool TryConvert(dynamic httpContext, out object converted)
         {
+            converted = null;
+
             if (httpContext == null)
             {
-                return null;
+                return false;
             }
 
             try
             {
                 string body = null;
 
-                using (MemoryStream stream = new MemoryStream())
+                using (var stream = new MemoryStream())
                 {
                     httpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
                     httpContext.Request.InputStream.CopyTo(stream);
                     body = Encoding.UTF8.GetString(stream.ToArray());
                 }
 
-                return JsonConvert.DeserializeObject<Dictionary<string, object>>(body);
+                converted = JsonConvert.DeserializeObject<Dictionary<string, object>>(body);
+                return true;
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
             }
 
-            return null;
+            return false;
         }
     }
 }

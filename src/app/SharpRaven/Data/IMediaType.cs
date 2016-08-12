@@ -36,18 +36,6 @@ namespace SharpRaven.Data
     public interface IMediaType
     {
         /// <summary>
-        /// Converts the HTTP request body of the specified <paramref name="httpContext"/> to
-        /// a structured type.
-        /// </summary>
-        /// <param name="httpContext">The HTTP context containing the request body to convert.</param>
-        /// <returns>
-        /// A structured type for the specified <paramref name="httpContext"/>'s request body
-        /// or <c>null</c> if the <paramref name="httpContext"/> is null, or the somehow conversion fails.
-        /// </returns>
-        object Convert(dynamic httpContext);
-
-
-        /// <summary>
         /// Checks whether the specified <paramref name="mediaType"/> can be converted by this
         /// <see cref="IMediaType"/> implementation or not.
         /// </summary>
@@ -57,5 +45,21 @@ namespace SharpRaven.Data
         /// the specified <paramref name="mediaType"/> cref="contentType"/>; otherwise <c>false</c>.
         /// </returns>
         bool Matches(string mediaType);
+
+
+        /// <summary>
+        /// Tries to convert the HTTP request body of the specified <paramref name="httpContext"/> to
+        /// a structured type.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context containing the request body to convert.</param>
+        /// <param name="converted">
+        /// The converted, structured type for the specified <paramref name="httpContext"/>'s request
+        /// body or <c>null</c> if the <paramref name="httpContext"/> is null, or the somehow conversion
+        /// fails.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the conversion succeeds; otherwise <c>false</c>.
+        /// </returns>
+        bool TryConvert(dynamic httpContext, out object converted);
     }
 }
