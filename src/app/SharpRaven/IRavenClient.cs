@@ -43,6 +43,16 @@ namespace SharpRaven
     public interface IRavenClient
     {
         /// <summary>
+        /// Gets or sets the <see cref="Action"/> to execute to manipulate or extract data from
+        /// the <see cref="Requester"/> object before it is used in the <see cref="RavenClient.Send"/> method.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Action"/> to execute to manipulate or extract data from the
+        /// <see cref="Requester"/> object before it is used in the <see cref="RavenClient.Send"/> method.
+        /// </value>
+        Func<Requester, Requester> BeforeSend { get; set; }
+
+        /// <summary>
         /// Enable Gzip Compression?
         /// </summary>
         bool Compression { get; set; }
@@ -56,6 +66,11 @@ namespace SharpRaven
         /// The environment (e.g. production)
         /// </summary>
         string Environment { get; set; }
+
+        /// <summary>
+        /// Not register the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        bool IgnoreBreadcrumbs { get; set; }
 
         /// <summary>
         /// Logger. Default is "root"
@@ -88,13 +103,6 @@ namespace SharpRaven
         /// </value>
         TimeSpan Timeout { get; set; }
 
-        
-        /// <summary>Captures the specified <paramref name="event"/>.</summary>
-        /// <param name="event">The event to capture.</param>
-        /// <returns>
-        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
-        /// </returns>
-        string Capture(SentryEvent @event);
 
         /// <summary>
         /// Captures the <see cref="Breadcrumb"/> for tracking.
@@ -102,15 +110,14 @@ namespace SharpRaven
         /// <param name="breadcrumb">The <see cref="Breadcrumb" /> to capture.</param>
         void AddTrail(Breadcrumb breadcrumb);
 
-        /// <summary>
-        /// Restart the capture of the <see cref="Breadcrumb"/> for tracking.
-        /// </summary>
-        void RestartTrails();
 
-        /// <summary>
-        /// Not register the <see cref="Breadcrumb"/> for tracking.
-        /// </summary>
-        bool IgnoreBreadcrumbs { get; set; }
+        /// <summary>Captures the specified <paramref name="event"/>.</summary>
+        /// <param name="event">The event to capture.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
+        /// </returns>
+        string Capture(SentryEvent @event);
+
 
         /// <summary>
         /// Captures the <see cref="Exception" />.
@@ -150,6 +157,12 @@ namespace SharpRaven
                               IDictionary<string, string> tags = null,
                               string[] fingerprint = null,
                               object extra = null);
+
+
+        /// <summary>
+        /// Restart the capture of the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        void RestartTrails();
 
 
 #if (!net40)
@@ -223,7 +236,5 @@ namespace SharpRaven
         string CaptureEvent(Exception e, Dictionary<string, string> tags);
 
         #endregion
-
-        
     }
 }

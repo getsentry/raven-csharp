@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 
 using NUnit.Framework;
 
@@ -229,6 +230,12 @@ namespace SharpRaven.UnitTests.Integration
         public void CaptureMessage_ReturnsValidID()
         {
             var id = this.ravenClient.CaptureMessage("Test");
+            this.ravenClient.BeforeSend = requester =>
+            {
+                Console.WriteLine("Event ID: " + requester.Packet.EventID);
+                return requester;
+            };
+
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null);
@@ -259,6 +266,44 @@ namespace SharpRaven.UnitTests.Integration
             Assert.That(Guid.Parse(id), Is.Not.Null);
         }
 
+        [Test]
+        public void CaptureException_PacketContainingPhoneNumberLikeEventId_IsNotScrubbed()
+        {
+            var onCreateHttpWebRequestInvoked = false;
+            var testableRavenClient = new TestableRavenClient(this.ravenClient.CurrentDsn)
+            {
+                LogScrubber = new LogScrubber(),
+                BeforeSend = requester =>
+                {
+                    Console.WriteLine("EventID: " + requester.Packet.EventID);
+                    requester.Packet.EventID = "55518231234e2400d82f11c490683c2d2";
+                    onCreateHttpWebRequestInvoked = true;
+                    return requester;
+                }
+            };
+            string id = null;
+
+            try
+            {
+                Helper.FirstLevelException();
+            }
+            catch (Exception exception)
+            {
+                id = testableRavenClient.CaptureException(exception, fingerprint: new[] { "f", "i", "n", "g", "e", "r" });
+            }
+
+            Assert.That(id, Is.Not.Null);
+            Assert.That(Guid.Parse(id), Is.Not.Null);
+            Assert.That(onCreateHttpWebRequestInvoked, Is.True);
+        }
+
+        private class TestableRavenClient : RavenClient
+        {
+            public TestableRavenClient(Dsn dsn)
+                : base(dsn)
+            {
+            }
+        }
 
         private const string DsnUrl =
             "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739";

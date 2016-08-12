@@ -56,8 +56,8 @@ namespace SharpRaven
         public async Task<string> CaptureAsync(SentryEvent @event)
         {
             @event.Tags = MergeTags(@event.Tags);
-            if (!breadcrumbs.IsEmpty())
-                @event.Breadcrumbs = breadcrumbs.ToList();
+            if (!this.breadcrumbs.IsEmpty())
+                @event.Breadcrumbs = this.breadcrumbs.ToList();
             
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
 
@@ -138,46 +138,20 @@ namespace SharpRaven
         /// </returns>
         protected virtual async Task<string> SendAsync(JsonPacket packet)
         {
-            string data = null;
-            HttpWebRequest request = null;
+            Requester requester = null;
 
             try
             {
-                request = CreateWebRequest(packet, out data);
+                requester = new Requester(packet, this);
 
-                // Write the messagebody.
-                using (var s = await request.GetRequestStreamAsync())
-                {
-                    if (Compression)
-                        await GzipUtil.WriteAsync(data, s);
-                    else
-                    {
-                        using (StreamWriter sw = new StreamWriter(s))
-                        {
-                            await sw.WriteAsync(data);
-                        }
-                    }
-                }
+                if (BeforeSend != null)
+                    requester = BeforeSend(requester);
 
-                using (var wr = (HttpWebResponse)await request.GetResponseAsync())
-                {
-                    using (var responseStream = wr.GetResponseStream())
-                    {
-                        if (responseStream == null)
-                            return null;
-
-                        using (var sr = new StreamReader(responseStream))
-                        {
-                            var content = await sr.ReadToEndAsync();
-                            var response = JsonConvert.DeserializeObject<dynamic>(content);
-                            return response.id;
-                        }
-                    }
-                }
+                return await requester.RequestAsync();
             }
             catch (Exception exception)
             {
-                return HandleException(exception, data, request);
+                return HandleException(exception, requester);
             }
         }
     }

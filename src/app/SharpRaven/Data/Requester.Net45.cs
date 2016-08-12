@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
@@ -28,33 +28,58 @@
 
 #endregion
 
-using NUnit.Framework;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
 
-using SharpRaven.Logging.Filters;
+using Newtonsoft.Json;
 
-namespace SharpRaven.UnitTests.Logging
+using SharpRaven.Utilities;
+
+#if !(net40)
+
+namespace SharpRaven.Data
 {
-    [TestFixture]
-    public class PhoneNumberFilterTests : FilterTestsBase<PhoneNumberFilter>
+    public partial class Requester
     {
-        [Test]
-        public void InvalidPhoneNumber_IsNotScrubbed()
+        /// <summary>
+        /// Executes the <c>async</c> HTTP request to Sentry.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
+        /// </returns>
+        public async Task<string> RequestAsync()
         {
-            InvalidValueIsNotScrubbed("1531");
-        }
+            using (var s = await this.webRequest.GetRequestStreamAsync())
+            {
+                if (this.Client.Compression)
+                    await GzipUtil.WriteAsync(this.data.Scrubbed, s);
+                else
+                {
+                    using (var sw = new StreamWriter(s))
+                    {
+                        await sw.WriteAsync(this.data.Scrubbed);
+                    }
+                }
+            }
 
+            using (var wr = (HttpWebResponse)await this.webRequest.GetResponseAsync())
+            {
+                using (var responseStream = wr.GetResponseStream())
+                {
+                    if (responseStream == null)
+                        return null;
 
-        [Test]
-        public void ValidPhoneNumber_IsScrubbed()
-        {
-            ValidValueIsScrubbed("55518231234");
-        }
-
-
-        [Test]
-        public void PhoneNumberContainingJson_IsNotScrubbed()
-        {
-            InvalidValueIsNotScrubbed("\":\"55518231234");
+                    using (var sr = new StreamReader(responseStream))
+                    {
+                        var content = await sr.ReadToEndAsync();
+                        var response = JsonConvert.DeserializeObject<dynamic>(content);
+                        return response.id;
+                    }
+                }
+            }
         }
     }
 }
+
+#endif
