@@ -1,4 +1,5 @@
 ﻿#region License
+
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
 // 
@@ -24,11 +25,14 @@
 // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #endregion
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Dynamic;
+using System.IO;
+using System.Text;
 
 using NUnit.Framework;
 
@@ -52,6 +56,20 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(converted, Is.Not.Null);
             Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
             Assert.That(converted, Has.Member(new KeyValuePair<string, string>("Key", "Value")));
+        }
+
+
+        [Test]
+        public void Convert_UnknownType_ReturnsString()
+        {
+            dynamic httpContext = new ExpandoObject();
+            httpContext.Request = new ExpandoObject();
+            httpContext.Request.ContentType = "unkown/type";
+            httpContext.Request.InputStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello world!"));
+
+            var converted = HttpRequestBodyConverter.Convert(httpContext);
+
+            Assert.That(converted, Is.EqualTo("Hello world!"));
         }
     }
 }
