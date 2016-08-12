@@ -31,13 +31,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 using Newtonsoft.Json;
-using System.IO;
-using System.Text;
 
 namespace SharpRaven.Data
 {
@@ -47,23 +46,7 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequestFactory : ISentryRequestFactory
     {
-        [JsonIgnore]
-        internal static bool HasHttpContext
-        {
-            get { return HttpContext != null; }
-        }
-
-        [JsonIgnore]
-        internal static bool CheckedForHttpContext { get; set; }
-
-        /// <summary>
-        /// Gets or sets the HTTP context.
-        /// </summary>
-        /// <value>
-        /// The HTTP context.
-        /// </value>
-        internal static dynamic HttpContext { get; set; }
-
+        private static bool checkedForHttpContextProperty;
 
         /// <summary>
         /// Gets or sets the CurrentHttpContextProperty
@@ -79,6 +62,41 @@ namespace SharpRaven.Data
             get { return CurrentHttpContextProperty != null; }
         }
 
+        [JsonIgnore]
+        internal static bool HasHttpContext
+        {
+            get { return HttpContext != null; }
+        }
+
+        /// <summary>
+        /// Gets or sets the HTTP context.
+        /// </summary>
+        /// <value>
+        /// The HTTP context.
+        /// </value>
+        internal static dynamic HttpContext
+        {
+            get
+            {
+                TryGetHttpContextPropertyFromAppDomain();
+
+                // [Meilu] If the currentHttpcontext property is not available we couldnt retrieve it, dont continue
+                if (!HasCurrentHttpContextProperty)
+                    return null;
+
+                try
+                {
+                    return CurrentHttpContextProperty.GetValue(null, null);
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine("An error occurred while retrieving the current HTTP context: {0}", exception);
+                    return null;
+                }
+            }
+        }
+
+
         /// <summary>
         /// Creates a new instance of <see cref="SentryRequest"/>
         /// for the current packet.
@@ -86,13 +104,10 @@ namespace SharpRaven.Data
         /// <returns>A new instance of <see cref="SentryRequest"/> with information relating to the current HTTP request</returns>
         public ISentryRequest Create()
         {
-            // NOTE: We're using dynamic to not require a reference to System.Web.
-            GetHttpContext();
-
             if (!HasHttpContext || HttpContext.Request == null)
                 return OnCreate(null);
 
-            var request = new SentryRequest()
+            var request = new SentryRequest
             {
                 Url = HttpContext.Request.Url.ToString(),
                 Method = HttpContext.Request.HttpMethod,
@@ -132,19 +147,16 @@ namespace SharpRaven.Data
                 {
                     return Convert(x => x.Request.Form);
                 }
-                else
+                var body = string.Empty;
+
+                using (var stream = new MemoryStream())
                 {
-                    string body = String.Empty;
-
-                    using (MemoryStream stream = new MemoryStream())
-                    {
-                        HttpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
-                        HttpContext.Request.InputStream.CopyTo(stream);
-                        body = Encoding.UTF8.GetString(stream.ToArray());
-                    }
-
-                    return body;
+                    HttpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
+                    HttpContext.Request.InputStream.CopyTo(stream);
+                    body = Encoding.UTF8.GetString(stream.ToArray());
                 }
+
+                return body;
             }
             catch (Exception exception)
             {
@@ -172,14 +184,14 @@ namespace SharpRaven.Data
                     if (key == null)
                         continue;
 
-                    string stringKey = key as string ?? key.ToString();
+                    var stringKey = key as string ?? key.ToString();
 
                     // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
                     if (stringKey.StartsWith("ALL_") || stringKey.StartsWith("HTTP_"))
                         continue;
 
                     var value = collection[stringKey];
-                    string stringValue = value as string;
+                    var stringValue = value as string;
 
                     if (stringValue != null)
                     {
@@ -213,8 +225,10 @@ namespace SharpRaven.Data
 
         private static void TryGetHttpContextPropertyFromAppDomain()
         {
-            if (HasHttpContext)
+            if (checkedForHttpContextProperty)
                 return;
+
+            checkedForHttpContextProperty = true;
 
             try
             {
@@ -242,29 +256,6 @@ namespace SharpRaven.Data
             catch (Exception exception)
             {
                 Console.WriteLine("An error occurred while retrieving the HTTP contextproperty: {0}", exception);
-            }
-        }
-
-        private static void GetHttpContext()
-        {
-            // [Meilu] Since reflection is performance heavy, check if we have the httpcontext only once.
-            if (!CheckedForHttpContext)
-            {
-                TryGetHttpContextPropertyFromAppDomain();
-                CheckedForHttpContext = true;
-            }
-
-            // [Meilu] If the currentHttpcontext property is not available we couldnt retrieve it, dont continue
-            if (!HasCurrentHttpContextProperty)
-                return;
-
-            try
-            {
-                HttpContext = CurrentHttpContextProperty.GetValue(null, null);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine("An error occurred while retrieving the current HTTP context: {0}", exception);
             }
         }
     }
