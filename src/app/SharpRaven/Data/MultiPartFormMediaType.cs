@@ -36,14 +36,14 @@ namespace SharpRaven.Data
 {
     public class MultiPartFormMediaType : FormMediaType
     {
-        public override bool IsValid(string contentType)
+        public override bool Matches(string mediaType)
         {
-            if (String.IsNullOrEmpty(contentType))
+            if (String.IsNullOrEmpty(mediaType))
             {
                 return false;
             }
 
-            var mimeType = contentType.Split(';').First();
+            var mimeType = mediaType.Split(';').First();
 
             return mimeType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase);
         }

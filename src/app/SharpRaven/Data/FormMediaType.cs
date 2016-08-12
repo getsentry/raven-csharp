@@ -36,14 +36,14 @@ namespace SharpRaven.Data
 {
     public class FormMediaType : IMediaType
     {
-        public virtual bool IsValid(string contentType)
+        public virtual bool Matches(string mediaType)
         {
-            if (String.IsNullOrEmpty(contentType))
+            if (String.IsNullOrEmpty(mediaType))
             {
                 return false;
             }
 
-            var mimeType = contentType.Split(';').First();
+            var mimeType = mediaType.Split(';').First();
 
             return mimeType.Equals("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase);
         }

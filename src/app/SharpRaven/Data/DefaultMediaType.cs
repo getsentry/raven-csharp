@@ -36,7 +36,7 @@ namespace SharpRaven.Data
 {
     public class DefaultMediaType : IMediaType
     {
-        public bool IsValid(string contentType)
+        public bool Matches(string mediaType)
         {
             return true;
         }

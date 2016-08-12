@@ -155,7 +155,7 @@ namespace SharpRaven.Data
                 {
                     IMediaType mediaType = item.Value;
 
-                    if (mediaType.IsValid(HttpContext.Request.ContentType))
+                    if (mediaType.Matches(HttpContext.Request.ContentType))
                     {
                         object data = mediaType.Convert(HttpContext);
 

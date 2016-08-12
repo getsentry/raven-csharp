@@ -39,14 +39,14 @@ namespace SharpRaven.Data
 {
     public class JsonMediaType : IMediaType
     {
-        public bool IsValid(string contentType)
+        public bool Matches(string mediaType)
         {
-            if (String.IsNullOrEmpty(contentType))
+            if (String.IsNullOrEmpty(mediaType))
             {
                 return false;
             }
 
-            var mimeType = contentType.Split(';').First();
+            var mimeType = mediaType.Split(';').First();
 
             return mimeType.Equals("application/json", StringComparison.OrdinalIgnoreCase) ||
                 mimeType.StartsWith("application/json-", StringComparison.OrdinalIgnoreCase) ||
