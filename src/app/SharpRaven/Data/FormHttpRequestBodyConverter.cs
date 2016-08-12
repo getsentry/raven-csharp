@@ -2,21 +2,21 @@
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
-//
+// 
 //     1. Redistributions of source code must retain the above copyright notice, this list of
 //        conditions and the following disclaimer.
-//
+// 
 //     2. Redistributions in binary form must reproduce the above copyright notice, this list of
 //        conditions and the following disclaimer in the documentation and/or other materials
 //        provided with the distribution.
-//
+// 
 //     3. Neither the name of the Sentry nor the names of its contributors may be used to
 //        endorse or promote products derived from this software without specific prior written
 //        permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -28,43 +28,38 @@
 
 #endregion
 
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace SharpRaven.Data
 {
     /// <summary>
-    /// HTTP media type converter for JSON.
+    /// HTTP media type converter for HTML forms.
     /// </summary>
-    public class JsonMediaType : IMediaType
+    public class FormHttpRequestBodyConverter : IHttpRequestBodyConverter
     {
         /// <summary>
-        /// Checks whether the specified <paramref name="mediaType"/> can be converted by this
-        /// <see cref="IMediaType"/> implementation or not.
+        /// Checks whether the specified <paramref name="contentType"/> can be converted by this
+        /// <see cref="IHttpRequestBodyConverter"/> implementation or not.
         /// </summary>
-        /// <param name="mediaType">The media type to match.</param>
+        /// <param name="contentType">The media type to match.</param>
         /// <returns>
-        /// Returns <c>true</c> if the <see cref="IMediaType"/> implementation can convert
-        /// the specified <paramref name="mediaType"/> cref="contentType"/>; otherwise <c>false</c>.
+        /// Returns <c>true</c> if the <see cref="IHttpRequestBodyConverter"/> implementation can convert
+        /// the specified <paramref name="contentType"/> cref="contentType"/>; otherwise <c>false</c>.
         /// </returns>
-        public bool Matches(string mediaType)
+        public virtual bool Matches(string contentType)
         {
-            if (String.IsNullOrEmpty(mediaType))
+            if (string.IsNullOrEmpty(contentType))
             {
                 return false;
             }
 
-            var mimeType = mediaType.Split(';').First();
+            var mimeType = contentType.Split(';').First();
 
-            return mimeType.Equals("application/json", StringComparison.OrdinalIgnoreCase) ||
-                mimeType.StartsWith("application/json-", StringComparison.OrdinalIgnoreCase) ||
-                mimeType.Equals("text/json", StringComparison.OrdinalIgnoreCase) ||
-                mimeType.EndsWith("+json", StringComparison.OrdinalIgnoreCase);
+            return mimeType.Equals("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase);
         }
+
 
         /// <summary>
         /// Tries to convert the HTTP request body of the specified <paramref name="httpContext"/> to
@@ -90,16 +85,24 @@ namespace SharpRaven.Data
 
             try
             {
-                string body = null;
+                var dictionary = new Dictionary<string, string>();
+                var collection = httpContext.Request.Form;
+                var keys = Enumerable.ToArray(collection.AllKeys);
 
-                using (var stream = new MemoryStream())
+                foreach (object key in keys)
                 {
-                    httpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
-                    httpContext.Request.InputStream.CopyTo(stream);
-                    body = Encoding.UTF8.GetString(stream.ToArray());
+                    if (key == null)
+                        continue;
+
+                    var stringKey = key as string ?? key.ToString();
+
+                    var value = collection[stringKey];
+                    var stringValue = value as string;
+
+                    dictionary.Add(stringKey, stringValue);
                 }
 
-                converted = JsonConvert.DeserializeObject<Dictionary<string, object>>(body);
+                converted = dictionary;
                 return true;
             }
             catch (Exception exception)

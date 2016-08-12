@@ -29,35 +29,28 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Text;
 
 namespace SharpRaven.Data
 {
     /// <summary>
-    /// HTTP media type converter for HTML forms.
+    /// The default HTTP media type converter; just returns the HTTP request body as a <see cref="string"/>.
     /// </summary>
-    public class FormMediaType : IMediaType
+    public class DefaultHttpRequestBodyConverter : IHttpRequestBodyConverter
     {
         /// <summary>
-        /// Checks whether the specified <paramref name="mediaType"/> can be converted by this
-        /// <see cref="IMediaType"/> implementation or not.
+        /// Checks whether the specified <paramref name="contentType"/> can be converted by this
+        /// <see cref="IHttpRequestBodyConverter"/> implementation or not.
         /// </summary>
-        /// <param name="mediaType">The media type to match.</param>
+        /// <param name="contentType">The media type to match.</param>
         /// <returns>
-        /// Returns <c>true</c> if the <see cref="IMediaType"/> implementation can convert
-        /// the specified <paramref name="mediaType"/> cref="contentType"/>; otherwise <c>false</c>.
+        /// Returns <c>true</c> if the <see cref="IHttpRequestBodyConverter"/> implementation can convert
+        /// the specified <paramref name="contentType"/> cref="contentType"/>; otherwise <c>false</c>.
         /// </returns>
-        public virtual bool Matches(string mediaType)
+        public bool Matches(string contentType)
         {
-            if (string.IsNullOrEmpty(mediaType))
-            {
-                return false;
-            }
-
-            var mimeType = mediaType.Split(';').First();
-
-            return mimeType.Equals("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase);
+            return true;
         }
 
 
@@ -85,25 +78,13 @@ namespace SharpRaven.Data
 
             try
             {
-                var dictionary = new Dictionary<string, string>();
-                var collection = httpContext.Request.Form;
-                var keys = Enumerable.ToArray(collection.AllKeys);
-
-                foreach (object key in keys)
+                using (var stream = new MemoryStream())
                 {
-                    if (key == null)
-                        continue;
-
-                    var stringKey = key as string ?? key.ToString();
-
-                    var value = collection[stringKey];
-                    var stringValue = value as string;
-
-                    dictionary.Add(stringKey, stringValue);
+                    httpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
+                    httpContext.Request.InputStream.CopyTo(stream);
+                    converted = Encoding.UTF8.GetString(stream.ToArray());
+                    return true;
                 }
-
-                converted = dictionary;
-                return true;
             }
             catch (Exception exception)
             {

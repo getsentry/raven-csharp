@@ -143,12 +143,12 @@ namespace SharpRaven.Data
 
             try
             {
-                var mediaTypes = new Dictionary<string, IMediaType>
+                var mediaTypes = new Dictionary<string, IHttpRequestBodyConverter>
                 {
-                    { "FormMediaType", new FormMediaType() },
-                    { "MultiPartFormMediaType", new MultiPartFormMediaType() },
-                    { "JsonMediaType", new JsonMediaType() },
-                    { "DefaultMediaType", new DefaultMediaType() }
+                    { "FormMediaType", new FormHttpRequestBodyConverter() },
+                    { "MultiPartFormMediaType", new MultiPartFormHttpRequestBodyConverter() },
+                    { "JsonMediaType", new JsonHttpRequestBodyConverter() },
+                    { "DefaultMediaType", new DefaultHttpRequestBodyConverter() }
                 };
 
                 foreach (var item in mediaTypes)
