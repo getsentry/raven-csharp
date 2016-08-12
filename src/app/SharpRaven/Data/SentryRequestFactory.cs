@@ -31,12 +31,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 using Newtonsoft.Json;
-using System.IO;
-using System.Text;
 
 namespace SharpRaven.Data
 {
@@ -46,6 +46,22 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequestFactory : ISentryRequestFactory
     {
+        private static bool checkedForHttpContextProperty;
+
+        /// <summary>
+        /// Gets or sets the CurrentHttpContextProperty
+        /// </summary>
+        /// <value>
+        /// The current httpcontext property
+        /// </value>
+        internal static dynamic CurrentHttpContextProperty { get; set; }
+
+        [JsonIgnore]
+        internal static bool HasCurrentHttpContextProperty
+        {
+            get { return CurrentHttpContextProperty != null; }
+        }
+
         [JsonIgnore]
         internal static bool HasHttpContext
         {
@@ -63,7 +79,7 @@ namespace SharpRaven.Data
             get
             {
                 TryGetHttpContextPropertyFromAppDomain();
-    			
+
                 // [Meilu] If the currentHttpcontext property is not available we couldnt retrieve it, dont continue
                 if (!HasCurrentHttpContextProperty)
                     return null;
@@ -80,22 +96,6 @@ namespace SharpRaven.Data
             }
         }
 
-        /// <summary>
-        /// Gets or sets the CurrentHttpContextProperty
-        /// </summary>
-        /// <value>
-        /// The current httpcontext property
-        /// </value>
-        internal static dynamic CurrentHttpContextProperty { get; set; }
-
-        [JsonIgnore]
-        internal static bool HasCurrentHttpContextProperty
-        {
-            get { return CurrentHttpContextProperty != null; }
-        }
-
-        [JsonIgnore]
-        internal static bool CheckedForHttpContextProperty { get; set; }
 
         /// <summary>
         /// Creates a new instance of <see cref="SentryRequest"/>
@@ -107,7 +107,7 @@ namespace SharpRaven.Data
             if (!HasHttpContext || HttpContext.Request == null)
                 return OnCreate(null);
 
-            var request = new SentryRequest()
+            var request = new SentryRequest
             {
                 Url = HttpContext.Request.Url.ToString(),
                 Method = HttpContext.Request.HttpMethod,
@@ -147,19 +147,16 @@ namespace SharpRaven.Data
                 {
                     return Convert(x => x.Request.Form);
                 }
-                else
+                var body = string.Empty;
+
+                using (var stream = new MemoryStream())
                 {
-                    string body = String.Empty;
-
-                    using (MemoryStream stream = new MemoryStream())
-                    {
-                        HttpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
-                        HttpContext.Request.InputStream.CopyTo(stream);
-                        body = Encoding.UTF8.GetString(stream.ToArray());
-                    }
-
-                    return body;
+                    HttpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
+                    HttpContext.Request.InputStream.CopyTo(stream);
+                    body = Encoding.UTF8.GetString(stream.ToArray());
                 }
+
+                return body;
             }
             catch (Exception exception)
             {
@@ -187,14 +184,14 @@ namespace SharpRaven.Data
                     if (key == null)
                         continue;
 
-                    string stringKey = key as string ?? key.ToString();
+                    var stringKey = key as string ?? key.ToString();
 
                     // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
                     if (stringKey.StartsWith("ALL_") || stringKey.StartsWith("HTTP_"))
                         continue;
 
                     var value = collection[stringKey];
-                    string stringValue = value as string;
+                    var stringValue = value as string;
 
                     if (stringValue != null)
                     {
@@ -228,10 +225,10 @@ namespace SharpRaven.Data
 
         private static void TryGetHttpContextPropertyFromAppDomain()
         {
-            if (CheckedForHttpContextProperty)
+            if (checkedForHttpContextProperty)
                 return;
 
-            CheckedForHttpContextProperty = true;
+            checkedForHttpContextProperty = true;
 
             try
             {
