@@ -423,10 +423,10 @@ namespace SharpRaven
                 }
 
                 if (exception != null)
-                    WriteError(exception.ToString());
+                    SystemUtil.WriteError(exception);
 
-                WriteError("Request body:", data);
-                WriteError("Request headers:", request.Headers.ToString());
+                SystemUtil.WriteError("Request body:", data);
+                SystemUtil.WriteError("Request headers:", request.Headers.ToString());
 
                 var webException = exception as WebException;
                 if (webException == null || webException.Response == null)
@@ -449,45 +449,18 @@ namespace SharpRaven
                     }
                 }
 
-                WriteError("Response headers:", response.Headers.ToString());
-                WriteError("Response body:", messageBody);
+                SystemUtil.WriteError("Response headers:", response.Headers.ToString());
+                SystemUtil.WriteError("Response body:", messageBody);
             }
             catch (Exception onErrorException)
             {
-                WriteError(onErrorException.ToString());
+                SystemUtil.WriteError(onErrorException.ToString());
             }
 
             return id;
         }
 
 
-        private static void WriteError(string error)
-        {
-            if (error == null)
-                return;
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("[ERROR] ");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(error);
-        }
-
-
-        private static void WriteError(string description, string multilineData)
-        {
-            if (multilineData == null)
-                return;
-
-            var lines = multilineData.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-            if (lines.Length <= 0)
-                return;
-
-            WriteError(description);
-            foreach (var line in lines)
-            {
-                WriteError(line);
-            }
-        }
 
         private IDictionary<string, string> MergeTags(IDictionary<string, string> tags = null)
         {
