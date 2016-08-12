@@ -143,25 +143,7 @@ namespace SharpRaven.Data
 
             try
             {
-                var mediaTypes = new Dictionary<string, IHttpRequestBodyConverter>
-                {
-                    { "FormMediaType", new FormHttpRequestBodyConverter() },
-                    { "MultiPartFormMediaType", new MultiPartFormHttpRequestBodyConverter() },
-                    { "JsonMediaType", new JsonHttpRequestBodyConverter() },
-                    { "DefaultMediaType", new DefaultHttpRequestBodyConverter() }
-                };
-
-                foreach (var item in mediaTypes)
-                {
-                    var mediaType = item.Value;
-
-                    if (!mediaType.Matches(HttpContext.Request.ContentType))
-                        continue;
-
-                    object data;
-                    if (mediaType.TryConvert(HttpContext, out data))
-                        return data;
-                }
+                return HttpRequestBodyConverter.Convert(HttpContext);
             }
             catch (Exception exception)
             {

@@ -83,6 +83,7 @@
     <Compile Include="Data\Breadcrumb.cs" />
     <Compile Include="Data\DefaultHttpRequestBodyConverter.cs" />
     <Compile Include="Data\ExceptionData.cs" />
+    <Compile Include="Data\HttpRequestBodyConverter.cs" />
     <Compile Include="Data\MultiPartFormHttpRequestBodyConverter.cs" />
     <Compile Include="Data\IHttpRequestBodyConverter.cs" />
     <Compile Include="Data\ISentryRequestFactory.cs" />

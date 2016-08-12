@@ -95,7 +95,6 @@ namespace SharpRaven.Data
                         continue;
 
                     var stringKey = key as string ?? key.ToString();
-
                     var value = collection[stringKey];
                     var stringValue = value as string;
 

@@ -78,6 +78,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Data\ExceptionFrameTests.cs" />
+    <Compile Include="Data\HttpRequestBodyConverterTests.cs" />
     <Compile Include="Data\JsonPacketFactoryTests.cs" />
     <Compile Include="Data\BreadcrumbsRecordTests.cs" />
     <Compile Include="Data\JsonPacketTests.cs" />
