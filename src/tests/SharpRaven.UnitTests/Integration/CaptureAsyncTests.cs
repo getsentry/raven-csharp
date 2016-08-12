@@ -59,7 +59,6 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
             Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
             Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
-            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
         }
 
@@ -81,7 +80,6 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
             Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
             Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
-            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
 
             await this.ravenClient.CaptureExceptionAsync(Helper.GetException());
@@ -101,7 +99,6 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
             Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
             Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
-            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
 
             await this.ravenClient.CaptureExceptionAsync(Helper.GetException());
@@ -176,7 +173,6 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
             Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
             Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
-            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
 
             await this.ravenClient.CaptureMessageAsync("Test message");
@@ -196,7 +192,6 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Sentry Uri: " + this.ravenClient.CurrentDsn.SentryUri);
             Helper.PrintInfo("Port: " + this.ravenClient.CurrentDsn.Port);
             Helper.PrintInfo("Public Key: " + this.ravenClient.CurrentDsn.PublicKey);
-            Helper.PrintInfo("Private Key: " + this.ravenClient.CurrentDsn.PrivateKey);
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
 
             await this.ravenClient.CaptureMessageAsync("Test message");
