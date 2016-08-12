@@ -143,20 +143,7 @@ namespace SharpRaven.Data
 
             try
             {
-                if (HttpContext.Request.Form.Count > 0)
-                {
-                    return Convert(x => x.Request.Form);
-                }
-                var body = string.Empty;
-
-                using (var stream = new MemoryStream())
-                {
-                    HttpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
-                    HttpContext.Request.InputStream.CopyTo(stream);
-                    body = Encoding.UTF8.GetString(stream.ToArray());
-                }
-
-                return body;
+                return HttpRequestBodyConverter.Convert(HttpContext);
             }
             catch (Exception exception)
             {

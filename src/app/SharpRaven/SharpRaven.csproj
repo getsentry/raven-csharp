@@ -81,10 +81,16 @@
     <Compile Include="Data\BreadcrumbLevel.cs" />
     <Compile Include="Data\BreadcrumbType.cs" />
     <Compile Include="Data\Breadcrumb.cs" />
+    <Compile Include="Data\DefaultHttpRequestBodyConverter.cs" />
     <Compile Include="Data\ExceptionData.cs" />
+    <Compile Include="Data\HttpRequestBodyConverter.cs" />
+    <Compile Include="Data\MultiPartFormHttpRequestBodyConverter.cs" />
+    <Compile Include="Data\IHttpRequestBodyConverter.cs" />
     <Compile Include="Data\ISentryRequestFactory.cs" />
     <Compile Include="Data\ISentryUserFactory.cs" />
     <Compile Include="Data\ISentryRequest.cs" />
+    <Compile Include="Data\FormHttpRequestBodyConverter.cs" />
+    <Compile Include="Data\JsonHttpRequestBodyConverter.cs" />
     <Compile Include="Data\JsonPacketFactory.cs" />
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
