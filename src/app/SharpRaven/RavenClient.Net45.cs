@@ -138,37 +138,15 @@ namespace SharpRaven
         /// </returns>
         protected virtual async Task<string> SendAsync(JsonPacket packet)
         {
+            string data = null;
+            HttpWebRequest request = null;
+
             try
             {
-                packet = PreparePacket(packet);
-
-                var request = (HttpWebRequest)WebRequest.Create(CurrentDsn.SentryUri);
-                request.Timeout = (int)Timeout.TotalMilliseconds;
-                request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
-                request.Method = "POST";
-                request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(CurrentDsn));
-                request.UserAgent = PacketBuilder.UserAgent;
-
-                if (Compression)
-                {
-                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
-                    request.AutomaticDecompression = DecompressionMethods.Deflate;
-                    request.ContentType = "application/octet-stream";
-                }
-                else
-                    request.ContentType = "application/json; charset=utf-8";
-
-                /*string data = packet.ToString(Formatting.Indented);
-            Console.WriteLine(data);*/
-
-                string data = packet.ToString(Formatting.None);
-
-                if (LogScrubber != null)
-                    data = LogScrubber.Scrub(data);
+                request = CreateWebRequest(packet, out data);
 
                 // Write the messagebody.
-                using (Stream s = await request.GetRequestStreamAsync())
+                using (var s = await request.GetRequestStreamAsync())
                 {
                     if (Compression)
                         await GzipUtil.WriteAsync(data, s);
@@ -181,25 +159,25 @@ namespace SharpRaven
                     }
                 }
 
-                using (HttpWebResponse wr = (HttpWebResponse)(await request.GetResponseAsync()))
+                using (var wr = (HttpWebResponse)await request.GetResponseAsync())
                 {
-                    using (Stream responseStream = wr.GetResponseStream())
+                    using (var responseStream = wr.GetResponseStream())
                     {
                         if (responseStream == null)
                             return null;
 
-                        using (StreamReader sr = new StreamReader(responseStream))
+                        using (var sr = new StreamReader(responseStream))
                         {
-                            string content = await sr.ReadToEndAsync();
+                            var content = await sr.ReadToEndAsync();
                             var response = JsonConvert.DeserializeObject<dynamic>(content);
                             return response.id;
                         }
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return HandleException(ex);
+                return HandleException(exception, data, request);
             }
         }
     }

@@ -333,36 +333,12 @@ namespace SharpRaven
         /// </returns>
         protected virtual string Send(JsonPacket packet)
         {
+            string data = null;
+            HttpWebRequest request = null;
+
             try
             {
-                // TODO(dcramer): moving this out of Send makes it easier to test the final
-                // generated packet
-                packet = PreparePacket(packet);
-
-                var request = (HttpWebRequest)WebRequest.Create(this.currentDsn.SentryUri);
-                request.Timeout = (int)Timeout.TotalMilliseconds;
-                request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
-                request.Method = "POST";
-                request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(this.currentDsn));
-                request.UserAgent = PacketBuilder.UserAgent;
-
-                if (Compression)
-                {
-                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
-                    request.AutomaticDecompression = DecompressionMethods.Deflate;
-                    request.ContentType = "application/octet-stream";
-                }
-                else
-                    request.ContentType = "application/json; charset=utf-8";
-
-                /*string data = packet.ToString(Formatting.Indented);
-                    Console.WriteLine(data);*/
-
-                var data = packet.ToString(Formatting.None);
-
-                if (LogScrubber != null)
-                    data = LogScrubber.Scrub(data);
+                request = CreateWebRequest(packet, out data);
 
                 // Write the messagebody.
                 using (var s = request.GetRequestStream())
@@ -394,15 +370,50 @@ namespace SharpRaven
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return HandleException(ex);
+                return HandleException(exception, data, request);
             }
         }
 
 
-        private string HandleException(Exception exception)
+        private HttpWebRequest CreateWebRequest(JsonPacket packet, out string data)
         {
+            packet = PreparePacket(packet);
+
+            var request = (HttpWebRequest)WebRequest.Create(this.currentDsn.SentryUri);
+            request.Timeout = (int)Timeout.TotalMilliseconds;
+            request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
+            request.Method = "POST";
+            request.Accept = "application/json";
+            request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(this.currentDsn));
+            request.UserAgent = PacketBuilder.UserAgent;
+
+            if (Compression)
+            {
+                request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
+                request.AutomaticDecompression = DecompressionMethods.Deflate;
+                request.ContentType = "application/octet-stream";
+            }
+            else
+                request.ContentType = "application/json; charset=utf-8";
+
+            /*string data = packet.ToString(Formatting.Indented);
+                    Console.WriteLine(data);*/
+
+            data = packet.ToString(Formatting.None);
+
+            if (LogScrubber != null)
+                data = LogScrubber.Scrub(data);
+
+            return request;
+        }
+
+
+        private string HandleException(Exception exception, string data, WebRequest request)
+        {
+            string id = null;
+
             try
             {
                 if (ErrorOnCapture != null)
@@ -411,20 +422,26 @@ namespace SharpRaven
                     return null;
                 }
 
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("[ERROR] ");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(exception);
+                if (exception != null)
+                    WriteError(exception.ToString());
+
+                WriteError("Request body:", data);
+                WriteError("Request headers:", request.Headers.ToString());
 
                 var webException = exception as WebException;
                 if (webException == null || webException.Response == null)
                     return null;
 
+                var response = webException.Response;
+                id = response.Headers["X-Sentry-ID"];
+                if (String.IsNullOrWhiteSpace(id))
+                    id = null;
+
                 string messageBody;
-                using (var stream = webException.Response.GetResponseStream())
+                using (var stream = response.GetResponseStream())
                 {
                     if (stream == null)
-                        return null;
+                        return id;
 
                     using (var sw = new StreamReader(stream))
                     {
@@ -432,16 +449,45 @@ namespace SharpRaven
                     }
                 }
 
-                Console.WriteLine("[MESSAGE BODY] " + messageBody);
+                WriteError("Response headers:", response.Headers.ToString());
+                WriteError("Response body:", messageBody);
             }
             catch (Exception onErrorException)
             {
-                Console.WriteLine(onErrorException);
+                WriteError(onErrorException.ToString());
             }
 
-            return null;
+            return id;
         }
 
+
+        private static void WriteError(string error)
+        {
+            if (error == null)
+                return;
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("[ERROR] ");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(error);
+        }
+
+
+        private static void WriteError(string description, string multilineData)
+        {
+            if (multilineData == null)
+                return;
+
+            var lines = multilineData.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length <= 0)
+                return;
+
+            WriteError(description);
+            foreach (var line in lines)
+            {
+                WriteError(line);
+            }
+        }
 
         private IDictionary<string, string> MergeTags(IDictionary<string, string> tags = null)
         {
