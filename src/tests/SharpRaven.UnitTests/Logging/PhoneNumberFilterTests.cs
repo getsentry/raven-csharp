@@ -38,23 +38,28 @@ namespace SharpRaven.UnitTests.Logging
     public class PhoneNumberFilterTests : FilterTestsBase<PhoneNumberFilter>
     {
         [Test]
-        public void InvalidPhoneNumber_IsNotScrubbed()
+        public void JsonKeyContainingPhoneNumber_IsNotScrubbed()
         {
-            InvalidValueIsNotScrubbed("1531");
+            const string json =
+                @"{""culprit"":""SharpRaven.UnitTests.Helper in FirstLevelException"",""event_id55518231234e2400d82f11c490683c2d2"",""exception"":[],""user"": {""username"":""asbjornu""}}";
+
+            var output = Filter.Filter(json);
+
+            Assert.That(output, Is.StringContaining("event_id55518231234e2400d82f11c490683c2d2"));
         }
 
 
         [Test]
-        public void ValidPhoneNumber_IsScrubbed()
+        public void MatchingPhoneNumber_IsScrubbed()
         {
-            ValidValueIsScrubbed("55518231234");
+            MatchingValueIsScrubbed("55518231234");
         }
 
 
         [Test]
-        public void PhoneNumberContainingJson_IsNotScrubbed()
+        public void NonMatchingPhoneNumber_IsNotScrubbed()
         {
-            InvalidValueIsNotScrubbed("\":\"55518231234");
+            NonMatchingValueIsNotScrubbed("1531");
         }
     }
 }
