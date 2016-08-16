@@ -16,9 +16,9 @@ try
     int i2 = 0;
     int i = 10 / i2;
 }
-catch (Exception e)
+catch (Exception exception)
 {
-    ravenClient.CaptureException(e);
+    ravenClient.Capture(new SentryEvent(exception));
 }
 ```
 
@@ -27,12 +27,13 @@ Logging Non-Exceptions
 You can capture a message without being bound by an exception:
 
 ```csharp
-ravenClient.CaptureMessage("Hello World!");
+ravenClient.Capture(new SentryEvent("Hello World!"));
 ```
 
 Additional Data
 ---------------
-You can add additional data to the [`Exception.Data`](https://msdn.microsoft.com/en-us/library/system.exception.data.aspx)
+You can add additional data to the
+[`Exception.Data`](https://msdn.microsoft.com/en-us/library/system.exception.data.aspx)
 property on exceptions thrown about in your solution:
 
 ```csharp
@@ -47,56 +48,32 @@ catch (Exception exception)
 }
 ```
 
-The data `SomeKey` and `SomeValue` will be captured and presented in the `extra` property on Sentry.
+The data `SomeKey` and `SomeValue` will be captured and presented in the `extra`
+property on Sentry.
 
-Additionally, the capture methods allow you to provide additional data to be sent with your request.
-`CaptureException` supports both the `tags` and `extra` properties, and `CaptureMessage` additionally
-supports the `level` property.
-
-The full argument specs are:
-
-```csharp
-string CaptureException(Exception exception,
-                        SentryMessage message = null,
-                        ErrorLevel level = ErrorLevel.Error,
-                        IDictionary<string, string> tags = null,
-                        string[] fingerprint = null,
-                        object extra = null)
-
-string CaptureMessage(SentryMessage message,
-                      ErrorLevel level = ErrorLevel.Info,
-                      IDictionary<string, string> tags = null,
-                      string[] fingerprint = null,
-                      object extra = null)
-
-```
+Additionally, the `SentryEvent` class allow you to provide extra data to be
+sent with your request, such as `ErrorLevel`, `Fingerprint`, a custom `Message`
+and `Tags`.
 
 Async Support
 -------------
-In the .NET 4.5 build of SharpRaven, there are `async` versions of the above methods as well:
+In the .NET 4.5 build of SharpRaven, there's an `async` version of the `Capture`
+method as well:
 
 ```csharp
-Task<string> CaptureExceptionAsync(Exception exception,
-                                   SentryMessage message = null,
-                                   ErrorLevel level = ErrorLevel.Error,
-                                   IDictionary<string, string> tags = null,
-                                   string[] fingerprint = null,
-                                   object extra = null);
-
-Task<string> CaptureMessageAsync(SentryMessage message,
-                                 ErrorLevel level = ErrorLevel.Info,
-                                 IDictionary<string, string> tags = null,
-                                 string[] fingerprint = null,
-                                 object extra = null);
+async Task<string> CaptureAsync(SentryEvent @event);
 ```
 
 Nancy Support
 -------------
-You can install the [SharpRaven.Nancy](https://www.nuget.org/packages/SharpRaven.Nancy) package to capture the HTTP context
-in [Nancy](http://nancyfx.org/) applications. It will auto-register on the `IPipelines.OnError` event, so all unhandled
-exceptions will be sent to Sentry.
+You can install the
+[SharpRaven.Nancy](https://www.nuget.org/packages/SharpRaven.Nancy) package to
+capture the HTTP context in [Nancy](http://nancyfx.org/) applications. It will
+auto-register on the `IPipelines.OnError` event, so all unhandled exceptions
+will be sent to Sentry.
 
-The only thing you have to do is provide a DSN, either by registering an instance of the `Dsn` class in your container:
+The only thing you have to do is provide a DSN, either by registering an
+instance of the `Dsn` class in your container:
 
 ```csharp
 protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
@@ -118,8 +95,9 @@ or through configuration:
 </configuration>
 ```
 
-The DSN will be picked up by the auto-registered `IRavenClient` instance, so if you want to send events to
-Sentry, all you have to do is add a requirement on `IRavenClient` in your classes:
+The DSN will be picked up by the auto-registered `IRavenClient` instance, so if
+you want to send events to Sentry, all you have to do is add a requirement on
+`IRavenClient` in your classes:
 
 ```csharp
 public class LoggingModule : NancyModule
@@ -136,23 +114,41 @@ public class LoggingModule : NancyModule
 Debugging SharpRaven
 --------------------
 
-If an exception is raised internally to `RavenClient` it is logged to the Console. To extend this behaviour use
-the property `ErrorOnCapture`:
+If an exception is raised internally to `RavenClient` it is logged to the
+`Console`. To extend this behaviour use the property `ErrorOnCapture`:
 
 ```csharp
-ravenClient.ErrorOnCapture = exception => {
-    // custom code here
+ravenClient.ErrorOnCapture = exception =>
+{
+    // Custom code here
 };
 ````
+
+You can also hook into the `BeforeSend` function to inspect or manipulate the
+data being sent to Sentry before it is sent:
+
+```csharp
+ravenClient.BeforeSend = requester =>
+{
+    // Here you can log data from the requester
+    // or replace it entirely if you want.
+    return requester;
+}
+```
 
 
 Get it!
 -------
-You can clone and build SharpRaven yourself, but for those of us who are happy with prebuilt binaries, there's [a NuGet package](https://www.nuget.org/packages/SharpRaven).
+You can clone and build SharpRaven yourself, but for those of us who are happy
+with prebuilt binaries, there's NuGet packages of both
+[SharpRaven](https://www.nuget.org/packages/SharpRaven) and
+[SharpRaven.Nancy](https://www.nuget.org/packages/SharpRaven.Nancy).
 
 Resources
 ---------
 * [![Build Status](http://teamcity.codebetter.com/app/rest/builds/buildType:(id:bt1000)/statusIcon)](http://teamcity.codebetter.com/viewType.html?buildTypeId=bt1000&guest=1)
+* [![Build Status: Develop](https://travis-ci.org/getsentry/raven-csharp.svg?branch=develop)](https://travis-ci.org/getsentry/raven-csharp)
+* [![Build Status: Master](https://travis-ci.org/getsentry/raven-csharp.svg?branch=master)](https://travis-ci.org/getsentry/raven-csharp)
 * [![Join the chat at https://gitter.im/getsentry/raven-csharp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/getsentry/raven-csharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 * [Code](http://github.com/getsentry/raven-csharp)
 * [Mailing List](https://groups.google.com/group/getsentry)
