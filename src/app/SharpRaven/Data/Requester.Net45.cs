@@ -28,51 +28,58 @@
 
 #endregion
 
-using NUnit.Framework;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
 
-using SharpRaven.Logging;
+using Newtonsoft.Json;
 
-namespace SharpRaven.UnitTests.Logging
+using SharpRaven.Utilities;
+
+#if !(net40)
+
+namespace SharpRaven.Data
 {
-    public abstract class FilterTestsBase<TFilter>
-        where TFilter : IFilter, new()
+    public partial class Requester
     {
-        private readonly TFilter filter;
-
-
-        protected FilterTestsBase()
+        /// <summary>
+        /// Executes the <c>async</c> HTTP request to Sentry.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
+        /// </returns>
+        public async Task<string> RequestAsync()
         {
-            this.filter = new TFilter();
-        }
+            using (var s = await this.webRequest.GetRequestStreamAsync())
+            {
+                if (this.Client.Compression)
+                    await GzipUtil.WriteAsync(this.data.Scrubbed, s);
+                else
+                {
+                    using (var sw = new StreamWriter(s))
+                    {
+                        await sw.WriteAsync(this.data.Scrubbed);
+                    }
+                }
+            }
 
+            using (var wr = (HttpWebResponse)await this.webRequest.GetResponseAsync())
+            {
+                using (var responseStream = wr.GetResponseStream())
+                {
+                    if (responseStream == null)
+                        return null;
 
-        protected TFilter Filter
-        {
-            get { return this.filter; }
-        }
-
-
-        protected void NonMatchingValueIsNotScrubbed(string invalidValue)
-        {
-            var input = string.Format(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. {0} Praesent est dui, ornare eget condimentum a, tincidunt sit amet lectus. Nulla pellentesque, tortor eget tempus malesuada.",
-                invalidValue);
-
-            var output = this.filter.Filter(input);
-
-            Assert.That(output, Is.StringContaining(invalidValue));
-        }
-
-
-        protected void MatchingValueIsScrubbed(string validValue)
-        {
-            var input = string.Format(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. {0} Praesent est dui, ornare eget condimentum a, tincidunt sit amet lectus. Nulla pellentesque, tortor eget tempus malesuada.",
-                validValue);
-
-            var output = this.filter.Filter(input);
-
-            Assert.That(output, Is.Not.StringContaining(validValue));
+                    using (var sr = new StreamReader(responseStream))
+                    {
+                        var content = await sr.ReadToEndAsync();
+                        var response = JsonConvert.DeserializeObject<dynamic>(content);
+                        return response.id;
+                    }
+                }
+            }
         }
     }
 }
+
+#endif

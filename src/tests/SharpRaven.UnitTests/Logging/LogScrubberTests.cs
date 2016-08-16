@@ -104,7 +104,7 @@ namespace SharpRaven.UnitTests.Logging
 
 
         [Test]
-        public void ValidValues_AreScrubbed()
+        public void MatchingValues_AreScrubbed()
         {
             const string validCreditCardNumber = "5271-1902-4264-3112";
             const string validPhoneNumber = "55518231234";

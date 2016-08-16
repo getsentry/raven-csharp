@@ -95,6 +95,9 @@
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
     <Compile Include="Data\IJsonPacketFactory.cs" />
+    <Compile Include="Data\RequestData.cs" />
+    <Compile Include="Data\Requester.Net45.cs" />
+    <Compile Include="Data\Requester.cs" />
     <Compile Include="Data\SentryEvent.cs" />
     <Compile Include="Data\SentryMessage.cs" />
     <Compile Include="Data\SentryException.cs" />

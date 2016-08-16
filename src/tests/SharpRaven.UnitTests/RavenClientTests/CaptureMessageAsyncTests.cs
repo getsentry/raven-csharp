@@ -106,9 +106,9 @@ namespace SharpRaven.UnitTests.RavenClientTests
 
 
         [Test]
-        public void ScrubberIsInvoked()
+        public async void ScrubberIsInvoked()
         {
-            this.tester.ScrubberIsInvoked(async (client, message) => await client.CaptureMessageAsync(message));
+            await this.tester.ScrubberIsInvokedAsync(async (client, message) => await client.CaptureMessageAsync(message));
         }
 
 

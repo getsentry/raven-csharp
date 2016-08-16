@@ -34,8 +34,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 
-using Newtonsoft.Json;
-
 using SharpRaven.Data;
 using SharpRaven.Logging;
 using SharpRaven.Utilities;
@@ -47,14 +45,14 @@ namespace SharpRaven
     /// </summary>
     public partial class RavenClient : IRavenClient
     {
+        private readonly CircularBuffer<Breadcrumb> breadcrumbs;
         private readonly Dsn currentDsn;
         private readonly IDictionary<string, string> defaultTags;
         private readonly IJsonPacketFactory jsonPacketFactory;
         private readonly ISentryRequestFactory sentryRequestFactory;
         private readonly ISentryUserFactory sentryUserFactory;
 
-        private readonly CircularBuffer<Breadcrumb> breadcrumbs;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RavenClient" /> class. Sentry
         /// Data Source Name will be read from sharpRaven section in your app.config or
@@ -107,9 +105,19 @@ namespace SharpRaven
             Logger = "root";
             Timeout = TimeSpan.FromSeconds(5);
             this.defaultTags = new Dictionary<string, string>();
-            breadcrumbs = new CircularBuffer<Breadcrumb>();
+            this.breadcrumbs = new CircularBuffer<Breadcrumb>();
         }
 
+
+        /// <summary>
+        /// Gets or sets the <see cref="Action"/> to execute to manipulate or extract data from
+        /// the <see cref="Requester"/> object before it is used in the <see cref="Send"/> method.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Action"/> to execute to manipulate or extract data from the
+        /// <see cref="Requester"/> object before it is used in the <see cref="Send"/> method.
+        /// </value>
+        public Func<Requester, Requester> BeforeSend { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing
@@ -175,7 +183,8 @@ namespace SharpRaven
         /// Not register the <see cref="Breadcrumb"/> for tracking.
         /// </summary>
         public bool IgnoreBreadcrumbs { get; set; }
-        
+
+
         /// <summary>
         /// Captures the last 100 <see cref="Breadcrumb" />.
         /// </summary>
@@ -184,9 +193,10 @@ namespace SharpRaven
         {
             if (IgnoreBreadcrumbs || breadcrumb == null)
                 return;
-            
+
             this.breadcrumbs.Add(breadcrumb);
         }
+
 
         /// <summary>
         /// Restart the capture of the <see cref="Breadcrumb"/> for tracking.
@@ -195,6 +205,7 @@ namespace SharpRaven
         {
             this.breadcrumbs.Clear();
         }
+
 
         /// <summary>Captures the specified <paramref name="event"/>.</summary>
         /// <param name="event">The event to capture.</param>
@@ -207,8 +218,8 @@ namespace SharpRaven
                 throw new ArgumentNullException("event");
 
             @event.Tags = MergeTags(@event.Tags);
-            if (!breadcrumbs.IsEmpty())
-                @event.Breadcrumbs = breadcrumbs.ToList();
+            if (!this.breadcrumbs.IsEmpty())
+                @event.Breadcrumbs = this.breadcrumbs.ToList();
 
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
 
@@ -312,16 +323,16 @@ namespace SharpRaven
         /// </summary>
         /// <param name="packet">The prepared <see cref="JsonPacket"/> which has cleared the creation pipeline.</param>
         /// <returns>The <see cref="JsonPacket"/> which should be sent to Sentry.</returns>
-        protected virtual JsonPacket PreparePacket(JsonPacket packet)
+        protected internal virtual JsonPacket PreparePacket(JsonPacket packet)
         {
-            packet.Logger = String.IsNullOrWhiteSpace(packet.Logger)
-                            || (packet.Logger == "root" && !String.IsNullOrWhiteSpace(Logger))
+            packet.Logger = string.IsNullOrWhiteSpace(packet.Logger)
+                            || (packet.Logger == "root" && !string.IsNullOrWhiteSpace(Logger))
                 ? Logger
                 : packet.Logger;
             packet.User = packet.User ?? this.sentryUserFactory.Create();
             packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
-            packet.Release = String.IsNullOrWhiteSpace(packet.Release) ? Release : packet.Release;
-            packet.Environment = String.IsNullOrWhiteSpace(packet.Environment) ? Environment : packet.Environment;
+            packet.Release = string.IsNullOrWhiteSpace(packet.Release) ? Release : packet.Release;
+            packet.Environment = string.IsNullOrWhiteSpace(packet.Environment) ? Environment : packet.Environment;
             return packet;
         }
 
@@ -333,84 +344,25 @@ namespace SharpRaven
         /// </returns>
         protected virtual string Send(JsonPacket packet)
         {
-            string data = null;
-            HttpWebRequest request = null;
+            Requester requester = null;
 
             try
             {
-                request = CreateWebRequest(packet, out data);
+                requester = new Requester(packet, this);
 
-                // Write the messagebody.
-                using (var s = request.GetRequestStream())
-                {
-                    if (Compression)
-                        GzipUtil.Write(data, s);
-                    else
-                    {
-                        using (var sw = new StreamWriter(s))
-                        {
-                            sw.Write(data);
-                        }
-                    }
-                }
+                if (BeforeSend != null)
+                    requester = BeforeSend(requester);
 
-                using (var wr = (HttpWebResponse)request.GetResponse())
-                {
-                    using (var responseStream = wr.GetResponseStream())
-                    {
-                        if (responseStream == null)
-                            return null;
-
-                        using (var sr = new StreamReader(responseStream))
-                        {
-                            var content = sr.ReadToEnd();
-                            var response = JsonConvert.DeserializeObject<dynamic>(content);
-                            return response.id;
-                        }
-                    }
-                }
+                return requester.Request();
             }
             catch (Exception exception)
             {
-                return HandleException(exception, data, request);
+                return HandleException(exception, requester);
             }
         }
 
 
-        private HttpWebRequest CreateWebRequest(JsonPacket packet, out string data)
-        {
-            packet = PreparePacket(packet);
-
-            var request = (HttpWebRequest)WebRequest.Create(this.currentDsn.SentryUri);
-            request.Timeout = (int)Timeout.TotalMilliseconds;
-            request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
-            request.Method = "POST";
-            request.Accept = "application/json";
-            request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(this.currentDsn));
-            request.UserAgent = PacketBuilder.UserAgent;
-
-            if (Compression)
-            {
-                request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
-                request.AutomaticDecompression = DecompressionMethods.Deflate;
-                request.ContentType = "application/octet-stream";
-            }
-            else
-                request.ContentType = "application/json; charset=utf-8";
-
-            /*string data = packet.ToString(Formatting.Indented);
-                    Console.WriteLine(data);*/
-
-            data = packet.ToString(Formatting.None);
-
-            if (LogScrubber != null)
-                data = LogScrubber.Scrub(data);
-
-            return request;
-        }
-
-
-        private string HandleException(Exception exception, string data, WebRequest request)
+        private string HandleException(Exception exception, Requester requester)
         {
             string id = null;
 
@@ -423,10 +375,19 @@ namespace SharpRaven
                 }
 
                 if (exception != null)
-                    WriteError(exception.ToString());
+                    SystemUtil.WriteError(exception);
 
-                WriteError("Request body:", data);
-                WriteError("Request headers:", request.Headers.ToString());
+                if (requester != null)
+                {
+                    if (requester.Data != null)
+                    {
+                        SystemUtil.WriteError("Request body (raw):", requester.Data.Raw);
+                        SystemUtil.WriteError("Request body (scrubbed):", requester.Data.Scrubbed);
+                    }
+
+                    if (requester.WebRequest != null && requester.WebRequest.Headers != null && requester.WebRequest.Headers.Count > 0)
+                        SystemUtil.WriteError("Request headers:", requester.WebRequest.Headers.ToString());
+                }
 
                 var webException = exception as WebException;
                 if (webException == null || webException.Response == null)
@@ -434,7 +395,7 @@ namespace SharpRaven
 
                 var response = webException.Response;
                 id = response.Headers["X-Sentry-ID"];
-                if (String.IsNullOrWhiteSpace(id))
+                if (string.IsNullOrWhiteSpace(id))
                     id = null;
 
                 string messageBody;
@@ -449,52 +410,24 @@ namespace SharpRaven
                     }
                 }
 
-                WriteError("Response headers:", response.Headers.ToString());
-                WriteError("Response body:", messageBody);
+                SystemUtil.WriteError("Response headers:", response.Headers.ToString());
+                SystemUtil.WriteError("Response body:", messageBody);
             }
             catch (Exception onErrorException)
             {
-                WriteError(onErrorException.ToString());
+                SystemUtil.WriteError(onErrorException.ToString());
             }
 
             return id;
         }
 
 
-        private static void WriteError(string error)
-        {
-            if (error == null)
-                return;
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("[ERROR] ");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(error);
-        }
-
-
-        private static void WriteError(string description, string multilineData)
-        {
-            if (multilineData == null)
-                return;
-
-            var lines = multilineData.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-            if (lines.Length <= 0)
-                return;
-
-            WriteError(description);
-            foreach (var line in lines)
-            {
-                WriteError(line);
-            }
-        }
-
         private IDictionary<string, string> MergeTags(IDictionary<string, string> tags = null)
         {
             if (tags == null)
-                return this.defaultTags;
+                return Tags;
 
-            return this.defaultTags
+            return Tags
                 .Where(kv => !tags.Keys.Contains(kv.Key))
                 .Concat(tags)
                 .ToDictionary(kv => kv.Key, kv => kv.Value);

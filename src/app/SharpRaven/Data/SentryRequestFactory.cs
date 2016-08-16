@@ -38,6 +38,8 @@ using System.Text;
 
 using Newtonsoft.Json;
 
+using SharpRaven.Utilities;
+
 namespace SharpRaven.Data
 {
     /// <summary>
@@ -90,7 +92,7 @@ namespace SharpRaven.Data
                 }
                 catch (Exception exception)
                 {
-                    Console.WriteLine("An error occurred while retrieving the current HTTP context: {0}", exception);
+                    SystemUtil.WriteError(exception);
                     return null;
                 }
             }
@@ -147,7 +149,7 @@ namespace SharpRaven.Data
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
+                SystemUtil.WriteError(exception);
             }
 
             return null;
@@ -203,7 +205,7 @@ namespace SharpRaven.Data
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
+                SystemUtil.WriteError(exception);
             }
 
             return dictionary;
@@ -242,7 +244,7 @@ namespace SharpRaven.Data
             }
             catch (Exception exception)
             {
-                Console.WriteLine("An error occurred while retrieving the HTTP contextproperty: {0}", exception);
+                SystemUtil.WriteError(exception);
             }
         }
     }
