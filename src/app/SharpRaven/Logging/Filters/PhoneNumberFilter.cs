@@ -44,7 +44,7 @@ namespace SharpRaven.Logging.Filters
         /// </summary>
         static PhoneNumberFilter()
         {
-            phoneRegex = new Regex(@"1?\W*([2-9][0-8][0-9])\W*([2-9][0-9]{2})\W*([0-9]{4})(\se?x?t?(\d*))?");
+            phoneRegex = new Regex(@"1?\W*([2-9][0-8]\d)\W*([2-9]\d{2})\W*(\d{4})(\se?x?t?(\d*))?\s+", RegexOptions.Compiled);
         }
 
 
