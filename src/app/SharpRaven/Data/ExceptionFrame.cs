@@ -227,7 +227,8 @@ namespace SharpRaven.Data
         private static bool IsSystemModuleName(string moduleName)
         {
             return !string.IsNullOrEmpty(moduleName) &&
-                moduleName.StartsWith("System.", System.StringComparison.Ordinal);
+                (moduleName.StartsWith("System.",    System.StringComparison.Ordinal) ||
+                 moduleName.StartsWith("Microsoft.", System.StringComparison.Ordinal));
         }
     }
 }
