@@ -80,6 +80,7 @@ namespace SharpRaven.Data
             Filename = frame.GetFileName();
             LineNumber = lineNo;
             ColumnNumber = frame.GetFileColumnNumber();
+            InApp = !IsSystemModuleName(Module);
         }
 
 
@@ -120,10 +121,13 @@ namespace SharpRaven.Data
         public string Function { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [information application].
+        /// Signifies whether this frame is related to the execution of the relevant code in this
+        /// stacktrace. For example, the frames that might power the framework’s webserver of your
+        /// app are probably not relevant, however calls to the framework’s library once you start
+        /// handling code likely are.
         /// </summary>
         /// <value>
-        /// <c>true</c> if [information application]; otherwise, <c>false</c>.
+        /// <c>true</c> unless the StackFrame is part of the System namespace.
         /// </value>
         [JsonProperty(PropertyName = "in_app")]
         public bool InApp { get; set; }
@@ -218,6 +222,12 @@ namespace SharpRaven.Data
             }
 
             return sb.ToString();
+        }
+
+        private static bool IsSystemModuleName(string moduleName)
+        {
+            return !string.IsNullOrEmpty(moduleName) &&
+                moduleName.StartsWith("System.", System.StringComparison.Ordinal);
         }
     }
 }
