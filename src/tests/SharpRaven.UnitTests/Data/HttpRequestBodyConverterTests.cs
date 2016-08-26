@@ -84,6 +84,21 @@ namespace SharpRaven.UnitTests.Data
         }
 
         [Test]
+        public void Convert_MultiPartForm_ReturnsForm()
+        {
+            dynamic httpContext = new ExpandoObject();
+            httpContext.Request = new ExpandoObject();
+            httpContext.Request.ContentType = "multipart/form-data";
+            httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
+
+            var converted = HttpRequestBodyConverter.Convert(httpContext);
+
+            Assert.That(converted, Is.Not.Null);
+            Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
+            Assert.That(converted, Has.Member(new KeyValuePair<string, string>("Key", "Value")));
+        }
+
+        [Test]
         [TestCaseSource(typeof(JsonTestCase), "TestCasesContentType")]
         public void Convert_Json_ReturnsDictionary(string jsonContentType)
         {
