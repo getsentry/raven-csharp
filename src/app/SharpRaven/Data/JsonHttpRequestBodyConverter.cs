@@ -100,6 +100,7 @@ namespace SharpRaven.Data
                 }
 
                 converted = JsonConvert.DeserializeObject<Dictionary<string, object>>(body);
+
                 return true;
             }
             catch (Exception exception)

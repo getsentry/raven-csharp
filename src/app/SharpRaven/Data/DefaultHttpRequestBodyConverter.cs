@@ -83,6 +83,7 @@ namespace SharpRaven.Data
                     httpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
                     httpContext.Request.InputStream.CopyTo(stream);
                     converted = Encoding.UTF8.GetString(stream.ToArray());
+
                     return true;
                 }
             }
