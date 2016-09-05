@@ -102,6 +102,7 @@ namespace SharpRaven.Data
                 }
 
                 converted = dictionary;
+
                 return true;
             }
             catch (Exception exception)
