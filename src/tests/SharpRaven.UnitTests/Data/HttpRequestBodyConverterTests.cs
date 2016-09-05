@@ -28,6 +28,7 @@
 
 #endregion
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Dynamic;
@@ -35,17 +36,91 @@ using System.IO;
 using System.Text;
 
 using Newtonsoft.Json;
+
 using NUnit.Framework;
 
 using SharpRaven.Data;
-using System.Collections;
 
 namespace SharpRaven.UnitTests.Data
 {
     [TestFixture]
     public class HttpRequestBodyConverterTests
     {
-        #region TestCaseData
+        [Test]
+        public void Convert_Form_ReturnsForm()
+        {
+            dynamic httpContext = new ExpandoObject();
+            httpContext.Request = new ExpandoObject();
+            httpContext.Request.ContentType = "application/x-www-form-urlencoded";
+            httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
+
+            var converted = HttpRequestBodyConverter.Convert(httpContext);
+
+            Assert.That(converted, Is.Not.Null);
+            Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
+            Assert.That(converted, Has.Member(new KeyValuePair<string, string>("Key", "Value")));
+        }
+
+
+        [Test]
+        [TestCaseSource(typeof(JsonTestCase), "TestCasesContentType")]
+        public void Convert_Json_ReturnsDictionary(string jsonContentType)
+        {
+            dynamic jsonData = new ExpandoObject();
+            jsonData.String = "value";
+            jsonData.Int = 100;
+            jsonData.Array = new[] { "hello", "world", "!" };
+            jsonData.ObjectArray = new Dictionary<string, object> { { "a", 1 }, { "b", 2.0 }, { "c", "Hello world!" } };
+
+            dynamic httpContext = new ExpandoObject();
+            httpContext.Request = new ExpandoObject();
+            httpContext.Request.ContentType = jsonContentType;
+            httpContext.Request.InputStream = new MemoryStream(
+                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonData)));
+
+            var converted = HttpRequestBodyConverter.Convert(httpContext);
+
+            Assert.That(converted, Is.Not.Null);
+            Assert.That(converted, Is.TypeOf<Dictionary<string, object>>());
+            Assert.That(converted, Has.Member(new KeyValuePair<string, object>("String", "value")));
+            Assert.That(converted, Has.Member(new KeyValuePair<string, object>("Int", 100)));
+            Assert.That(converted["Array"], Is.Not.Null);
+            Assert.That(converted["Array"].ToObject<string[]>(), Is.EquivalentTo(new[] { "hello", "world", "!" }));
+            Assert.That(converted["ObjectArray"], Is.Not.Null);
+            Assert.That(converted["ObjectArray"].ToObject<Dictionary<string, object>>(),
+                        Has.Member(new KeyValuePair<string, object>("b", 2.0)));
+        }
+
+
+        [Test]
+        public void Convert_MultiPartForm_ReturnsForm()
+        {
+            dynamic httpContext = new ExpandoObject();
+            httpContext.Request = new ExpandoObject();
+            httpContext.Request.ContentType = "multipart/form-data";
+            httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
+
+            var converted = HttpRequestBodyConverter.Convert(httpContext);
+
+            Assert.That(converted, Is.Not.Null);
+            Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
+            Assert.That(converted, Has.Member(new KeyValuePair<string, string>("Key", "Value")));
+        }
+
+
+        [Test]
+        public void Convert_UnknownType_ReturnsString()
+        {
+            dynamic httpContext = new ExpandoObject();
+            httpContext.Request = new ExpandoObject();
+            httpContext.Request.ContentType = "unkown/type";
+            httpContext.Request.InputStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello world!"));
+
+            var converted = HttpRequestBodyConverter.Convert(httpContext);
+
+            Assert.That(converted, Is.EqualTo("Hello world!"));
+        }
+
 
         private class JsonTestCase
         {
@@ -64,79 +139,6 @@ namespace SharpRaven.UnitTests.Data
                     yield return new TestCaseData("text/json");
                 }
             }
-        }
-
-        #endregion
-
-        [Test]
-        public void Convert_Form_ReturnsForm()
-        {
-            dynamic httpContext = new ExpandoObject();
-            httpContext.Request = new ExpandoObject();
-            httpContext.Request.ContentType = "application/x-www-form-urlencoded";
-            httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
-
-            var converted = HttpRequestBodyConverter.Convert(httpContext);
-
-            Assert.That(converted, Is.Not.Null);
-            Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
-            Assert.That(converted, Has.Member(new KeyValuePair<string, string>("Key", "Value")));
-        }
-
-        [Test]
-        public void Convert_MultiPartForm_ReturnsForm()
-        {
-            dynamic httpContext = new ExpandoObject();
-            httpContext.Request = new ExpandoObject();
-            httpContext.Request.ContentType = "multipart/form-data";
-            httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
-
-            var converted = HttpRequestBodyConverter.Convert(httpContext);
-
-            Assert.That(converted, Is.Not.Null);
-            Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
-            Assert.That(converted, Has.Member(new KeyValuePair<string, string>("Key", "Value")));
-        }
-
-        [Test]
-        [TestCaseSource(typeof(JsonTestCase), "TestCasesContentType")]
-        public void Convert_Json_ReturnsDictionary(string jsonContentType)
-        {
-            dynamic jsonData = new ExpandoObject();
-            jsonData.String = "value";
-            jsonData.Int = 100;
-            jsonData.Array = new string[] { "hello", "world", "!" };
-            jsonData.ObjectArray = new Dictionary<string, object> { { "a", 1 }, { "b", 2.0 }, { "c", "Hello world!" } };
-
-            dynamic httpContext = new ExpandoObject();
-            httpContext.Request = new ExpandoObject();
-            httpContext.Request.ContentType = jsonContentType;
-            httpContext.Request.InputStream = new MemoryStream(
-                Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonData)));
-
-            var converted = HttpRequestBodyConverter.Convert(httpContext);
-
-            Assert.That(converted, Is.Not.Null);
-            Assert.That(converted, Is.TypeOf<Dictionary<string, object>>());
-            Assert.That(converted, Has.Member(new KeyValuePair<string, object>("String", "value")));
-            Assert.That(converted, Has.Member(new KeyValuePair<string, object>("Int", 100)));
-            Assert.That(converted["Array"], Is.Not.Null);
-            Assert.That(converted["Array"].ToObject<string[]>(), Is.EquivalentTo(new string[] { "hello", "world", "!" }));
-            Assert.That(converted["ObjectArray"], Is.Not.Null);
-            Assert.That(converted["ObjectArray"].ToObject<Dictionary<string, object>>(), Has.Member(new KeyValuePair<string, object>("b", 2.0)));
-        }
-
-        [Test]
-        public void Convert_UnknownType_ReturnsString()
-        {
-            dynamic httpContext = new ExpandoObject();
-            httpContext.Request = new ExpandoObject();
-            httpContext.Request.ContentType = "unkown/type";
-            httpContext.Request.InputStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello world!"));
-
-            var converted = HttpRequestBodyConverter.Convert(httpContext);
-
-            Assert.That(converted, Is.EqualTo("Hello world!"));
         }
     }
 }
