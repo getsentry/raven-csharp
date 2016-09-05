@@ -36,6 +36,7 @@ using NUnit.Framework;
 
 using SharpRaven.Data;
 using SharpRaven.UnitTests.Utilities;
+using System.Linq;
 
 namespace SharpRaven.UnitTests.Data
 {
@@ -50,6 +51,7 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class ExceptionFrameTests
     {
+        
         [Test]
         public void Constructor_NullFrameMethod_DoesNotThrow()
         {
@@ -63,6 +65,31 @@ namespace SharpRaven.UnitTests.Data
             Assert.AreEqual("(unknown)", frame.Module);
             Assert.AreEqual("(unknown)", frame.Function);
             Assert.AreEqual("(unknown)", frame.Source);
+        }
+
+        [Test]
+        public void Constructor_InAppFrames_Identified()
+        {
+            try
+            {
+                var nums = new[] { 5, 4, 3, 2, 1, 0 };
+                nums.Select(it => 1 / it).ToList();
+                // The line above will throw.
+                Assert.Fail();
+            }
+            catch (Exception exception) {
+                var frames = new StackTrace(exception, true).GetFrames();
+                var sentryFrames = frames.Select(f => new ExceptionFrame(f)).ToList();
+
+                // The first frame is InApp - (this function).
+                Assert.True(sentryFrames.First().InApp); 
+
+                // The last frame is InApp (our lambda that divides by zero).
+                Assert.True(sentryFrames.Last().InApp); 
+
+                // There must be at least one system (Linq) frame in the middle.
+                Assert.Greater(sentryFrames.Count(it => !it.InApp), 0);
+            }
         }
     }
 }

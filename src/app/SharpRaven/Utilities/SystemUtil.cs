@@ -48,10 +48,10 @@ namespace SharpRaven.Utilities
         public static IDictionary<string, string> GetModules()
         {
             var assemblies = AppDomain.CurrentDomain
-                                      .GetAssemblies()
-                                      .Where(q => !q.IsDynamic)
-                                      .Select(a => a.GetName())
-                                      .OrderBy(a => a.Name);
+                .GetAssemblies()
+                .Where(q => !q.IsDynamic)
+                .Select(a => a.GetName())
+                .OrderBy(a => a.Name);
 
             var dictionary = new Dictionary<string, string>();
 
@@ -64,6 +64,54 @@ namespace SharpRaven.Utilities
             }
 
             return dictionary;
+        }
+
+        /// <summary>
+        /// Writes the <paramref name="exception"/> to the <see cref="Console"/>.
+        /// </summary>
+        /// <param name="exception">The <see cref="Exception"/> to write to the <see cref="Console"/>.</param>
+        public static void WriteError(Exception exception)
+        {
+            if (exception == null)
+                return;
+
+            WriteError(exception.ToString());
+        }
+
+        /// <summary>
+        /// Writes the <paramref name="error"/> to the <see cref="Console"/>.
+        /// </summary>
+        /// <param name="error">The error to write to the <see cref="Console"/>.</param>
+        public static void WriteError(string error)
+        {
+            if (error == null)
+                return;
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("[ERROR] ");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(error);
+        }
+
+        /// <summary>
+        /// Writes the <paramref name="description"/> and <paramref name="multilineData"/> to the <see cref="Console"/>.
+        /// </summary>
+        /// <param name="description">The text describing the <paramref name="multilineData"/>.</param>
+        /// <param name="multilineData">The multi-line data to write to the <see cref="Console"/>.</param>
+        public static void WriteError(string description, string multilineData)
+        {
+            if (multilineData == null)
+                return;
+
+            var lines = multilineData.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length <= 0)
+                return;
+
+            WriteError(description);
+            foreach (var line in lines)
+            {
+                WriteError(line);
+            }
         }
     }
 }

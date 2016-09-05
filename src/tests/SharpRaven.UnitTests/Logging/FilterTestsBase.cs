@@ -28,8 +28,6 @@
 
 #endregion
 
-using System;
-
 using NUnit.Framework;
 
 using SharpRaven.Logging;
@@ -48,9 +46,15 @@ namespace SharpRaven.UnitTests.Logging
         }
 
 
-        protected void InvalidValueIsNotScrubbed(string invalidValue)
+        protected TFilter Filter
         {
-            var input = String.Format(
+            get { return this.filter; }
+        }
+
+
+        protected void NonMatchingValueIsNotScrubbed(string invalidValue)
+        {
+            var input = string.Format(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. {0} Praesent est dui, ornare eget condimentum a, tincidunt sit amet lectus. Nulla pellentesque, tortor eget tempus malesuada.",
                 invalidValue);
 
@@ -60,9 +64,9 @@ namespace SharpRaven.UnitTests.Logging
         }
 
 
-        protected void ValidValueIsScrubbed(string validValue)
+        protected void MatchingValueIsScrubbed(string validValue)
         {
-            var input = String.Format(
+            var input = string.Format(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. {0} Praesent est dui, ornare eget condimentum a, tincidunt sit amet lectus. Nulla pellentesque, tortor eget tempus malesuada.",
                 validValue);
 

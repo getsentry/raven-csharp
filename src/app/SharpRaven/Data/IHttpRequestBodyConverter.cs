@@ -28,27 +28,38 @@
 
 #endregion
 
-using NUnit.Framework;
-
-using SharpRaven.Utilities;
-
-namespace SharpRaven.UnitTests.Utilities
+namespace SharpRaven.Data
 {
-    [TestFixture]
-    public class PacketBuilderTests
+    /// <summary>
+    /// HTTP media type interface for converting the HTTP body of a request to a structured type.
+    /// </summary>
+    public interface IHttpRequestBodyConverter
     {
-        [Test]
-        public void CreateAuthenticationHeader_ReturnsCorrectAuthenticationHeader()
-        {
-            const string expected =
-                @"^Sentry sentry_version=[\d], sentry_client=SharpRaven/[\d\.]+, sentry_timestamp=\d+, sentry_key=7d6466e66155431495bdb4036ba9a04b, sentry_secret=4c1cfeab7ebd4c1cb9e18008173a3630$";
+        /// <summary>
+        /// Checks whether the specified <paramref name="contentType"/> can be converted by this
+        /// <see cref="IHttpRequestBodyConverter"/> implementation or not.
+        /// </summary>
+        /// <param name="contentType">The media type to match.</param>
+        /// <returns>
+        /// Returns <c>true</c> if the <see cref="IHttpRequestBodyConverter"/> implementation can convert
+        /// the specified <paramref name="contentType"/> cref="contentType"/>; otherwise <c>false</c>.
+        /// </returns>
+        bool Matches(string contentType);
 
-            var dsn = new Dsn(
-                "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739");
 
-            var authenticationHeader = PacketBuilder.CreateAuthenticationHeader(dsn);
-
-            Assert.That(authenticationHeader, Is.StringMatching(expected));
-        }
+        /// <summary>
+        /// Tries to convert the HTTP request body of the specified <paramref name="httpContext"/> to
+        /// a structured type.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context containing the request body to convert.</param>
+        /// <param name="converted">
+        /// The converted, structured type for the specified <paramref name="httpContext"/>'s request
+        /// body or <c>null</c> if the <paramref name="httpContext"/> is null, or the somehow conversion
+        /// fails.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the conversion succeeds; otherwise <c>false</c>.
+        /// </returns>
+        bool TryConvert(dynamic httpContext, out object converted);
     }
 }

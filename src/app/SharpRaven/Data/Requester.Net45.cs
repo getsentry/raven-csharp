@@ -28,27 +28,58 @@
 
 #endregion
 
-using NUnit.Framework;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
+
+using Newtonsoft.Json;
 
 using SharpRaven.Utilities;
 
-namespace SharpRaven.UnitTests.Utilities
+#if !(net40)
+
+namespace SharpRaven.Data
 {
-    [TestFixture]
-    public class PacketBuilderTests
+    public partial class Requester
     {
-        [Test]
-        public void CreateAuthenticationHeader_ReturnsCorrectAuthenticationHeader()
+        /// <summary>
+        /// Executes the <c>async</c> HTTP request to Sentry.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
+        /// </returns>
+        public async Task<string> RequestAsync()
         {
-            const string expected =
-                @"^Sentry sentry_version=[\d], sentry_client=SharpRaven/[\d\.]+, sentry_timestamp=\d+, sentry_key=7d6466e66155431495bdb4036ba9a04b, sentry_secret=4c1cfeab7ebd4c1cb9e18008173a3630$";
+            using (var s = await this.webRequest.GetRequestStreamAsync())
+            {
+                if (this.Client.Compression)
+                    await GzipUtil.WriteAsync(this.data.Scrubbed, s);
+                else
+                {
+                    using (var sw = new StreamWriter(s))
+                    {
+                        await sw.WriteAsync(this.data.Scrubbed);
+                    }
+                }
+            }
 
-            var dsn = new Dsn(
-                "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739");
+            using (var wr = (HttpWebResponse)await this.webRequest.GetResponseAsync())
+            {
+                using (var responseStream = wr.GetResponseStream())
+                {
+                    if (responseStream == null)
+                        return null;
 
-            var authenticationHeader = PacketBuilder.CreateAuthenticationHeader(dsn);
-
-            Assert.That(authenticationHeader, Is.StringMatching(expected));
+                    using (var sr = new StreamReader(responseStream))
+                    {
+                        var content = await sr.ReadToEndAsync();
+                        var response = JsonConvert.DeserializeObject<dynamic>(content);
+                        return response.id;
+                    }
+                }
+            }
         }
     }
 }
+
+#endif

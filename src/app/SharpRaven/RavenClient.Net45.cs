@@ -56,8 +56,8 @@ namespace SharpRaven
         public async Task<string> CaptureAsync(SentryEvent @event)
         {
             @event.Tags = MergeTags(@event.Tags);
-            if (!breadcrumbs.IsEmpty())
-                @event.Breadcrumbs = breadcrumbs.ToList();
+            if (!this.breadcrumbs.IsEmpty())
+                @event.Breadcrumbs = this.breadcrumbs.ToList();
             
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
 
@@ -138,68 +138,20 @@ namespace SharpRaven
         /// </returns>
         protected virtual async Task<string> SendAsync(JsonPacket packet)
         {
+            Requester requester = null;
+
             try
             {
-                packet = PreparePacket(packet);
+                requester = new Requester(packet, this);
 
-                var request = (HttpWebRequest)WebRequest.Create(CurrentDsn.SentryUri);
-                request.Timeout = (int)Timeout.TotalMilliseconds;
-                request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
-                request.Method = "POST";
-                request.Accept = "application/json";
-                request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(CurrentDsn));
-                request.UserAgent = PacketBuilder.UserAgent;
+                if (BeforeSend != null)
+                    requester = BeforeSend(requester);
 
-                if (Compression)
-                {
-                    request.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
-                    request.AutomaticDecompression = DecompressionMethods.Deflate;
-                    request.ContentType = "application/octet-stream";
-                }
-                else
-                    request.ContentType = "application/json; charset=utf-8";
-
-                /*string data = packet.ToString(Formatting.Indented);
-            Console.WriteLine(data);*/
-
-                string data = packet.ToString(Formatting.None);
-
-                if (LogScrubber != null)
-                    data = LogScrubber.Scrub(data);
-
-                // Write the messagebody.
-                using (Stream s = await request.GetRequestStreamAsync())
-                {
-                    if (Compression)
-                        await GzipUtil.WriteAsync(data, s);
-                    else
-                    {
-                        using (StreamWriter sw = new StreamWriter(s))
-                        {
-                            await sw.WriteAsync(data);
-                        }
-                    }
-                }
-
-                using (HttpWebResponse wr = (HttpWebResponse)(await request.GetResponseAsync()))
-                {
-                    using (Stream responseStream = wr.GetResponseStream())
-                    {
-                        if (responseStream == null)
-                            return null;
-
-                        using (StreamReader sr = new StreamReader(responseStream))
-                        {
-                            string content = await sr.ReadToEndAsync();
-                            var response = JsonConvert.DeserializeObject<dynamic>(content);
-                            return response.id;
-                        }
-                    }
-                }
+                return await requester.RequestAsync();
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return HandleException(ex);
+                return HandleException(exception, requester);
             }
         }
     }

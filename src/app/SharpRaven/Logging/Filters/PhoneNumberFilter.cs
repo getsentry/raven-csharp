@@ -37,13 +37,23 @@ namespace SharpRaven.Logging.Filters
     /// </summary>
     public class PhoneNumberFilter : IFilter
     {
+        private static readonly Regex phoneRegex;
+
+        /// <summary>
+        /// Static initalization of the <see cref="PhoneNumberFilter"/> class.
+        /// </summary>
+        static PhoneNumberFilter()
+        {
+            phoneRegex = new Regex(@"1?\W*([2-9][0-8]\d)\W*([2-9]\d{2})\W*(\d{4})(\se?x?t?(\d*))?\s+", RegexOptions.Compiled);
+        }
+
+
         /// <summary>
         /// An <see cref="IFilter"/> implementation for masking phone numbers in a logged 
         /// </summary>
         public string Filter(string input)
         {
-            Regex phoneRegex = new Regex(@"1?\W*([2-9][0-8][0-9])\W*([2-9][0-9]{2})\W*([0-9]{4})(\se?x?t?(\d*))?");
-            return phoneRegex.Replace(input, delegate { return "##-PHONE-TRUNC-##"; });
+            return phoneRegex.Replace(input, "##-PHONE-TRUNC-##");
         }
     }
 }
