@@ -63,7 +63,11 @@ namespace SharpRaven.UnitTests.Data
 
 
         [Test]
-        [TestCaseSource(typeof(JsonTestCase), "TestCasesContentType")]
+        [TestCase("application/json")]
+        [TestCase("application/json; version=1.0")]
+        [TestCase("application/json; charset=utf-8")]
+        [TestCase("application/vnd.api.sentry.v5+json")]
+        [TestCase("text/json")]
         public void Convert_Json_ReturnsDictionary(string jsonContentType)
         {
             dynamic jsonData = new ExpandoObject();
@@ -119,26 +123,6 @@ namespace SharpRaven.UnitTests.Data
             var converted = HttpRequestBodyConverter.Convert(httpContext);
 
             Assert.That(converted, Is.EqualTo("Hello world!"));
-        }
-
-
-        private class JsonTestCase
-        {
-            public static IEnumerable TestCasesContentType
-            {
-                get
-                {
-                    yield return new TestCaseData("application/json");
-
-                    yield return new TestCaseData("application/json; version=1.0");
-
-                    yield return new TestCaseData("application/json; charset=utf-8");
-
-                    yield return new TestCaseData("application/vnd.api.sentry.v5+json");
-
-                    yield return new TestCaseData("text/json");
-                }
-            }
         }
     }
 }
