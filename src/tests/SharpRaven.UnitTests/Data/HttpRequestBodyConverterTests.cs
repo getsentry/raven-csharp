@@ -28,27 +28,48 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Dynamic;
+using System.IO;
+using System.Text;
+
 using NUnit.Framework;
 
-using SharpRaven.Utilities;
+using SharpRaven.Data;
 
-namespace SharpRaven.UnitTests.Utilities
+namespace SharpRaven.UnitTests.Data
 {
     [TestFixture]
-    public class PacketBuilderTests
+    public class HttpRequestBodyConverterTests
     {
         [Test]
-        public void CreateAuthenticationHeader_ReturnsCorrectAuthenticationHeader()
+        public void Convert_Form_ReturnsForm()
         {
-            const string expected =
-                @"^Sentry sentry_version=[\d], sentry_client=SharpRaven/[\d\.]+, sentry_timestamp=\d+, sentry_key=7d6466e66155431495bdb4036ba9a04b, sentry_secret=4c1cfeab7ebd4c1cb9e18008173a3630$";
+            dynamic httpContext = new ExpandoObject();
+            httpContext.Request = new ExpandoObject();
+            httpContext.Request.ContentType = "application/x-www-form-urlencoded";
+            httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
 
-            var dsn = new Dsn(
-                "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739");
+            var converted = HttpRequestBodyConverter.Convert(httpContext);
 
-            var authenticationHeader = PacketBuilder.CreateAuthenticationHeader(dsn);
+            Assert.That(converted, Is.Not.Null);
+            Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
+            Assert.That(converted, Has.Member(new KeyValuePair<string, string>("Key", "Value")));
+        }
 
-            Assert.That(authenticationHeader, Is.StringMatching(expected));
+
+        [Test]
+        public void Convert_UnknownType_ReturnsString()
+        {
+            dynamic httpContext = new ExpandoObject();
+            httpContext.Request = new ExpandoObject();
+            httpContext.Request.ContentType = "unkown/type";
+            httpContext.Request.InputStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello world!"));
+
+            var converted = HttpRequestBodyConverter.Convert(httpContext);
+
+            Assert.That(converted, Is.EqualTo("Hello world!"));
         }
     }
 }

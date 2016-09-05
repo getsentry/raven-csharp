@@ -28,27 +28,48 @@
 
 #endregion
 
-using NUnit.Framework;
+using System.Collections.Generic;
 
-using SharpRaven.Utilities;
-
-namespace SharpRaven.UnitTests.Utilities
+namespace SharpRaven.Data
 {
-    [TestFixture]
-    public class PacketBuilderTests
+    /// <summary>
+    /// Static utility class for converting an HTTP request body through implementations of
+    /// the <see cref="IHttpRequestBodyConverter"/> interface.
+    /// </summary>
+    public static class HttpRequestBodyConverter
     {
-        [Test]
-        public void CreateAuthenticationHeader_ReturnsCorrectAuthenticationHeader()
+        /// <summary>
+        /// Converts the HTTP request body of the specified <paramref name="httpContext"/> to
+        /// a structured type.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context containing the request body to convert.</param>
+        /// <returns>
+        /// A structured type for the specified <paramref name="httpContext"/>'s request body
+        /// or <c>null</c> if the <paramref name="httpContext"/> is null, or the somehow conversion fails.
+        /// </returns>
+        public static object Convert(dynamic httpContext)
         {
-            const string expected =
-                @"^Sentry sentry_version=[\d], sentry_client=SharpRaven/[\d\.]+, sentry_timestamp=\d+, sentry_key=7d6466e66155431495bdb4036ba9a04b, sentry_secret=4c1cfeab7ebd4c1cb9e18008173a3630$";
+            var mediaTypes = new Dictionary<string, IHttpRequestBodyConverter>
+            {
+                { "FormMediaType", new FormHttpRequestBodyConverter() },
+                { "MultiPartFormMediaType", new MultiPartFormHttpRequestBodyConverter() },
+                { "JsonMediaType", new JsonHttpRequestBodyConverter() },
+                { "DefaultMediaType", new DefaultHttpRequestBodyConverter() }
+            };
 
-            var dsn = new Dsn(
-                "https://7d6466e66155431495bdb4036ba9a04b:4c1cfeab7ebd4c1cb9e18008173a3630@app.getsentry.com/3739");
+            foreach (var item in mediaTypes)
+            {
+                var mediaType = item.Value;
 
-            var authenticationHeader = PacketBuilder.CreateAuthenticationHeader(dsn);
+                if (!mediaType.Matches(httpContext.Request.ContentType))
+                    continue;
 
-            Assert.That(authenticationHeader, Is.StringMatching(expected));
+                object data;
+                if (mediaType.TryConvert(httpContext, out data))
+                    return data;
+            }
+
+            return null;
         }
     }
 }
