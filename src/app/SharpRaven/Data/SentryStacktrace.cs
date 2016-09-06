@@ -51,20 +51,13 @@ namespace SharpRaven.Data
             if (exception == null)
                 return;
 
-            StackTrace trace = new StackTrace(exception, true);
+            var trace = new StackTrace(exception, true);
             var frames = trace.GetFrames();
 
             if (frames == null)
                 return;
 
-            int length = frames.Length;
-            Frames = new ExceptionFrame[length];
-
-            for (int i = 0; i < length; i++)
-            {
-                StackFrame frame = trace.GetFrame(i);
-                Frames[i] = new ExceptionFrame(frame);
-            }
+            Frames = frames.Reverse().Select(f => new ExceptionFrame(f)).ToArray();
         }
 
 
@@ -91,7 +84,7 @@ namespace SharpRaven.Data
 
             StringBuilder sb = new StringBuilder();
 
-            foreach (var frame in Frames)
+            foreach (var frame in Frames.Reverse())
             {
                 sb.Append("   at ");
                 sb.Append(frame);
