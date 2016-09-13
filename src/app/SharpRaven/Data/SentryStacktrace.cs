@@ -57,6 +57,7 @@ namespace SharpRaven.Data
             if (frames == null)
                 return;
 
+            // Sentry expects the frames to be sent in reversed order
             Frames = frames.Reverse().Select(f => new ExceptionFrame(f)).ToArray();
         }
 
@@ -84,6 +85,8 @@ namespace SharpRaven.Data
 
             StringBuilder sb = new StringBuilder();
 
+            // Have to reverse the frames before presenting them 
+            // since they are stored in reversed order.
             foreach (var frame in Frames.Reverse())
             {
                 sb.Append("   at ");
