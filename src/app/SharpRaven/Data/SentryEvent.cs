@@ -126,7 +126,7 @@ namespace SharpRaven.Data
         public IDictionary<string, string> Tags
         {
             get { return this.tags; }
-            internal set { this.tags = value ?? new Dictionary<string, string>(); }
+            set { this.tags = value ?? new Dictionary<string, string>(); }
         }
     }
 }
