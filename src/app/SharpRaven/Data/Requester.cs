@@ -40,11 +40,13 @@ using SharpRaven.Utilities;
 using JObject = Newtonsoft.Json.Linq.JObject;
 #endif
 
-namespace SharpRaven.Data {
+namespace SharpRaven.Data
+{
     /// <summary>
     /// The class responsible for performing the HTTP request to Sentry.
     /// </summary>
-    public partial class Requester {
+    public partial class Requester
+    {
         private readonly RequestData data;
         private readonly JsonPacket packet;
         private readonly RavenClient ravenClient;
@@ -56,7 +58,8 @@ namespace SharpRaven.Data {
         /// </summary>
         /// <param name="packet">The <see cref="JsonPacket"/> to initialize with.</param>
         /// <param name="ravenClient">The <see cref="RavenClient"/> to initialize with.</param>
-        internal Requester(JsonPacket packet, RavenClient ravenClient) {
+        internal Requester(JsonPacket packet, RavenClient ravenClient)
+        {
             if (packet == null)
                 throw new ArgumentNullException("packet");
 
@@ -75,7 +78,8 @@ namespace SharpRaven.Data {
             this.webRequest.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(ravenClient.CurrentDsn));
             this.webRequest.UserAgent = PacketBuilder.UserAgent;
 
-            if (ravenClient.Compression) {
+            if (ravenClient.Compression)
+            {
                 this.webRequest.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
                 this.webRequest.AutomaticDecompression = DecompressionMethods.Deflate;
                 this.webRequest.ContentType = "application/octet-stream";
@@ -88,28 +92,32 @@ namespace SharpRaven.Data {
         /// <summary>
         /// Gets the <see cref="IRavenClient"/>.
         /// </summary> 
-        public IRavenClient Client {
+        public IRavenClient Client
+        {
             get { return this.ravenClient; }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public RequestData Data {
+        public RequestData Data
+        {
             get { return this.data; }
         }
 
         /// <summary>
         /// Gets the <see cref="JsonPacket"/> being sent to Sentry.
         /// </summary>
-        public JsonPacket Packet {
+        public JsonPacket Packet
+        {
             get { return this.packet; }
         }
 
         /// <summary>
         /// Gets the <see cref="HttpWebRequest"/> instance being used to perform the HTTP request to Sentry.
         /// </summary>
-        public HttpWebRequest WebRequest {
+        public HttpWebRequest WebRequest
+        {
             get { return this.webRequest; }
         }
 
@@ -120,23 +128,30 @@ namespace SharpRaven.Data {
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
-        public string Request() {
-            using (var s = this.webRequest.GetRequestStream()) {
+        public string Request()
+        {
+            using (var s = this.webRequest.GetRequestStream())
+            {
                 if (this.ravenClient.Compression)
                     GzipUtil.Write(this.data.Scrubbed, s);
-                else {
-                    using (var sw = new StreamWriter(s)) {
+                else
+                {
+                    using (var sw = new StreamWriter(s))
+                    {
                         sw.Write(this.data.Scrubbed);
                     }
                 }
             }
 
-            using (var wr = (HttpWebResponse)this.webRequest.GetResponse()) {
-                using (var responseStream = wr.GetResponseStream()) {
+            using (var wr = (HttpWebResponse)this.webRequest.GetResponse())
+            {
+                using (var responseStream = wr.GetResponseStream())
+                {
                     if (responseStream == null)
                         return null;
 
-                    using (var sr = new StreamReader(responseStream)) {
+                    using (var sr = new StreamReader(responseStream))
+                    {
                         var content = sr.ReadToEnd();
 #if (net35)
                         var response = JObject.Parse(content);

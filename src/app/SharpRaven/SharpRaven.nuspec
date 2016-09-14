@@ -15,6 +15,15 @@
     <copyright>Copyright 2014 The Sentry Team and individual contributors</copyright>
     <tags>raven sentry logging</tags>
     <dependencies>
+      <group targetFramework="net35">
+        <dependency id="Newtonsoft.Json" version="6.0.8" />
+      </group>
+      <group targetFramework="net40">
+        <dependency id="Newtonsoft.Json" version="6.0.8" />
+      </group>
+      <group targetFramework="net45">
+        <dependency id="Newtonsoft.Json" version="6.0.8" />
+      </group>
     </dependencies>
   </metadata>
   <files>
