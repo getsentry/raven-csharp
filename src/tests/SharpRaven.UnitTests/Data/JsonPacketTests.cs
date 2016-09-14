@@ -31,7 +31,9 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Principal;
+#if !net35
 using System.Threading.Tasks;
+#endif
 using System.Web;
 
 using NUnit.Framework;
@@ -91,7 +93,9 @@ namespace SharpRaven.UnitTests.Data
             var json = new JsonPacket(project);
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+#if (!net35)
             Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
+#endif
         }
 
 
@@ -132,7 +136,9 @@ namespace SharpRaven.UnitTests.Data
             var json = new JsonPacket(project, new Exception("Error"));
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+#if (!net35)
             Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
+#endif
         }
 
 
@@ -241,7 +247,8 @@ namespace SharpRaven.UnitTests.Data
             });
         }
 
-        [Test]
+#if !net35
+[Test]
         [Category("NoMono")]
         public void Constructor_WithHttpContext_UserIsNotNull_Threaded()
         {
@@ -255,7 +262,7 @@ namespace SharpRaven.UnitTests.Data
                 }, username);
             });
         }
-
+#endif
 
         private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
         private static readonly ISentryUserFactory userFactory = new SentryUserFactory();

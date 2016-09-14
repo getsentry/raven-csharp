@@ -41,7 +41,7 @@ using NUnit.Framework;
 using SharpRaven.Data;
 using SharpRaven.Logging;
 using SharpRaven.UnitTests.Utilities;
-#if (!net40)
+#if (!net40) && (!net35)
 using System.Threading.Tasks;
 
 #endif
@@ -62,7 +62,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
 
             var ravenClientTests = new[]
             {
-#if (!net40)
+#if (!net40) && (!net35)
                 typeof(CaptureAsyncTests),
                 typeof(CaptureExceptionAsyncTests),
                 typeof(CaptureMessageAsyncTests),
@@ -199,7 +199,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
         }
 
 
-#if (!net40)
+#if (!net40) && (!net35)
         public async Task ScrubberIsInvokedAsync(Func<IRavenClient, string, Task> captureAsync)
         {
             var message = Guid.NewGuid().ToString("n");
@@ -267,6 +267,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
             {
                 LogScrubber = Substitute.For<IScrubber>()
             };
+#if (!net35)
             ravenClient.LogScrubber
                 .Scrub(Arg.Any<string>())
                 .Returns(c =>
@@ -275,6 +276,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
                     Assert.That(json, Is.StringContaining(message));
                     return json;
                 });
+#endif
 
             return ravenClient;
         }
@@ -327,7 +329,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
             }
 
 
-#if(!net40)
+#if (!net40) && (!net35)
             protected override Task<string> SendAsync(JsonPacket packet)
             {
                 packet = PreparePacket(packet);

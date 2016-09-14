@@ -115,7 +115,9 @@ namespace SharpRaven.UnitTests.Data
             var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+#if (!net35)
             Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
+#endif
         }
 
 
@@ -210,7 +212,9 @@ namespace SharpRaven.UnitTests.Data
             var json = this.jsonPacketFactory.Create(project, new Exception("Error"));
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
+#if (!net35)
             Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
+#endif
         }
 
 

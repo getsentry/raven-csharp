@@ -30,7 +30,9 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
+#if !net35
 using System.Dynamic;
+#endif
 using System.IO;
 using System.Text;
 
@@ -40,14 +42,18 @@ using SharpRaven.Data;
 
 namespace SharpRaven.UnitTests.Data
 {
+#if (!net35)
     [TestFixture]
     public class HttpRequestBodyConverterTests
     {
         [Test]
         public void Convert_Form_ReturnsForm()
         {
+
             dynamic httpContext = new ExpandoObject();
             httpContext.Request = new ExpandoObject();
+
+
             httpContext.Request.ContentType = "application/x-www-form-urlencoded";
             httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
 
@@ -57,8 +63,6 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
             Assert.That(converted, Has.Member(new KeyValuePair<string, string>("Key", "Value")));
         }
-
-
         [Test]
         public void Convert_UnknownType_ReturnsString()
         {
@@ -72,4 +76,5 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(converted, Is.EqualTo("Hello world!"));
         }
     }
+#endif
 }
