@@ -325,14 +325,25 @@ namespace SharpRaven
         /// <returns>The <see cref="JsonPacket"/> which should be sent to Sentry.</returns>
         protected internal virtual JsonPacket PreparePacket(JsonPacket packet)
         {
-            packet.Logger = string.IsNullOrWhiteSpace(packet.Logger)
-                            || (packet.Logger == "root" && !string.IsNullOrWhiteSpace(Logger))
+#if net35
+            var isNullOrWhiteSpace = Utilities.SystemUtil.IsNullOrWhiteSpace(packet.Logger);
+            var isNullOrWhiteSpaceRelease = Utilities.SystemUtil.IsNullOrWhiteSpace(packet.Release);
+            var isNullOrWhiteSpaceEnvironment = Utilities.SystemUtil.IsNullOrWhiteSpace(packet.Environment);
+            var isNullOrWhiteSpaceLogger = Utilities.SystemUtil.IsNullOrWhiteSpace(Logger);
+#else
+            var isNullOrWhiteSpace = String.IsNullOrWhiteSpace(packet.Logger);
+            var isNullOrWhiteSpaceRelease = String.IsNullOrWhiteSpace(packet.Release);
+            var isNullOrWhiteSpaceEnvironment = String.IsNullOrWhiteSpace(packet.Environment);
+            var isNullOrWhiteSpaceLogger = String.IsNullOrWhiteSpace(Logger);
+#endif
+            packet.Logger = isNullOrWhiteSpace
+                            || (packet.Logger == "root" && !isNullOrWhiteSpaceLogger)
                 ? Logger
                 : packet.Logger;
             packet.User = packet.User ?? this.sentryUserFactory.Create();
             packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
-            packet.Release = string.IsNullOrWhiteSpace(packet.Release) ? Release : packet.Release;
-            packet.Environment = string.IsNullOrWhiteSpace(packet.Environment) ? Environment : packet.Environment;
+            packet.Release = isNullOrWhiteSpaceRelease ? Release : packet.Release;
+            packet.Environment = isNullOrWhiteSpaceEnvironment ? Environment : packet.Environment;
             return packet;
         }
 
@@ -395,7 +406,12 @@ namespace SharpRaven
 
                 var response = webException.Response;
                 id = response.Headers["X-Sentry-ID"];
-                if (string.IsNullOrWhiteSpace(id))
+#if net35
+                var isNullOrWhiteSpace = Utilities.SystemUtil.IsNullOrWhiteSpace(id);
+#else
+                var isNullOrWhiteSpace = String.IsNullOrWhiteSpace(id);
+#endif
+                if (isNullOrWhiteSpace)
                     id = null;
 
                 string messageBody;

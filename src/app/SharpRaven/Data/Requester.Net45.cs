@@ -30,13 +30,15 @@
 
 using System.IO;
 using System.Net;
+#if (!net35)
 using System.Threading.Tasks;
+#endif
 
 using Newtonsoft.Json;
 
 using SharpRaven.Utilities;
 
-#if !(net40)
+#if !(net40) && !(net35)
 
 namespace SharpRaven.Data
 {

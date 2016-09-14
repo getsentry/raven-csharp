@@ -30,6 +30,8 @@
 
 using System;
 
+using SharpRaven.Utilities;
+
 namespace SharpRaven
 {
     /// <summary>
@@ -52,7 +54,11 @@ namespace SharpRaven
         /// <param name="dsn">The Data Source Name.</param>
         public Dsn(string dsn)
         {
+#if net35
+            if (SystemUtil.IsNullOrWhiteSpace(dsn))
+#else
             if (String.IsNullOrWhiteSpace(dsn))
+#endif
                 throw new ArgumentNullException("dsn");
 
             try
