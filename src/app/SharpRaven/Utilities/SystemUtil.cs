@@ -40,7 +40,6 @@ namespace SharpRaven.Utilities
     /// </summary>
     public static class SystemUtil
     {
-#if net35
         /// <summary>
         /// Checks if a string is null or white space
         /// </summary>
@@ -50,8 +49,6 @@ namespace SharpRaven.Utilities
         {
             return string.IsNullOrEmpty(arg) || string.IsNullOrEmpty(arg.Trim());
         }
-#endif
-
 
         /// <summary>
         /// Return all loaded modules.
