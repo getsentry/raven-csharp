@@ -38,6 +38,7 @@ using NUnit.Framework;
 
 using SharpRaven.Data;
 using SharpRaven.Logging;
+using SharpRaven.UnitTests.Utilities;
 
 namespace SharpRaven.UnitTests.Integration
 {
