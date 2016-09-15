@@ -325,17 +325,10 @@ namespace SharpRaven
         /// <returns>The <see cref="JsonPacket"/> which should be sent to Sentry.</returns>
         protected internal virtual JsonPacket PreparePacket(JsonPacket packet)
         {
-#if net35
             var isNullOrWhiteSpace = Utilities.SystemUtil.IsNullOrWhiteSpace(packet.Logger);
             var isNullOrWhiteSpaceRelease = Utilities.SystemUtil.IsNullOrWhiteSpace(packet.Release);
             var isNullOrWhiteSpaceEnvironment = Utilities.SystemUtil.IsNullOrWhiteSpace(packet.Environment);
             var isNullOrWhiteSpaceLogger = Utilities.SystemUtil.IsNullOrWhiteSpace(Logger);
-#else
-            var isNullOrWhiteSpace = String.IsNullOrWhiteSpace(packet.Logger);
-            var isNullOrWhiteSpaceRelease = String.IsNullOrWhiteSpace(packet.Release);
-            var isNullOrWhiteSpaceEnvironment = String.IsNullOrWhiteSpace(packet.Environment);
-            var isNullOrWhiteSpaceLogger = String.IsNullOrWhiteSpace(Logger);
-#endif
             packet.Logger = isNullOrWhiteSpace
                             || (packet.Logger == "root" && !isNullOrWhiteSpaceLogger)
                 ? Logger
@@ -406,11 +399,7 @@ namespace SharpRaven
 
                 var response = webException.Response;
                 id = response.Headers["X-Sentry-ID"];
-#if net35
                 var isNullOrWhiteSpace = Utilities.SystemUtil.IsNullOrWhiteSpace(id);
-#else
-                var isNullOrWhiteSpace = String.IsNullOrWhiteSpace(id);
-#endif
                 if (isNullOrWhiteSpace)
                     id = null;
 

@@ -71,19 +71,12 @@ namespace SharpRaven.UnitTests
         {
             var directory = new DirectoryInfo(Environment.CurrentDirectory);
             FileInfo file = null;
-
-#if (net35)
+            
             while (directory != null && directory.Exists &&
                    (file = directory.GetFiles("*.json")
                        .FirstOrDefault(f => f.FullName.EndsWith("schema.json"))) == null)
                             directory = directory.Parent;
-#else
 
-            while (directory != null && directory.Exists &&
-                   (file = directory.EnumerateFiles("*.json")
-                       .FirstOrDefault(f => f.FullName.EndsWith("schema.json"))) == null)
-                directory = directory.Parent;
-#endif
             return file != null ? file.FullName : null;
         }
 

@@ -37,6 +37,7 @@ using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 using SharpRaven.Data;
+using SharpRaven.UnitTests.Utilities;
 
 namespace SharpRaven.UnitTests.Data
 {
@@ -115,9 +116,7 @@ namespace SharpRaven.UnitTests.Data
             var json = this.jsonPacketFactory.Create(project, (SentryMessage)null);
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
-#if (!net35)
-            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
-#endif
+            Assert.That(TestHelper.Parse(json.EventID), Is.Not.Null);
         }
 
 
@@ -212,9 +211,7 @@ namespace SharpRaven.UnitTests.Data
             var json = this.jsonPacketFactory.Create(project, new Exception("Error"));
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
-#if (!net35)
-            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
-#endif
+            Assert.That(TestHelper.Parse(json.EventID), Is.Not.Null);
         }
 
 

@@ -80,11 +80,7 @@ namespace SharpRaven.Logging
         /// </returns>
         public string Scrub(string input)
         {
-#if net35
             var isNullOrWhiteSpace = Utilities.SystemUtil.IsNullOrWhiteSpace(input);
-#else
-            var isNullOrWhiteSpace = String.IsNullOrWhiteSpace(input);
-#endif
             return !isNullOrWhiteSpace
                 ? this.filters.Aggregate(input, (current, f) => f.Filter(current))
                 : input;
