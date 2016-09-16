@@ -325,18 +325,14 @@ namespace SharpRaven
         /// <returns>The <see cref="JsonPacket"/> which should be sent to Sentry.</returns>
         protected internal virtual JsonPacket PreparePacket(JsonPacket packet)
         {
-            var isNullOrWhiteSpace = Utilities.SystemUtil.IsNullOrWhiteSpace(packet.Logger);
-            var isNullOrWhiteSpaceRelease = Utilities.SystemUtil.IsNullOrWhiteSpace(packet.Release);
-            var isNullOrWhiteSpaceEnvironment = Utilities.SystemUtil.IsNullOrWhiteSpace(packet.Environment);
-            var isNullOrWhiteSpaceLogger = Utilities.SystemUtil.IsNullOrWhiteSpace(Logger);
-            packet.Logger = isNullOrWhiteSpace
-                            || (packet.Logger == "root" && !isNullOrWhiteSpaceLogger)
+            packet.Logger = SystemUtil.IsNullOrWhiteSpace(packet.Logger)
+                            || (packet.Logger == "root" && !SystemUtil.IsNullOrWhiteSpace(Logger))
                 ? Logger
                 : packet.Logger;
             packet.User = packet.User ?? this.sentryUserFactory.Create();
             packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
-            packet.Release = isNullOrWhiteSpaceRelease ? Release : packet.Release;
-            packet.Environment = isNullOrWhiteSpaceEnvironment ? Environment : packet.Environment;
+            packet.Release = SystemUtil.IsNullOrWhiteSpace(packet.Release) ? Release : packet.Release;
+            packet.Environment = SystemUtil.IsNullOrWhiteSpace(packet.Environment) ? Environment : packet.Environment;
             return packet;
         }
 
