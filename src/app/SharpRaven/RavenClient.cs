@@ -333,8 +333,9 @@ namespace SharpRaven
             try {
                 packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
             }
-            catch {
-                packet.Request = this.sentryRequestFactory.Create();
+            catch (Exception ex) {
+                HandleException(ex, null);
+                packet.Request = null;
             }
             packet.Release = SystemUtil.IsNullOrWhiteSpace(packet.Release) ? Release : packet.Release;
             packet.Environment = SystemUtil.IsNullOrWhiteSpace(packet.Environment) ? Environment : packet.Environment;
