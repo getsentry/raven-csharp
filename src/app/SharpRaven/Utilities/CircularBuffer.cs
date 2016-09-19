@@ -70,7 +70,7 @@ namespace SharpRaven.Utilities {
             }
 
 
-            public void Enqueue(K item)
+            public void Enqueue(T item)
             {
                 lock (SyncRoot)
                 {
@@ -78,7 +78,7 @@ namespace SharpRaven.Utilities {
                 }
             }
 
-            public K Dequeue()
+            public T Dequeue()
             {
                 lock (SyncRoot)
                 {
@@ -86,7 +86,7 @@ namespace SharpRaven.Utilities {
                 }
             }
 
-            public K Peek()
+            public T Peek()
             {
                 lock (SyncRoot)
                 {
@@ -103,7 +103,7 @@ namespace SharpRaven.Utilities {
             }
 
 
-            public void TryDequeue(out K result)
+            public void TryDequeue(out T result)
             {
                 try
                 {
@@ -111,7 +111,7 @@ namespace SharpRaven.Utilities {
                 }
                 catch
                 {
-                    result = default(K);
+                    result = default(T);
                 }
             }
         }
