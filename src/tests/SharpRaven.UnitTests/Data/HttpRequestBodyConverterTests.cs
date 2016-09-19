@@ -55,8 +55,6 @@ namespace SharpRaven.UnitTests.Data
 
             dynamic httpContext = new ExpandoObject();
             httpContext.Request = new ExpandoObject();
-
-
             httpContext.Request.ContentType = "application/x-www-form-urlencoded";
             httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
 

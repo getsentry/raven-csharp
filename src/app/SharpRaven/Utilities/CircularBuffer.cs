@@ -10,16 +10,16 @@ namespace SharpRaven.Utilities {
     public class CircularBuffer<T>
     {
 #if net35
-        private class ConcurrentQueue<K> : ICollection, IEnumerable<K>
+        private class ConcurrentQueue<T> : ICollection, IEnumerable<T>
         {
-            private readonly Queue<K> _queue;
+            private readonly Queue<T> _queue;
 
             public ConcurrentQueue()
             {
-                _queue = new Queue<K>();
+                _queue = new Queue<T>();
             }
 
-            public IEnumerator<K> GetEnumerator()
+            public IEnumerator<T> GetEnumerator()
             {
                 lock (SyncRoot)
                 {

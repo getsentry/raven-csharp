@@ -330,7 +330,12 @@ namespace SharpRaven
                 ? Logger
                 : packet.Logger;
             packet.User = packet.User ?? this.sentryUserFactory.Create();
-            packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
+            try {
+                packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
+            }
+            catch {
+                packet.Request = this.sentryRequestFactory.Create();
+            }
             packet.Release = SystemUtil.IsNullOrWhiteSpace(packet.Release) ? Release : packet.Release;
             packet.Environment = SystemUtil.IsNullOrWhiteSpace(packet.Environment) ? Environment : packet.Environment;
             return packet;
@@ -395,8 +400,7 @@ namespace SharpRaven
 
                 var response = webException.Response;
                 id = response.Headers["X-Sentry-ID"];
-                var isNullOrWhiteSpace = Utilities.SystemUtil.IsNullOrWhiteSpace(id);
-                if (isNullOrWhiteSpace)
+                if (SystemUtil.IsNullOrWhiteSpace(id))
                     id = null;
 
                 string messageBody;
