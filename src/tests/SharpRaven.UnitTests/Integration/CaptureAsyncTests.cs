@@ -45,7 +45,7 @@ namespace SharpRaven.UnitTests.Integration
     [TestFixture]
     public class CaptureAsyncTests
     {
-#region SetUp/Teardown
+        #region SetUp/Teardown
 
         [SetUp]
         public void Setup()
@@ -63,7 +63,7 @@ namespace SharpRaven.UnitTests.Integration
             Helper.PrintInfo("Project ID: " + this.ravenClient.CurrentDsn.ProjectID);
         }
 
-#endregion
+        #endregion
 
         [Test]
         public async void CaptureExceptionAsync_CanLogException_If_Send_Fails()

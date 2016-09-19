@@ -60,9 +60,9 @@ namespace SharpRaven.Utilities
         {
             var assemblies = AppDomain.CurrentDomain
                 .GetAssemblies()
-#if (!net35)
+                #if (!net35)
                 .Where(q => !q.IsDynamic)
-#endif
+                #endif
                 .Select(a => a.GetName())
                 .OrderBy(a => a.Name);
 

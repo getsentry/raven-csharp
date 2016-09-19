@@ -45,7 +45,7 @@ using SharpRaven.Data;
 
 namespace SharpRaven.UnitTests.Data
 {
-#if (!net35)
+    #if (!net35)
     [TestFixture]
     public class HttpRequestBodyConverterTests
     {
@@ -127,5 +127,5 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(converted, Is.EqualTo("Hello world!"));
         }
     }
-#endif
+    #endif
 }

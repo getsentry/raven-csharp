@@ -243,8 +243,8 @@ namespace SharpRaven.UnitTests.Data
             });
         }
 
-#if !net35
-[Test]
+        #if !net35
+        [Test]
         [Category("NoMono")]
         public void Constructor_WithHttpContext_UserIsNotNull_Threaded()
         {
@@ -258,7 +258,7 @@ namespace SharpRaven.UnitTests.Data
                 }, username);
             });
         }
-#endif
+        #endif
 
         private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
         private static readonly ISentryUserFactory userFactory = new SentryUserFactory();

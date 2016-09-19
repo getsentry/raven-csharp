@@ -63,10 +63,10 @@ namespace SharpRaven.Data
         /// <returns>
         /// <c>true</c> if the conversion succeeds; otherwise <c>false</c>.
         /// </returns>
-#if net35
+        #if net35
         bool TryConvert(HttpContext httpContext, out object converted);
-#else
+        #else
         bool TryConvert(dynamic httpContext, out object converted);
-#endif
+        #endif
     }
 }

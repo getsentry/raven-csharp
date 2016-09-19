@@ -52,11 +52,11 @@ namespace SharpRaven.Nancy.UnitTests
                 response.EnsureSuccessStatusCode();
 
                 var result = await response.Content.ReadAsStringAsync();
-#if (!net40) && (!net35)
+                #if (!net40) && (!net35)
                 var messageId = await ravenClient.CaptureMessageAsync("Hello world!!!");
-#else
+                #else
                 var messageId = ravenClient.CaptureMessage("Hello world!!!");
-#endif
+                #endif
 
                 return View["log.html", new { MessageId = messageId }];
             };

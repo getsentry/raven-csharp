@@ -167,7 +167,7 @@ namespace SharpRaven
         void RestartTrails();
 
 
-#if (!net40) && !(net35)
+        #if (!net40) && !(net35)
         /// <summary>Captures the event.</summary>
         /// <param name="event">The event to capture.</param>
         /// <returns>
@@ -215,9 +215,9 @@ namespace SharpRaven
                                          string[] fingerprint = null,
                                          object extra = null);
 
-#endif
+        #endif
 
-#region Deprecated Methods
+        #region Deprecated Methods
 
         /// <summary>
         /// Captures the event.
@@ -237,6 +237,6 @@ namespace SharpRaven
         [Obsolete("Use CaptureException() instead.", true)]
         string CaptureEvent(Exception e, Dictionary<string, string> tags);
 
-#endregion
+        #endregion
     }
 }

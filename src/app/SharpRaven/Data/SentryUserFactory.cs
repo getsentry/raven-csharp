@@ -77,11 +77,11 @@ namespace SharpRaven.Data
             return user;
         }
 
-#if net35
+        #if net35
         private static string GetIpAddress()
-#else
+        #else
         private static dynamic GetIpAddress()
-#endif
+        #endif
         {
             try
             {

@@ -9,7 +9,7 @@ using System.Linq;
 namespace SharpRaven.Utilities {
     public class CircularBuffer<T>
     {
-#if net35
+        #if net35
         private class ConcurrentQueue<T> : ICollection, IEnumerable<T>
         {
             private readonly Queue<T> _queue;
@@ -115,7 +115,7 @@ namespace SharpRaven.Utilities {
                 }
             }
         }
-#endif
+        #endif
         private readonly int size;
         private ConcurrentQueue<T> queue;
 
