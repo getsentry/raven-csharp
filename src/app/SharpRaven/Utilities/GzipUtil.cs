@@ -31,7 +31,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-#if (!net40)
+#if (!net40) && !(net35)
 using System.Threading.Tasks;
 
 #endif
@@ -60,7 +60,7 @@ namespace SharpRaven.Utilities
         }
 
 
-#if(!net40)
+        #if(!net40) && !(net35)
         /// <summary>
         /// Compress a JSON string with base-64 encoded gzip compressed string.
         /// </summary>
@@ -74,6 +74,6 @@ namespace SharpRaven.Utilities
                 await gzip.WriteAsync(data, 0, data.Length);
             }
         }
-#endif
+        #endif
     }
 }

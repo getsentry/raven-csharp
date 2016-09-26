@@ -30,7 +30,9 @@
 
 using System;
 using System.Collections.Generic;
+#if (!net35)
 using System.Threading.Tasks;
+#endif
 
 using SharpRaven.Data;
 using SharpRaven.Logging;
@@ -165,7 +167,7 @@ namespace SharpRaven
         void RestartTrails();
 
 
-#if (!net40)
+        #if (!net40) && !(net35)
         /// <summary>Captures the event.</summary>
         /// <param name="event">The event to capture.</param>
         /// <returns>
@@ -213,7 +215,7 @@ namespace SharpRaven
                                          string[] fingerprint = null,
                                          object extra = null);
 
-#endif
+        #endif
 
         #region Deprecated Methods
 

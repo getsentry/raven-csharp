@@ -37,6 +37,7 @@ using NUnit.Framework;
 
 using SharpRaven.Data;
 using SharpRaven.Logging;
+using SharpRaven.UnitTests.Utilities;
 
 namespace SharpRaven.UnitTests.Integration
 {
@@ -130,7 +131,7 @@ namespace SharpRaven.UnitTests.Integration
                 var id = this.ravenClient.CaptureException(exception, fingerprint : new[] { "f", "i", "n", "g", "e", "r" });
 
                 Assert.That(id, Is.Not.Null);
-                Assert.That(Guid.Parse(id), Is.Not.Null);
+                Assert.That(TestHelper.Parse(id), Is.Not.Null);
             }
         }
 
@@ -144,7 +145,7 @@ namespace SharpRaven.UnitTests.Integration
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null);
-            Assert.That(Guid.Parse(id), Is.Not.Null);
+            Assert.That(TestHelper.Parse(id), Is.Not.Null);
         }
 
 
@@ -155,7 +156,7 @@ namespace SharpRaven.UnitTests.Integration
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null.Or.Empty);
-            Assert.That(Guid.Parse(id), Is.Not.Null);
+            Assert.That(TestHelper.Parse(id), Is.Not.Null);
         }
 
 
@@ -180,7 +181,7 @@ namespace SharpRaven.UnitTests.Integration
                 //Console.WriteLine("Sent packet: " + id);
 
                 Assert.That(id, Is.Not.Null);
-                Assert.That(Guid.Parse(id), Is.Not.Null);
+                Assert.That(TestHelper.Parse(id), Is.Not.Null);
             }
         }
 
@@ -239,7 +240,7 @@ namespace SharpRaven.UnitTests.Integration
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null);
-            Assert.That(Guid.Parse(id), Is.Not.Null);
+            Assert.That(TestHelper.Parse(id), Is.Not.Null);
         }
 
 
@@ -250,7 +251,7 @@ namespace SharpRaven.UnitTests.Integration
             var id = this.ravenClient.CaptureException(new Exception("Test without a stacktrace."));
 
             Assert.That(id, Is.Not.Null);
-            Assert.That(Guid.Parse(id), Is.Not.Null);
+            Assert.That(TestHelper.Parse(id), Is.Not.Null);
         }
 
 
@@ -263,7 +264,7 @@ namespace SharpRaven.UnitTests.Integration
             //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null);
-            Assert.That(Guid.Parse(id), Is.Not.Null);
+            Assert.That(TestHelper.Parse(id), Is.Not.Null);
         }
 
         [Test]
@@ -293,7 +294,7 @@ namespace SharpRaven.UnitTests.Integration
             }
 
             Assert.That(id, Is.Not.Null);
-            Assert.That(Guid.Parse(id), Is.Not.Null);
+            Assert.That(TestHelper.Parse(id), Is.Not.Null);
             Assert.That(onCreateHttpWebRequestInvoked, Is.True);
         }
 

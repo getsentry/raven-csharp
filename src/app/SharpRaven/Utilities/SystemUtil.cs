@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace SharpRaven.Utilities
@@ -40,6 +41,16 @@ namespace SharpRaven.Utilities
     public static class SystemUtil
     {
         /// <summary>
+        /// Checks if a string is null or white space
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        public static bool IsNullOrWhiteSpace(string arg)
+        {
+            return string.IsNullOrEmpty(arg) || string.IsNullOrEmpty(arg.Trim());
+        }
+
+        /// <summary>
         /// Return all loaded modules.
         /// </summary>
         /// <returns>
@@ -49,7 +60,9 @@ namespace SharpRaven.Utilities
         {
             var assemblies = AppDomain.CurrentDomain
                 .GetAssemblies()
+                #if (!net35)
                 .Where(q => !q.IsDynamic)
+                #endif
                 .Select(a => a.GetName())
                 .OrderBy(a => a.Name);
 
@@ -111,6 +124,16 @@ namespace SharpRaven.Utilities
             foreach (var line in lines)
             {
                 WriteError(line);
+            }
+        }
+        public static void CopyTo(this Stream input, Stream output)
+        {
+            byte[] buffer = new byte[16 * 1024]; // Fairly arbitrary size
+            int bytesRead;
+
+            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, bytesRead);
             }
         }
     }

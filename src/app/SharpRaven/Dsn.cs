@@ -30,6 +30,8 @@
 
 using System;
 
+using SharpRaven.Utilities;
+
 namespace SharpRaven
 {
     /// <summary>
@@ -52,9 +54,8 @@ namespace SharpRaven
         /// <param name="dsn">The Data Source Name.</param>
         public Dsn(string dsn)
         {
-            if (String.IsNullOrWhiteSpace(dsn))
+            if (SystemUtil.IsNullOrWhiteSpace(dsn))
                 throw new ArgumentNullException("dsn");
-
             try
             {
                 this.uri = new Uri(dsn);

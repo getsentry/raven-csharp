@@ -29,7 +29,9 @@
 #endregion
 
 using System.Collections.Generic;
-
+#if net35
+using System.Web;
+#endif
 namespace SharpRaven.Data
 {
     /// <summary>
@@ -47,7 +49,11 @@ namespace SharpRaven.Data
         /// A structured type for the specified <paramref name="httpContext"/>'s request body
         /// or <c>null</c> if the <paramref name="httpContext"/> is null, or the somehow conversion fails.
         /// </returns>
+        #if net35
+        public static object Convert(HttpContext httpContext)
+        #else
         public static object Convert(dynamic httpContext)
+        #endif
         {
             var mediaTypes = new Dictionary<string, IHttpRequestBodyConverter>
             {

@@ -30,6 +30,8 @@
 
 using System;
 
+using NUnit.Framework.Constraints;
+
 namespace SharpRaven.UnitTests.Utilities
 {
     public static class TestHelper
@@ -57,6 +59,16 @@ namespace SharpRaven.UnitTests.Utilities
         {
             int i2 = 0;
             int i = 10 / i2;
+        }
+
+
+        public static Nullable<Guid> Parse(string input) {
+            try {
+                return new Guid(input);
+            }
+            catch {
+                return null;
+            }
         }
     }
 }

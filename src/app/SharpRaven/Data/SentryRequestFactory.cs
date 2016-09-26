@@ -31,11 +31,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-
+#if net35
+using System.Web;
+#endif
 using Newtonsoft.Json;
 
 using SharpRaven.Utilities;
@@ -56,7 +56,11 @@ namespace SharpRaven.Data
         /// <value>
         /// The current httpcontext property
         /// </value>
+        #if net35
+        internal static PropertyInfo CurrentHttpContextProperty { get; set; }
+        #else
         internal static dynamic CurrentHttpContextProperty { get; set; }
+        #endif
 
         [JsonIgnore]
         internal static bool HasCurrentHttpContextProperty
@@ -76,7 +80,12 @@ namespace SharpRaven.Data
         /// <value>
         /// The HTTP context.
         /// </value>
+        #if net35
+        internal static HttpContext HttpContext
+        #else
         internal static dynamic HttpContext
+        #endif
+
         {
             get
             {
@@ -88,7 +97,11 @@ namespace SharpRaven.Data
 
                 try
                 {
+                    #if net35
+                    return CurrentHttpContextProperty.GetValue(null, null) as HttpContext;
+                    #else
                     return CurrentHttpContextProperty.GetValue(null, null);
+                    #endif
                 }
                 catch (Exception exception)
                 {
@@ -115,7 +128,11 @@ namespace SharpRaven.Data
                 Method = HttpContext.Request.HttpMethod,
                 Environment = Convert(x => x.Request.ServerVariables),
                 Headers = Convert(x => x.Request.Headers),
+                #if net35
+                Cookies = ConvertHttpCookie(x => x.Request.Cookies),
+                #else
                 Cookies = Convert(x => x.Request.Cookies),
+                #endif
                 Data = BodyConvert(),
                 QueryString = HttpContext.Request.QueryString.ToString()
             };
@@ -155,8 +172,70 @@ namespace SharpRaven.Data
             return null;
         }
 
+        #if net35
+        private static IDictionary<string, string> ConvertHttpCookie(Func<HttpContext, HttpCookieCollection> collectionGetter)
+        {
+            if (!HasHttpContext)
+                return null;
 
+            IDictionary<string, string> dictionary = new Dictionary<string, string>();
+
+            try
+            {
+                var collection = collectionGetter.Invoke(HttpContext);
+                var keys = Enumerable.ToArray(collection.AllKeys);
+
+                foreach (object key in keys)
+                {
+                    if (key == null)
+                        continue;
+
+                    string stringKey = key as string ?? key.ToString();
+
+                    // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
+                    if (stringKey.StartsWith("ALL_") || stringKey.StartsWith("HTTP_"))
+                        continue;
+
+                    var value = collection[stringKey] != null ? collection[stringKey].Value : "";
+                    string stringValue = value;
+
+                    if (stringValue != null)
+                    {
+                        // Most dictionary values will be strings and go through this path.
+                        dictionary.Add(stringKey, stringValue);
+                    }
+                    else
+                    {
+                        // HttpCookieCollection is an ugly, evil beast that needs to be treated with a sledgehammer.
+
+                        try
+                        {
+                            // For whatever stupid reason, HttpCookie.ToString() doesn't return its Value, so we need to dive into the .Value property like this.
+                            dictionary.Add(stringKey, value);
+                        }
+                        catch (Exception exception)
+                        {
+                            dictionary.Add(stringKey, exception.ToString());
+                        }
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return dictionary;
+        }
+
+        #endif
+
+        #if net35
+        private static IDictionary<string, string> Convert(Func<HttpContext, NameValueCollection> collectionGetter)
+        #else
         private static IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
+        #endif
+
         {
             if (!HasHttpContext)
                 return null;
@@ -194,7 +273,11 @@ namespace SharpRaven.Data
                         try
                         {
                             // For whatever stupid reason, HttpCookie.ToString() doesn't return its Value, so we need to dive into the .Value property like this.
+                            #if net35
+                            dictionary.Add(stringKey, value);
+                            #else
                             dictionary.Add(stringKey, value.Value);
+                            #endif
                         }
                         catch (Exception exception)
                         {
