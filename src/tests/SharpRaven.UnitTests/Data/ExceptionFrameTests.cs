@@ -37,6 +37,7 @@ using NUnit.Framework;
 using SharpRaven.Data;
 using SharpRaven.UnitTests.Utilities;
 using System.Linq;
+using NSubstitute;
 
 namespace SharpRaven.UnitTests.Data
 {
@@ -90,6 +91,35 @@ namespace SharpRaven.UnitTests.Data
                 // There must be at least one system (Linq) frame in the middle.
                 Assert.Greater(sentryFrames.Count(it => !it.InApp), 0);
             }
+        }
+
+        [Test]
+        public void Constructor_Preserves_Function_Names()
+        {
+            var stackTrace = new StackTrace(TestHelper.GetException());
+            var stackFrame = stackTrace.GetFrames().Last();
+            var frame = new ExceptionFrame(stackFrame);
+
+            Assert.AreEqual(frame.Function, "GetException");
+            Assert.AreEqual(frame.Module, "SharpRaven.UnitTests.Utilities.TestHelper");
+        }
+
+        [Test]
+        public void Constructor_Demangles_Function_Names()
+        {
+            var type = Substitute.For<Type>();
+            type.FullName.Returns("Flipdish.Web.Controllers.PollApiController+<RequestNewOrders>d__4");
+
+            var method = Substitute.For<MethodInfo>();
+            method.DeclaringType.Returns(type);
+            method.Name.Returns("MoveNext");
+
+            var stackFrame = Substitute.For<StackFrame>();
+            stackFrame.GetMethod().Returns(method);
+
+            var frame = new ExceptionFrame(stackFrame);
+            Assert.AreEqual(frame.Function, "RequestNewOrders");
+            Assert.AreEqual(frame.Module, "Flipdish.Web.Controllers.PollApiController");
         }
     }
 }
