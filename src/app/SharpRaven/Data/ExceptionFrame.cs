@@ -33,6 +33,7 @@ using System.Diagnostics;
 using System.Text;
 
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace SharpRaven.Data
 {
@@ -81,6 +82,7 @@ namespace SharpRaven.Data
             LineNumber = lineNo;
             ColumnNumber = frame.GetFileColumnNumber();
             InApp = !IsSystemModuleName(Module);
+            DemangleFunctionName();
         }
 
 
@@ -118,7 +120,7 @@ namespace SharpRaven.Data
         /// The function.
         /// </value>
         [JsonProperty(PropertyName = "function")]
-        public string Function { get; set; }
+        public string Function { get; private set; }
 
         /// <summary>
         /// Signifies whether this frame is related to the execution of the relevant code in this
@@ -148,7 +150,7 @@ namespace SharpRaven.Data
         /// The module.
         /// </value>
         [JsonProperty(PropertyName = "module")]
-        public string Module { get; set; }
+        public string Module { get; private set; }
 
         /// <summary>
         /// Gets or sets the post context.
@@ -229,6 +231,40 @@ namespace SharpRaven.Data
             return !string.IsNullOrEmpty(moduleName) &&
                 (moduleName.StartsWith("System.",    System.StringComparison.Ordinal) ||
                  moduleName.StartsWith("Microsoft.", System.StringComparison.Ordinal));
+        }
+
+        /// <summary>
+        /// Clean up function and module names produced from `async` state machine calls.
+        /// </summary>
+        /// <para>
+        /// When the Microsoft cs.exe compiler compiles some modern C# features,
+        /// such as async/await calls, it can create synthetic function names that
+        /// do not match the function names in the original source code. Here we
+        /// reverse some of these transformations, so that the function and module
+        /// names that appears in the Sentry UI will match the function and module
+        /// names in the original source-code.
+        /// </para>
+        private void DemangleFunctionName()
+        {
+            if (Module == null || Function != "MoveNext")
+            {
+                return;
+            }
+
+            //  Search for the function name in angle brackets followed by d__<digits>.
+            //
+            // Change:
+            //   RemotePrinterService+<UpdateNotification>d__24 in MoveNext at line 457:13
+            // to:
+            //   RemotePrinterService in UpdateNotification at line 457:13
+
+            var mangled = @"^(.*)\+<(\w*)>d__\d*$";
+            var match = Regex.Match(Module, mangled);
+            if (match.Success && match.Groups.Count == 3)
+            {
+                Module = match.Groups[1].Value;
+                Function = match.Groups[2].Value;
+            }
         }
     }
 }
