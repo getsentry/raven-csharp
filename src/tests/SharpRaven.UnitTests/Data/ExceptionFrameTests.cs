@@ -133,5 +133,16 @@ namespace SharpRaven.UnitTests.Data
             Assert.AreEqual(frame.Function, "EditVrByJson");
             Assert.AreEqual(frame.Module, "Flipdish.Domain.DomainModel.Services.RestaurantService");
         }
+
+        [Test]
+        public void Contructor_Demangles_Lambdas()
+        {
+            var module = "Example.Module";
+
+            Assert.AreEqual("BeginInvokeAsynchronousActionMethod { <lambda> }", MockStackFrame(module, "<BeginInvokeAsynchronousActionMethod>b__36").Function);
+            Assert.AreEqual("InvokeActionMethodFilterAsynchronouslyRecursive { <lambda> }", MockStackFrame(module, "<InvokeActionMethodFilterAsynchronouslyRecursive>b__3d").Function);
+            Assert.AreEqual("BeginInvokeAction { <lambda> }", MockStackFrame(module, "<BeginInvokeAction>b__1e").Function);
+
+        }
     }
 }

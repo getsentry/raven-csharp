@@ -82,7 +82,8 @@ namespace SharpRaven.Data
             LineNumber = lineNo;
             ColumnNumber = frame.GetFileColumnNumber();
             InApp = !IsSystemModuleName(Module);
-            DemangleFunctionName();
+            DemangleAsyncFunctionName();
+            DemangleAnonymousFunction();
         }
 
 
@@ -244,7 +245,7 @@ namespace SharpRaven.Data
         /// names that appears in the Sentry UI will match the function and module
         /// names in the original source-code.
         /// </para>
-        private void DemangleFunctionName()
+        private void DemangleAsyncFunctionName()
         {
             if (Module == null || Function != "MoveNext")
             {
@@ -264,6 +265,31 @@ namespace SharpRaven.Data
             {
                 Module = match.Groups[1].Value;
                 Function = match.Groups[2].Value;
+            }
+        }
+
+        /// <summary>
+        /// Clean up function names for anonymous lambda calls.
+        /// </summary>
+        private void DemangleAnonymousFunction()
+        {
+            if (Function == null)
+            {
+                return;
+            }
+
+            // Search for the function name in angle brackets followed by b__<digits/letters>.
+            //
+            // Change:
+            //   <BeginInvokeAsynchronousActionMethod>b__36
+            // to:
+            //   BeginInvokeAsynchronousActionMethod { <lambda> }
+
+            var mangled = @"^<(\w*)>b__\w+$";
+            var match = Regex.Match(Function, mangled);
+            if (match.Success && match.Groups.Count == 2)
+            {
+                Function = match.Groups[1].Value + " { <lambda> }";
             }
         }
     }
