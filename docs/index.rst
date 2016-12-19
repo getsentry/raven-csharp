@@ -136,6 +136,36 @@ Sentry, all you have to do is add a requirement on ``IRavenClient`` in your clas
             this.ravenClient = ravenClient;
         }
     }
+    
+Breadcrumbs
+-----------
+
+Sentry supports a concept called Breadcrumbs, which is a trail of events which happened prior to an issue. Often times these events are very similar to traditional logs, but also have the ability to record more rich structured data. `More here <https://docs.sentry.io/learn/breadcrumbs/>`
+
+.. sourcecode:: csharp
+
+    public class ExampleController : ApiController
+    {
+        private readonly IRavenClient ravenClient;
+
+        public ExampleController(IRavenClient ravenClient)
+        {
+            this.ravenClient = ravenClient;
+        }
+        
+        public IHttpActionResult GetProduct(int id) {
+            ravenClient.AddTrail(new Breadcrumb("example") { Message = "some message...", Level = BreadcrumbLevel.INFO } );
+            
+            var product = products.FirstOrDefault((p) => p.Id == id);
+            if (product == null)
+            {
+                ravenClient.AddTrail(new Breadcrumb("example") { Message = "Ops! It was not found.", Level = BreadcrumbLevel.WARN } );
+                return NotFound();
+            }
+            
+            return Ok(product);
+        }
+    }
 
 Debugging SharpRaven
 --------------------
