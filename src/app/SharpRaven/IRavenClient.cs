@@ -30,7 +30,9 @@
 
 using System;
 using System.Collections.Generic;
+#if (!net35)
 using System.Threading.Tasks;
+#endif
 
 using SharpRaven.Data;
 using SharpRaven.Logging;
@@ -42,6 +44,16 @@ namespace SharpRaven
     /// </summary>
     public interface IRavenClient
     {
+        /// <summary>
+        /// Gets or sets the <see cref="Action"/> to execute to manipulate or extract data from
+        /// the <see cref="Requester"/> object before it is used in the <see cref="RavenClient.Send"/> method.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Action"/> to execute to manipulate or extract data from the
+        /// <see cref="Requester"/> object before it is used in the <see cref="RavenClient.Send"/> method.
+        /// </value>
+        Func<Requester, Requester> BeforeSend { get; set; }
+
         /// <summary>
         /// Enable Gzip Compression?
         /// </summary>
@@ -56,6 +68,11 @@ namespace SharpRaven
         /// The environment (e.g. production)
         /// </summary>
         string Environment { get; set; }
+
+        /// <summary>
+        /// Not register the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        bool IgnoreBreadcrumbs { get; set; }
 
         /// <summary>
         /// Logger. Default is "root"
@@ -87,6 +104,13 @@ namespace SharpRaven
         /// Valid values: a nonnegative integer or <see cref="System.Threading.Timeout.Infinite"/>
         /// </value>
         TimeSpan Timeout { get; set; }
+
+
+        /// <summary>
+        /// Captures the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        /// <param name="breadcrumb">The <see cref="Breadcrumb" /> to capture.</param>
+        void AddTrail(Breadcrumb breadcrumb);
 
 
         /// <summary>Captures the specified <paramref name="event"/>.</summary>
@@ -137,7 +161,13 @@ namespace SharpRaven
                               object extra = null);
 
 
-#if (!net40)
+        /// <summary>
+        /// Restart the capture of the <see cref="Breadcrumb"/> for tracking.
+        /// </summary>
+        void RestartTrails();
+
+
+        #if (!net40) && !(net35)
         /// <summary>Captures the event.</summary>
         /// <param name="event">The event to capture.</param>
         /// <returns>
@@ -185,7 +215,7 @@ namespace SharpRaven
                                          string[] fingerprint = null,
                                          object extra = null);
 
-#endif
+        #endif
 
         #region Deprecated Methods
 

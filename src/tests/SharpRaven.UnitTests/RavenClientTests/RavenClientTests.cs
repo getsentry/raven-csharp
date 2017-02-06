@@ -62,7 +62,6 @@ namespace SharpRaven.UnitTests.RavenClientTests
             Assert.That(ravenClient.CurrentDsn.ToString(), Is.EqualTo(TestHelper.DsnUri));
         }
 
-
         [Test]
         public void Logger_IsRoot()
         {
@@ -77,6 +76,14 @@ namespace SharpRaven.UnitTests.RavenClientTests
             IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
 
             Assert.That(ravenClient.Release, Is.Null);
+        }
+
+        [Test]
+        public void IgnoreBreadcrumbs_IsFalseByDefault()
+        {
+            IRavenClient ravenClient = new RavenClient(TestHelper.DsnUri);
+
+            Assert.That(ravenClient.IgnoreBreadcrumbs, Is.False);
         }
     }
 }

@@ -41,7 +41,7 @@ using NUnit.Framework;
 using SharpRaven.Data;
 using SharpRaven.Logging;
 using SharpRaven.UnitTests.Utilities;
-#if (!net40)
+#if (!net40) && (!net35)
 using System.Threading.Tasks;
 
 #endif
@@ -62,7 +62,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
 
             var ravenClientTests = new[]
             {
-#if (!net40)
+#if (!net40) && (!net35)
                 typeof(CaptureAsyncTests),
                 typeof(CaptureExceptionAsyncTests),
                 typeof(CaptureMessageAsyncTests),
@@ -161,7 +161,6 @@ namespace SharpRaven.UnitTests.RavenClientTests
         }
 
 
-
         public void OnlyDefaultTags(Action<IRavenClient> capture)
         {
             var client = new TestableRavenClient(dsnUri);
@@ -191,23 +190,27 @@ namespace SharpRaven.UnitTests.RavenClientTests
         public void ScrubberIsInvoked(Action<IRavenClient, string> capture)
         {
             var message = Guid.NewGuid().ToString("n");
-            var ravenClient = new RavenClient(TestHelper.DsnUri)
-            {
-                LogScrubber = Substitute.For<IScrubber>()
-            };
-            ravenClient.LogScrubber.Scrub(Arg.Any<string>())
-                .Returns(c =>
-                {
-                    var json = c.Arg<string>();
-                    Assert.That(json, Is.StringContaining(message));
-                    return json;
-                });
+            var ravenClient = GetScrubbingRavenClient(message);
 
             capture.Invoke(ravenClient, message);
 
             // Verify that we actually received a Scrub() call:
             ravenClient.LogScrubber.Received().Scrub(Arg.Any<string>());
         }
+
+
+#if (!net40) && (!net35)
+        public async Task ScrubberIsInvokedAsync(Func<IRavenClient, string, Task> captureAsync)
+        {
+            var message = Guid.NewGuid().ToString("n");
+            var ravenClient = GetScrubbingRavenClient(message);
+
+            await captureAsync.Invoke(ravenClient, message);
+
+            // Verify that we actually received a Scrub() call:
+            ravenClient.LogScrubber.Received().Scrub(Arg.Any<string>());
+        }
+#endif
 
 
         public void SendsEnvironment(Action<IRavenClient> capture)
@@ -258,6 +261,27 @@ namespace SharpRaven.UnitTests.RavenClientTests
         }
 
 
+        private static RavenClient GetScrubbingRavenClient(string message)
+        {
+            var ravenClient = new RavenClient(TestHelper.DsnUri)
+            {
+                LogScrubber = Substitute.For<IScrubber>()
+            };
+#if (!net35)
+            ravenClient.LogScrubber
+                .Scrub(Arg.Any<string>())
+                .Returns(c =>
+                {
+                    var json = c.Arg<string>();
+                    Assert.That(json, Is.StringContaining(message));
+                    return json;
+                });
+#endif
+
+            return ravenClient;
+        }
+
+
         private class TestableJsonPacketFactory : JsonPacketFactory
         {
             private readonly string environment;
@@ -305,7 +329,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
             }
 
 
-#if(!net40)
+#if (!net40) && (!net35)
             protected override Task<string> SendAsync(JsonPacket packet)
             {
                 packet = PreparePacket(packet);

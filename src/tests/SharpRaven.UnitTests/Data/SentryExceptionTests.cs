@@ -109,18 +109,14 @@ namespace SharpRaven.UnitTests.Data
 
         [Test]
         [Category("NoMono")]
-        public void ToString_StringIsEqualTo_ExceptionToString()
+        public void ToString_StringContains_ExceptionInformation()
         {
             var exception = TestHelper.GetException();
             var sentryException = new SentryException(exception);
-            string exceptionString = exception.ToString();
-            string stacktraceString = sentryException.ToString();
+            var stacktraceString = sentryException.ToString();
 
-            Console.WriteLine(exceptionString);
-            Console.WriteLine();
-            Console.WriteLine(stacktraceString);
-
-            Assert.That(stacktraceString, Is.EqualTo(exceptionString));
+            Assert.That(stacktraceString, Contains.Substring(exception.GetType().FullName));
+            Assert.That(stacktraceString, Contains.Substring(exception.Message));
         }
     }
 }

@@ -84,6 +84,9 @@ namespace SharpRaven.Data
         /// </value>
         public object Extra { get; set; }
 
+        /// <summary>Gets or Sets trail with <see cref="Breadcrumb" />.</summary>
+        public List<Breadcrumb> Breadcrumbs { get; set; }
+
         /// <summary>
         /// Gets the custom fingerprint to identify the captured <see name="Exception" /> or <see cref="Message" /> with.
         /// </summary>
@@ -123,7 +126,7 @@ namespace SharpRaven.Data
         public IDictionary<string, string> Tags
         {
             get { return this.tags; }
-            internal set { this.tags = value ?? new Dictionary<string, string>(); }
+            set { this.tags = value ?? new Dictionary<string, string>(); }
         }
     }
 }

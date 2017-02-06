@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace SharpRaven.Utilities
@@ -40,6 +41,16 @@ namespace SharpRaven.Utilities
     public static class SystemUtil
     {
         /// <summary>
+        /// Checks if a string is null or white space
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        public static bool IsNullOrWhiteSpace(string arg)
+        {
+            return string.IsNullOrEmpty(arg) || string.IsNullOrEmpty(arg.Trim());
+        }
+
+        /// <summary>
         /// Return all loaded modules.
         /// </summary>
         /// <returns>
@@ -48,10 +59,12 @@ namespace SharpRaven.Utilities
         public static IDictionary<string, string> GetModules()
         {
             var assemblies = AppDomain.CurrentDomain
-                                      .GetAssemblies()
-                                      .Where(q => !q.IsDynamic)
-                                      .Select(a => a.GetName())
-                                      .OrderBy(a => a.Name);
+                .GetAssemblies()
+                #if (!net35)
+                .Where(q => !q.IsDynamic)
+                #endif
+                .Select(a => a.GetName())
+                .OrderBy(a => a.Name);
 
             var dictionary = new Dictionary<string, string>();
 
@@ -64,6 +77,64 @@ namespace SharpRaven.Utilities
             }
 
             return dictionary;
+        }
+
+        /// <summary>
+        /// Writes the <paramref name="exception"/> to the <see cref="Console"/>.
+        /// </summary>
+        /// <param name="exception">The <see cref="Exception"/> to write to the <see cref="Console"/>.</param>
+        public static void WriteError(Exception exception)
+        {
+            if (exception == null)
+                return;
+
+            WriteError(exception.ToString());
+        }
+
+        /// <summary>
+        /// Writes the <paramref name="error"/> to the <see cref="Console"/>.
+        /// </summary>
+        /// <param name="error">The error to write to the <see cref="Console"/>.</param>
+        public static void WriteError(string error)
+        {
+            if (error == null)
+                return;
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("[ERROR] ");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(error);
+        }
+
+        /// <summary>
+        /// Writes the <paramref name="description"/> and <paramref name="multilineData"/> to the <see cref="Console"/>.
+        /// </summary>
+        /// <param name="description">The text describing the <paramref name="multilineData"/>.</param>
+        /// <param name="multilineData">The multi-line data to write to the <see cref="Console"/>.</param>
+        public static void WriteError(string description, string multilineData)
+        {
+            if (multilineData == null)
+                return;
+
+            var lines = multilineData.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length <= 0)
+                return;
+
+            WriteError(description);
+            foreach (var line in lines)
+            {
+                WriteError(line);
+            }
+        }
+        public static void CopyTo(this Stream input, Stream output)
+        {
+            byte[] buffer = new byte[16 * 1024]; // Fairly arbitrary size
+            int bytesRead;
+
+            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, bytesRead);
+            }
         }
     }
 }

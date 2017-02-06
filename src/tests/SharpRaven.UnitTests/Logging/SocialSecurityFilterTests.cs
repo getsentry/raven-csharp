@@ -39,16 +39,16 @@ namespace SharpRaven.UnitTests.Logging
     public class SocialSecurityFilterTests : FilterTestsBase<SocialSecurityFilter>
     {
         [Test]
-        public void InvalidSocialSecurityNumber_IsNotScrubbed()
+        public void MatchingSocialSecurityNumber_IsScrubbed()
         {
-            InvalidValueIsNotScrubbed("1531");
+            MatchingValueIsScrubbed("55518231234");
         }
 
 
         [Test]
-        public void ValidSocialSecurityNumber_IsScrubbed()
+        public void NonMatchingSocialSecurityNumber_IsNotScrubbed()
         {
-            ValidValueIsScrubbed("55518231234");
+            NonMatchingValueIsNotScrubbed("1531");
         }
     }
 }

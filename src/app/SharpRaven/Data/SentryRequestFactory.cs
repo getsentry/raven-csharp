@@ -31,11 +31,14 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-
+#if net35
+using System.Web;
+#endif
 using Newtonsoft.Json;
+
+using SharpRaven.Utilities;
 
 namespace SharpRaven.Data
 {
@@ -45,23 +48,7 @@ namespace SharpRaven.Data
     /// </summary>
     public class SentryRequestFactory : ISentryRequestFactory
     {
-        [JsonIgnore]
-        internal static bool HasHttpContext
-        {
-            get { return HttpContext != null; }
-        }
-
-        [JsonIgnore]
-        internal static bool CheckedForHttpContext { get; set; }
-
-        /// <summary>
-        /// Gets or sets the HTTP context.
-        /// </summary>
-        /// <value>
-        /// The HTTP context.
-        /// </value>
-        internal static dynamic HttpContext { get; set; }
-
+        private static bool checkedForHttpContextProperty;
 
         /// <summary>
         /// Gets or sets the CurrentHttpContextProperty
@@ -69,13 +56,61 @@ namespace SharpRaven.Data
         /// <value>
         /// The current httpcontext property
         /// </value>
+        #if net35
+        internal static PropertyInfo CurrentHttpContextProperty { get; set; }
+        #else
         internal static dynamic CurrentHttpContextProperty { get; set; }
+        #endif
 
         [JsonIgnore]
         internal static bool HasCurrentHttpContextProperty
         {
             get { return CurrentHttpContextProperty != null; }
         }
+
+        [JsonIgnore]
+        internal static bool HasHttpContext
+        {
+            get { return HttpContext != null; }
+        }
+
+        /// <summary>
+        /// Gets or sets the HTTP context.
+        /// </summary>
+        /// <value>
+        /// The HTTP context.
+        /// </value>
+        #if net35
+        internal static HttpContext HttpContext
+        #else
+        internal static dynamic HttpContext
+        #endif
+
+        {
+            get
+            {
+                TryGetHttpContextPropertyFromAppDomain();
+
+                // [Meilu] If the currentHttpcontext property is not available we couldnt retrieve it, dont continue
+                if (!HasCurrentHttpContextProperty)
+                    return null;
+
+                try
+                {
+                    #if net35
+                    return CurrentHttpContextProperty.GetValue(null, null) as HttpContext;
+                    #else
+                    return CurrentHttpContextProperty.GetValue(null, null);
+                    #endif
+                }
+                catch (Exception exception)
+                {
+                    SystemUtil.WriteError(exception);
+                    return null;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Creates a new instance of <see cref="SentryRequest"/>
@@ -84,20 +119,21 @@ namespace SharpRaven.Data
         /// <returns>A new instance of <see cref="SentryRequest"/> with information relating to the current HTTP request</returns>
         public ISentryRequest Create()
         {
-            // NOTE: We're using dynamic to not require a reference to System.Web.
-            GetHttpContext();
-
             if (!HasHttpContext || HttpContext.Request == null)
                 return OnCreate(null);
 
-            var request = new SentryRequest()
+            var request = new SentryRequest
             {
                 Url = HttpContext.Request.Url.ToString(),
                 Method = HttpContext.Request.HttpMethod,
                 Environment = Convert(x => x.Request.ServerVariables),
                 Headers = Convert(x => x.Request.Headers),
+                #if net35
+                Cookies = ConvertHttpCookie(x => x.Request.Cookies),
+                #else
                 Cookies = Convert(x => x.Request.Cookies),
-                Data = Convert(x => x.Request.Form),
+                #endif
+                Data = BodyConvert(),
                 QueryString = HttpContext.Request.QueryString.ToString()
             };
 
@@ -119,7 +155,25 @@ namespace SharpRaven.Data
         }
 
 
-        private static IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
+        private static object BodyConvert()
+        {
+            if (!HasHttpContext)
+                return null;
+
+            try
+            {
+                return HttpRequestBodyConverter.Convert(HttpContext);
+            }
+            catch (Exception exception)
+            {
+                SystemUtil.WriteError(exception);
+            }
+
+            return null;
+        }
+
+        #if net35
+        private static IDictionary<string, string> ConvertHttpCookie(Func<HttpContext, HttpCookieCollection> collectionGetter)
         {
             if (!HasHttpContext)
                 return null;
@@ -142,8 +196,8 @@ namespace SharpRaven.Data
                     if (stringKey.StartsWith("ALL_") || stringKey.StartsWith("HTTP_"))
                         continue;
 
-                    var value = collection[stringKey];
-                    string stringValue = value as string;
+                    var value = collection[stringKey] != null ? collection[stringKey].Value : "";
+                    string stringValue = value;
 
                     if (stringValue != null)
                     {
@@ -157,7 +211,7 @@ namespace SharpRaven.Data
                         try
                         {
                             // For whatever stupid reason, HttpCookie.ToString() doesn't return its Value, so we need to dive into the .Value property like this.
-                            dictionary.Add(stringKey, value.Value);
+                            dictionary.Add(stringKey, value);
                         }
                         catch (Exception exception)
                         {
@@ -174,11 +228,79 @@ namespace SharpRaven.Data
             return dictionary;
         }
 
+        #endif
+
+        #if net35
+        private static IDictionary<string, string> Convert(Func<HttpContext, NameValueCollection> collectionGetter)
+        #else
+        private static IDictionary<string, string> Convert(Func<dynamic, NameObjectCollectionBase> collectionGetter)
+        #endif
+
+        {
+            if (!HasHttpContext)
+                return null;
+
+            IDictionary<string, string> dictionary = new Dictionary<string, string>();
+
+            try
+            {
+                var collection = collectionGetter.Invoke(HttpContext);
+                var keys = Enumerable.ToArray(collection.AllKeys);
+
+                foreach (object key in keys)
+                {
+                    if (key == null)
+                        continue;
+
+                    var stringKey = key as string ?? key.ToString();
+
+                    // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
+                    if (stringKey.StartsWith("ALL_") || stringKey.StartsWith("HTTP_"))
+                        continue;
+
+                    var value = collection[stringKey];
+                    var stringValue = value as string;
+
+                    if (stringValue != null)
+                    {
+                        // Most dictionary values will be strings and go through this path.
+                        dictionary.Add(stringKey, stringValue);
+                    }
+                    else
+                    {
+                        // HttpCookieCollection is an ugly, evil beast that needs to be treated with a sledgehammer.
+
+                        try
+                        {
+                            // For whatever stupid reason, HttpCookie.ToString() doesn't return its Value, so we need to dive into the .Value property like this.
+                            #if net35
+                            dictionary.Add(stringKey, value);
+                            #else
+                            dictionary.Add(stringKey, value.Value);
+                            #endif
+                        }
+                        catch (Exception exception)
+                        {
+                            dictionary.Add(stringKey, exception.ToString());
+                        }
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                SystemUtil.WriteError(exception);
+            }
+
+            return dictionary;
+        }
+
 
         private static void TryGetHttpContextPropertyFromAppDomain()
         {
-            if (HasHttpContext)
+            if (checkedForHttpContextProperty)
                 return;
+
+            checkedForHttpContextProperty = true;
 
             try
             {
@@ -205,30 +327,7 @@ namespace SharpRaven.Data
             }
             catch (Exception exception)
             {
-                Console.WriteLine("An error occurred while retrieving the HTTP contextproperty: {0}", exception);
-            }
-        }
-
-        private static void GetHttpContext()
-        {
-            // [Meilu] Since reflection is performance heavy, check if we have the httpcontext only once.
-            if (!CheckedForHttpContext)
-            {
-                TryGetHttpContextPropertyFromAppDomain();
-                CheckedForHttpContext = true;
-            }
-
-            // [Meilu] If the currentHttpcontext property is not available we couldnt retrieve it, dont continue
-            if (!HasCurrentHttpContextProperty)
-                return;
-
-            try
-            {
-                HttpContext = CurrentHttpContextProperty.GetValue(null, null);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine("An error occurred while retrieving the current HTTP context: {0}", exception);
+                SystemUtil.WriteError(exception);
             }
         }
     }

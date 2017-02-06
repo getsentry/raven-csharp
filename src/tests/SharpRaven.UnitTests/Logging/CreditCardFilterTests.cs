@@ -38,16 +38,16 @@ namespace SharpRaven.UnitTests.Logging
     public class CreditCardFilterTests : FilterTestsBase<CreditCardFilter>
     {
         [Test]
-        public void InvalidCreditCardNumber_IsNotScrubbed()
+        public void MatchingCreditCardNumber_IsScrubbed()
         {
-            InvalidValueIsNotScrubbed("1234-5678-9101-1121");
+            MatchingValueIsScrubbed("5271-1902-4264-3112");
         }
 
 
         [Test]
-        public void ValidCreditCardNumber_IsScrubbed()
+        public void NonMatchingCreditCardNumber_IsNotScrubbed()
         {
-            ValidValueIsScrubbed("5271-1902-4264-3112");
+            NonMatchingValueIsNotScrubbed("1234-5678-9101-1121");
         }
     }
 }

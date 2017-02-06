@@ -37,7 +37,7 @@ namespace SharpRaven.Utilities
     /// </summary>
     public static class PacketBuilder
     {
-        private const int SentryVersion = 4;
+        private const int SentryVersion = 7;
         private static readonly string userAgent;
 
 

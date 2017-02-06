@@ -15,6 +15,31 @@
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>7a5c1353</NuGetPackageImportStamp>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug 3.5|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\net35\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;net35</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\net35\SharpRaven.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release 3.5|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\net35\</OutputPath>
+    <DefineConstants>TRACE;net35</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\net35\SharpRaven.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug 4.0|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -66,26 +91,47 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" Condition="$(Configuration) == 'Release 3.5' Or $(Configuration) == 'Debug 3.5'">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net35\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" Condition="$(Configuration) == 'Release 4.0' Or $(Configuration) == 'Debug 4.0'">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" Condition="$(Configuration) == 'Release 4.5' Or $(Configuration) == 'Debug 4.5'">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Web" Condition="$(Configuration) == 'Release 3.5' Or $(Configuration) == 'Debug 3.5'" />
     <Reference Include="System.Net.Http" Condition="$(Configuration) == 'Release 4.5' Or $(Configuration) == 'Debug 4.5'" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Data\BreadcrumbLevel.cs" />
+    <Compile Include="Data\BreadcrumbType.cs" />
+    <Compile Include="Data\Breadcrumb.cs" />
+    <Compile Include="Data\DefaultHttpRequestBodyConverter.cs" />
     <Compile Include="Data\ExceptionData.cs" />
+    <Compile Include="Data\HttpRequestBodyConverter.cs" />
+    <Compile Include="Data\MultiPartFormHttpRequestBodyConverter.cs" />
+    <Compile Include="Data\IHttpRequestBodyConverter.cs" />
     <Compile Include="Data\ISentryRequestFactory.cs" />
     <Compile Include="Data\ISentryUserFactory.cs" />
     <Compile Include="Data\ISentryRequest.cs" />
+    <Compile Include="Data\FormHttpRequestBodyConverter.cs" />
+    <Compile Include="Data\JsonHttpRequestBodyConverter.cs" />
     <Compile Include="Data\JsonPacketFactory.cs" />
     <Compile Include="Data\ErrorLevel.cs" />
     <Compile Include="Data\ExceptionFrame.cs" />
     <Compile Include="Data\IJsonPacketFactory.cs" />
+    <Compile Include="Data\RequestData.cs" />
+    <Compile Include="Data\Requester.Net45.cs" />
+    <Compile Include="Data\Requester.cs" />
     <Compile Include="Data\SentryEvent.cs" />
     <Compile Include="Data\SentryMessage.cs" />
     <Compile Include="Data\SentryException.cs" />
@@ -106,8 +152,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenClient.Net45.cs" />
     <Compile Include="RavenClient.cs" />
-    <Compile Include="Serialization\ErrorLevelConverter.cs" />
+    <Compile Include="Serialization\LowerInvariantStringEnumConverter.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Utilities\CircularBuffer.cs" />
     <Compile Include="Utilities\GzipUtil.cs" />
     <Compile Include="Utilities\PacketBuilder.cs" />
     <Compile Include="Utilities\SystemUtil.cs" />

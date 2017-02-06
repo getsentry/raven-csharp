@@ -30,7 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SharpRaven.Data
 {
@@ -129,7 +128,11 @@ namespace SharpRaven.Data
         /// </returns>
         public JsonPacket Create(string project, SentryEvent @event)
         {
-            var json = new JsonPacket(project, @event);
+            var json = new JsonPacket(project, @event)
+            {
+                Breadcrumbs = @event.Breadcrumbs
+            };
+
             return OnCreate(json);
         }
 

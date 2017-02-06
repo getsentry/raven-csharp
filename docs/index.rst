@@ -44,9 +44,9 @@ Call out to the client in your catch block:
         int i2 = 0;
         int i = 10 / i2;
     }
-    catch (Exception e)
+    catch (Exception exception)
     {
-        ravenClient.CaptureException(e);
+        ravenClient.Capture(new SentryEvent(exception));
     }
 
 Logging Non-Exceptions
@@ -56,7 +56,7 @@ You can capture a message without being bound by an exception:
 
 .. sourcecode:: csharp
 
-    ravenClient.CaptureMessage("Hello World!");
+    ravenClient.Capture(new SentryEvent("Hello World!"));
 
 Additional Data
 ---------------
@@ -76,29 +76,12 @@ property on exceptions thrown about in your solution:
         throw;
     }
 
+The data ``SomeKey`` and ``SomeValu`` will be captured and presented in the
+``extra`` property on Sentry.
 
-The capture methods allow you to provide additional data to be sent with
-your request. ``CaptureException`` supports both the ``tags`` and extra
-``properties``, and ``CaptureMessage`` additionally supports the
-``level`` property.
-
-The full argument specs are:
-
-.. sourcecode:: csharp
-
-    string CaptureException(Exception exception,
-                            SentryMessage message = null,
-                            ErrorLevel level = ErrorLevel.Error,
-                            IDictionary<string, string> tags = null,
-                            string[] fingerprint = null,
-                            object extra = null)
-
-    string CaptureMessage(SentryMessage message,
-                          ErrorLevel level = ErrorLevel.Info,
-                          IDictionary<string, string> tags = null,
-                          string[] fingerprint = null,
-                          object extra = null)
-
+Additionally, the ``SentryEvent`` class allow you to provide extra data to be
+sent with your request, such as ``ErrorLevel``, ``Fingerprint``, a custom
+``Message`` and `Tags`.
 
 Async Support
 -------------
@@ -107,18 +90,7 @@ above methods as well:
 
 .. sourcecode:: csharp
 
-    Task<string> CaptureExceptionAsync(Exception exception,
-                                       SentryMessage message = null,
-                                       ErrorLevel level = ErrorLevel.Error,
-                                       IDictionary<string, string> tags = null,
-                                       string[] fingerprint = null,
-                                       object extra = null);
-
-    Task<string> CaptureMessageAsync(SentryMessage message,
-                                     ErrorLevel level = ErrorLevel.Info,
-                                     IDictionary<string, string> tags = null,
-                                     string[] fingerprint = null,
-                                     object extra = null);
+    async Task<string> CaptureAsync(SentryEvent @event);
 
 Nancy Support
 -------------
@@ -164,10 +136,66 @@ Sentry, all you have to do is add a requirement on ``IRavenClient`` in your clas
             this.ravenClient = ravenClient;
         }
     }
+    
+Breadcrumbs
+-----------
 
+Sentry supports a concept called `Breadcrumbs <https://docs.sentry.io/learn/breadcrumbs/>`, which is a trail of events which happened prior to an issue. Often times these events are very similar to traditional logs, but also have the ability to record more rich structured data.
+
+.. sourcecode:: csharp
+
+    public class ExampleController : ApiController
+    {
+        private readonly IRavenClient ravenClient;
+
+        public ExampleController(IRavenClient ravenClient)
+        {
+            this.ravenClient = ravenClient;
+        }
+        
+        public IHttpActionResult GetProduct(int id) {
+            ravenClient.AddTrail(new Breadcrumb("example") { Message = "some message...", Level = BreadcrumbLevel.Info } );
+            
+            var product = products.FirstOrDefault((p) => p.Id == id);
+            if (product == null)
+            {
+                ravenClient.AddTrail(new Breadcrumb("example") { Message = "Ops! It was not found.", Level = BreadcrumbLevel.Warn } );
+                return NotFound();
+            }
+            
+            return Ok(product);
+        }
+    }
+
+Debugging SharpRaven
+--------------------
+
+If an exception is raised internally to ``RavenClient`` it is logged to the
+``Consol``. To extend this behaviour use the property ``ErrorOnCapture``:
+
+.. sourcecode:: csharp
+
+    ravenClient.ErrorOnCapture = exception =>
+    {
+        // Custom code here
+    };
+
+You can also hook into the ``BeforeSend`` function to inspect or manipulate the
+data being sent to Sentry before it is sent:
+
+.. sourcecode:: csharp
+
+    ravenClient.BeforeSend = requester =>
+    {
+        // Here you can log data from the requester
+        // or replace it entirely if you want.
+        return requester;
+    }
 
 Resources
 ---------
 
 * `Bug Tracker <http://github.com/getsentry/raven-csharp/issues>`_
 * `Github Project <http://github.com/getsentry/raven-csharp>`_
+* `Join the chat on Gitter <https://gitter.im/getsentry/raven-csharp>`_
+* `Join the chat on IRC <irc://irc.freenode.net/sentry>`_ (irc.freenode.net, #sentry)

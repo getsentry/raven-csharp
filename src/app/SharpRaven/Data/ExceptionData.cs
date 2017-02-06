@@ -33,6 +33,8 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json;
 
+using SharpRaven.Utilities;
+
 namespace SharpRaven.Data
 {
     /// <summary>
@@ -62,7 +64,7 @@ namespace SharpRaven.Data
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("ERROR: " + e);
+                    SystemUtil.WriteError(e);
                 }
             }
 

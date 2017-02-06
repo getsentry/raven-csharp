@@ -31,6 +31,8 @@
 using System;
 using System.Security.Principal;
 
+using SharpRaven.Utilities;
+
 namespace SharpRaven.Data
 {
     /// <summary>
@@ -75,8 +77,11 @@ namespace SharpRaven.Data
             return user;
         }
 
-
+        #if net35
+        private static string GetIpAddress()
+        #else
         private static dynamic GetIpAddress()
+        #endif
         {
             try
             {
@@ -84,7 +89,7 @@ namespace SharpRaven.Data
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
+                SystemUtil.WriteError(exception);
             }
 
             return null;
@@ -99,7 +104,7 @@ namespace SharpRaven.Data
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
+                SystemUtil.WriteError(exception);
             }
 
             return null;

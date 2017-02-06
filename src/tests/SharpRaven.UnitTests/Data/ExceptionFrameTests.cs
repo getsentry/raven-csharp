@@ -36,10 +36,12 @@ using NUnit.Framework;
 
 using SharpRaven.Data;
 using SharpRaven.UnitTests.Utilities;
+using System.Linq;
+using NSubstitute;
 
 namespace SharpRaven.UnitTests.Data
 {
-    internal class StackFrameWithNullMethod: StackFrame
+    internal class StackFrameWithNullMethod : StackFrame
     {
         public override MethodBase GetMethod()
         {
@@ -50,6 +52,7 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class ExceptionFrameTests
     {
+
         [Test]
         public void Constructor_NullFrameMethod_DoesNotThrow()
         {
@@ -63,6 +66,83 @@ namespace SharpRaven.UnitTests.Data
             Assert.AreEqual("(unknown)", frame.Module);
             Assert.AreEqual("(unknown)", frame.Function);
             Assert.AreEqual("(unknown)", frame.Source);
+        }
+
+        [Test]
+        public void Constructor_InAppFrames_Identified()
+        {
+            try
+            {
+                var nums = new[] { 5, 4, 3, 2, 1, 0 };
+                nums.Select(it => 1 / it).ToList();
+                // The line above will throw.
+                Assert.Fail();
+            }
+            catch (Exception exception)
+            {
+                var frames = new StackTrace(exception, true).GetFrames();
+                var sentryFrames = frames.Select(f => new ExceptionFrame(f)).ToList();
+
+                // The first frame is InApp - (this function).
+                Assert.True(sentryFrames.First().InApp);
+
+                // The last frame is InApp (our lambda that divides by zero).
+                Assert.True(sentryFrames.Last().InApp);
+
+                // There must be at least one system (Linq) frame in the middle.
+                Assert.Greater(sentryFrames.Count(it => !it.InApp), 0);
+            }
+        }
+
+        [Test]
+        public void Constructor_Preserves_Function_Names()
+        {
+            var stackTrace = new StackTrace(TestHelper.GetException());
+            var stackFrame = stackTrace.GetFrames().Last();
+            var frame = new ExceptionFrame(stackFrame);
+
+            Assert.AreEqual(frame.Function, "GetException");
+            Assert.AreEqual(frame.Module, "SharpRaven.UnitTests.Utilities.TestHelper");
+        }
+
+        private static ExceptionFrame MockStackFrame(string typeName, string methodName)
+        {
+            var type = Substitute.For<Type>();
+            type.FullName.Returns(typeName);
+
+            var method = Substitute.For<MethodInfo>();
+            method.DeclaringType.Returns(type);
+            method.Name.Returns(methodName);
+
+            var stackFrame = Substitute.For<StackFrame>();
+            stackFrame.GetMethod().Returns(method);
+
+            return new ExceptionFrame(stackFrame);
+        }
+
+        [Test]
+        public void Constructor_Demangles_Function_Names()
+        {
+            ExceptionFrame frame;
+
+            frame = MockStackFrame("Flipdish.Web.Controllers.PollApiController+<RequestNewOrders>d__4", "MoveNext");
+            Assert.AreEqual(frame.Function, "RequestNewOrders");
+            Assert.AreEqual(frame.Module, "Flipdish.Web.Controllers.PollApiController");
+
+            frame = MockStackFrame("Flipdish.Domain.DomainModel.Services.RestaurantService+<EditVrByJson>d__93", "MoveNext");
+            Assert.AreEqual(frame.Function, "EditVrByJson");
+            Assert.AreEqual(frame.Module, "Flipdish.Domain.DomainModel.Services.RestaurantService");
+        }
+
+        [Test]
+        public void Contructor_Demangles_Lambdas()
+        {
+            var module = "Example.Module";
+
+            Assert.AreEqual("BeginInvokeAsynchronousActionMethod { <lambda> }", MockStackFrame(module, "<BeginInvokeAsynchronousActionMethod>b__36").Function);
+            Assert.AreEqual("InvokeActionMethodFilterAsynchronouslyRecursive { <lambda> }", MockStackFrame(module, "<InvokeActionMethodFilterAsynchronouslyRecursive>b__3d").Function);
+            Assert.AreEqual("BeginInvokeAction { <lambda> }", MockStackFrame(module, "<BeginInvokeAction>b__1e").Function);
+
         }
     }
 }

@@ -2,21 +2,21 @@
 
 // Copyright (c) 2014 The Sentry Team and individual contributors.
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are permitted
 // provided that the following conditions are met:
-// 
+//
 //     1. Redistributions of source code must retain the above copyright notice, this list of
 //        conditions and the following disclaimer.
-// 
+//
 //     2. Redistributions in binary form must reproduce the above copyright notice, this list of
 //        conditions and the following disclaimer in the documentation and/or other materials
 //        provided with the distribution.
-// 
+//
 //     3. Neither the name of the Sentry nor the names of its contributors may be used to
 //        endorse or promote products derived from this software without specific prior written
 //        permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -28,31 +28,24 @@
 
 #endregion
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-using SharpRaven.Data;
-
-namespace SharpRaven.Serialization
+namespace SharpRaven.Data
 {
-    /// <summary>
-    /// Converts <see cref="ErrorLevel"/> to a <see cref="System.String"/>.
-    /// </summary>
-    public class ErrorLevelConverter : StringEnumConverter
+    public class MultiPartFormHttpRequestBodyConverter : FormHttpRequestBodyConverter
     {
-        /// <summary>
-        /// Writes the JSON representation of the object.
-        /// </summary>
-        /// <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter" /> to write to.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override bool Matches(string contentType)
         {
-            if (!(value is ErrorLevel))
-                base.WriteJson(writer, value, serializer);
+            if (String.IsNullOrEmpty(contentType))
+            {
+                return false;
+            }
 
-            var level = value.ToString().ToLowerInvariant();
-            writer.WriteValue(level);
+            var mimeType = contentType.Split(';').First();
+
+            return mimeType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

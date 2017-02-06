@@ -30,6 +30,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Principal;
+#if !net35
+using System.Threading.Tasks;
+#endif
+using System.Web;
 
 using NUnit.Framework;
 
@@ -41,25 +46,6 @@ namespace SharpRaven.UnitTests.Data
     [TestFixture]
     public class JsonPacketTests
     {
-        #region SetUp/Teardown
-
-        [SetUp]
-        public void SetUp()
-        {
-            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
-            SentryRequestFactory.HttpContext = null;
-        }
-
-
-        [TearDown]
-        public void TearDown()
-        {
-            // Set the HTTP Context to null before so tests don't bleed data into each other. @asbjornu
-            SentryRequestFactory.HttpContext = null;
-        }
-
-        #endregion
-
         [Test]
         public void Constructor_NullEvent_ThrowsArgumentNullException()
         {
@@ -107,7 +93,7 @@ namespace SharpRaven.UnitTests.Data
             var json = new JsonPacket(project);
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
-            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
+            Assert.That(TestHelper.Parse(json.EventID), Is.Not.Null);
         }
 
 
@@ -148,7 +134,7 @@ namespace SharpRaven.UnitTests.Data
             var json = new JsonPacket(project, new Exception("Error"));
 
             Assert.That(json.EventID, Is.Not.Null.Or.Empty, "EventID");
-            Assert.That(Guid.Parse(json.EventID), Is.Not.Null);
+            Assert.That(TestHelper.Parse(json.EventID), Is.Not.Null);
         }
 
 
@@ -248,7 +234,7 @@ namespace SharpRaven.UnitTests.Data
 
         [Test]
         [Category("NoMono")]
-        public void Constructor_WithHttpContext_UsertIsNotNull()
+        public void Constructor_WithHttpContext_UserIsNotNull()
         {
             SimulateHttpRequest(json =>
             {
@@ -257,12 +243,28 @@ namespace SharpRaven.UnitTests.Data
             });
         }
 
+        #if !net35
+        [Test]
+        [Category("NoMono")]
+        public void Constructor_WithHttpContext_UserIsNotNull_Threaded()
+        {
+            Parallel.For(0, 100, i =>
+            {
+                var username = i.ToString();
+                SimulateHttpRequest(json =>
+                {
+                    Assert.That(json.User, Is.Not.Null);
+                    Assert.That(json.User.Username, Is.EqualTo(username));
+                }, username);
+            });
+        }
+        #endif
 
         private static readonly ISentryRequestFactory requestFactory = new SentryRequestFactory();
         private static readonly ISentryUserFactory userFactory = new SentryUserFactory();
 
 
-        private static void SimulateHttpRequest(Action<JsonPacket> test)
+        private static void SimulateHttpRequest(Action<JsonPacket> test, string username = null)
         {
             using (var simulator = new HttpSimulator())
             {
@@ -273,12 +275,21 @@ namespace SharpRaven.UnitTests.Data
 
                 using (simulator.SimulateRequest())
                 {
+                    if (username != null)
+                    {
+                        SetUsername(username);
+                    }
                     var json = new JsonPacket(Guid.NewGuid().ToString("n"));
-                    json.Request = requestFactory.Create();
                     json.User = userFactory.Create();
+                    json.Request = requestFactory.Create();
                     test.Invoke(json);
                 }
             }
+        }
+
+        private static void SetUsername(string username)
+        {
+            HttpContext.Current.User = new GenericPrincipal(new GenericIdentity(username), null);
         }
     }
 }
