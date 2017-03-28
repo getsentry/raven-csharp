@@ -61,7 +61,7 @@ You can capture a message without being bound by an exception:
 Additional Data
 ---------------
 
-You can add additional data to the `Exception.Data <https://msdn.microsoft.com/en-us/library/system.exception.data.aspx>`
+You can add additional data to the `Exception.Data <https://msdn.microsoft.com/en-us/library/system.exception.data.aspx>`_ 
 property on exceptions thrown about in your solution:
 
 .. sourcecode:: csharp
@@ -76,7 +76,7 @@ property on exceptions thrown about in your solution:
         throw;
     }
 
-The data ``SomeKey`` and ``SomeValu`` will be captured and presented in the
+The data ``SomeKey`` and ``SomeValue`` will be captured and presented in the
 ``extra`` property on Sentry.
 
 Additionally, the ``SentryEvent`` class allow you to provide extra data to be
@@ -140,7 +140,7 @@ Sentry, all you have to do is add a requirement on ``IRavenClient`` in your clas
 Breadcrumbs
 -----------
 
-Sentry supports a concept called `Breadcrumbs <https://docs.sentry.io/learn/breadcrumbs/>`, which is a trail of events which happened prior to an issue. Often times these events are very similar to traditional logs, but also have the ability to record more rich structured data.
+Sentry supports a concept called `Breadcrumbs <https://docs.sentry.io/learn/breadcrumbs/>`_, which is a trail of events which happened prior to an issue. Often times these events are very similar to traditional logs, but also have the ability to record more rich structured data.
 
 .. sourcecode:: csharp
 
@@ -171,7 +171,7 @@ Debugging SharpRaven
 --------------------
 
 If an exception is raised internally to ``RavenClient`` it is logged to the
-``Consol``. To extend this behaviour use the property ``ErrorOnCapture``:
+``Console``. To extend this behaviour use the property ``ErrorOnCapture``:
 
 .. sourcecode:: csharp
 
