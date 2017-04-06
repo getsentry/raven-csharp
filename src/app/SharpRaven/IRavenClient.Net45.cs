@@ -32,6 +32,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using SharpRaven.Data;
@@ -46,6 +47,15 @@ namespace SharpRaven
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
         /// </returns>
         Task<string> CaptureAsync(SentryEvent @event);
+
+
+        /// <summary>Captures the event.</summary>
+        /// <param name="event">The event to capture.</param>
+        /// <param name="ct">The cancellation token to cancel the operation.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
+        /// </returns>
+        Task<string> CaptureAsync(SentryEvent @event, CancellationToken ct);
 
 
         /// <summary>

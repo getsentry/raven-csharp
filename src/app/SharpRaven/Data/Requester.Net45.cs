@@ -36,6 +36,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
@@ -74,7 +75,7 @@ namespace SharpRaven.Data
 
 
         /// <summary>
-        /// Disposes the Requester and its <see cref="HttpClient"/>.
+        /// Disposes the <see cref="Requester"/> and its <see cref="HttpClient"/>.
         /// </summary>
         public void Dispose()
         {
@@ -91,7 +92,7 @@ namespace SharpRaven.Data
         /// </returns>
         public string Request(JsonPacket packet)
         {
-            return RequestAsync(packet).GetAwaiter().GetResult();
+            return RequestAsync(packet, CancellationToken.None).GetAwaiter().GetResult();
         }
 
 
@@ -101,7 +102,7 @@ namespace SharpRaven.Data
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
-        public async Task<string> RequestAsync(JsonPacket packet)
+        public async Task<string> RequestAsync(JsonPacket packet, CancellationToken ct)
         {
             if (this.data == null)
                 throw new InvalidOperationException("Cannot perform a request on an unprepared Requester. Call Prepare() first.");
@@ -118,7 +119,7 @@ namespace SharpRaven.Data
                 if (Client.Compression)
                     request.Content = new CompressedContent(request.Content, "gzip");
 
-                using (var response = await this.httpClient.SendAsync(request).ConfigureAwait(false))
+                using (var response = await this.httpClient.SendAsync(request, ct).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
                     var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

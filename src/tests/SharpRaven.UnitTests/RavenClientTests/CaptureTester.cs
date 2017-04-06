@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 using NSubstitute;
 
@@ -330,7 +331,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
 
 
 #if (!net40) && (!net35)
-            protected override Task<string> SendAsync(JsonPacket packet)
+            protected override Task<string> SendAsync(JsonPacket packet, CancellationToken ct)
             {
                 packet = PreparePacket(packet);
                 LastPacket = packet;

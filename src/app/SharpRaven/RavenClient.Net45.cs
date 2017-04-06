@@ -32,6 +32,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using SharpRaven.Data;
@@ -43,17 +44,24 @@ namespace SharpRaven
     /// </summary>
     public partial class RavenClient
     {
-        public void Dispose()
+        /// <summary>Captures the <paramref name="event"/>.</summary>
+        /// <param name="event">The event to capture.</param>
+        /// <returns>
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
+        /// </returns>
+        public async Task<string> CaptureAsync(SentryEvent @event)
         {
-            if (this.requester != null)
-                this.requester.Dispose();
+            return await CaptureAsync(@event, CancellationToken.None).ConfigureAwait(false);
         }
 
 
+        /// <summary>Captures the <paramref name="event"/>.</summary>
+        /// <param name="event">The event to capture.</param>
+        /// <param name="ct">The cancellation token to cancel the operation.</param>
         /// <returns>
-        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="eve" />, or <c>null</c> if it fails.
+        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
         /// </returns>
-        public async Task<string> CaptureAsync(SentryEvent @event)
+        public async Task<string> CaptureAsync(SentryEvent @event, CancellationToken ct)
         {
             @event.Tags = MergeTags(@event.Tags);
             if (!this.breadcrumbs.IsEmpty())
@@ -61,7 +69,8 @@ namespace SharpRaven
 
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
 
-            var eventId = await SendAsync(packet).ConfigureAwait(false);
+            var eventId = await SendAsync(packet, ct).ConfigureAwait(false);
+
             RestartTrails();
 
             return eventId;
@@ -131,12 +140,22 @@ namespace SharpRaven
         }
 
 
+        /// <summary>
+        /// Disposes the <see cref="RavenClient"/>.
+        /// </summary>
+        public void Dispose()
+        {
+            if (this.requester != null)
+                this.requester.Dispose();
+        }
+
+
         /// <summary>Sends the specified packet to Sentry.</summary>
         /// <param name="packet">The packet to send.</param>
         /// <returns>
         /// The <see cref="JsonPacket.EventID" /> of the successfully captured JSON packet, or <c>null</c> if it fails.
         /// </returns>
-        protected virtual async Task<string> SendAsync(JsonPacket packet)
+        protected virtual async Task<string> SendAsync(JsonPacket packet, CancellationToken ct)
         {
             var req = this.requester.Prepare(packet);
 
@@ -145,7 +164,7 @@ namespace SharpRaven
                 if (BeforeSend != null)
                     req = BeforeSend(req) ?? req;
 
-                return await req.RequestAsync(packet).ConfigureAwait(false);
+                return await req.RequestAsync(packet, ct).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
