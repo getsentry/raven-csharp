@@ -30,9 +30,6 @@
 
 using System;
 using System.Collections.Generic;
-#if (!net35)
-using System.Threading.Tasks;
-#endif
 
 using SharpRaven.Data;
 using SharpRaven.Logging;
@@ -165,57 +162,6 @@ namespace SharpRaven
         /// Restart the capture of the <see cref="Breadcrumb"/> for tracking.
         /// </summary>
         void RestartTrails();
-
-
-        #if (!net40) && !(net35)
-        /// <summary>Captures the event.</summary>
-        /// <param name="event">The event to capture.</param>
-        /// <returns>
-        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="event" />, or <c>null</c> if it fails.
-        /// </returns>
-        Task<string> CaptureAsync(SentryEvent @event);
-
-
-        /// <summary>
-        /// Captures the <see cref="Exception" />.
-        /// </summary>
-        /// <param name="exception">The <see cref="Exception" /> to capture.</param>
-        /// <param name="message">The optional message to capture instead of the default <see cref="Exception.Message" />.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="exception" />. Default: <see cref="ErrorLevel.Error"/>.</param>
-        /// <param name="tags">The tags to annotate the captured <paramref name="exception" /> with.</param>
-        /// <param name="fingerprint">The custom fingerprint to identify the captured <paramref name="message" /> with.</param>
-        /// <param name="extra">The extra metadata to send with the captured <paramref name="exception" />.</param>
-        /// <returns>
-        /// The <see cref="JsonPacket.EventID" /> of the successfully captured <paramref name="exception" />, or <c>null</c> if it fails.
-        /// </returns>
-        [Obsolete("Use CaptureAsync(SentryEvent) instead.")]
-        Task<string> CaptureExceptionAsync(Exception exception,
-                                           SentryMessage message = null,
-                                           ErrorLevel level = ErrorLevel.Error,
-                                           IDictionary<string, string> tags = null,
-                                           string[] fingerprint = null,
-                                           object extra = null);
-
-
-        /// <summary>
-        /// Captures the message.
-        /// </summary>
-        /// <param name="message">The message to capture.</param>
-        /// <param name="level">The <see cref="ErrorLevel" /> of the captured <paramref name="message"/>. Default <see cref="ErrorLevel.Info"/>.</param>
-        /// <param name="tags">The tags to annotate the captured <paramref name="message"/> with.</param>
-        /// <param name="fingerprint">The custom fingerprint to identify the captured <paramref name="message" /> with.</param>
-        /// <param name="extra">The extra metadata to send with the captured <paramref name="message"/>.</param>
-        /// <returns>
-        /// The <see cref="JsonPacket.EventID"/> of the successfully captured <paramref name="message"/>, or <c>null</c> if it fails.
-        /// </returns>
-        [Obsolete("Use CaptureAsync(SentryEvent) instead.")]
-        Task<string> CaptureMessageAsync(SentryMessage message,
-                                         ErrorLevel level = ErrorLevel.Info,
-                                         IDictionary<string, string> tags = null,
-                                         string[] fingerprint = null,
-                                         object extra = null);
-
-        #endif
 
         #region Deprecated Methods
 
