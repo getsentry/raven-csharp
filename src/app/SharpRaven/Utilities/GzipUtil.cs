@@ -71,7 +71,7 @@ namespace SharpRaven.Utilities
             byte[] data = Encoding.UTF8.GetBytes(json);
             using (GZipStream gzip = new GZipStream(stream, CompressionMode.Compress))
             {
-                await gzip.WriteAsync(data, 0, data.Length);
+                await gzip.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
             }
         }
         #endif

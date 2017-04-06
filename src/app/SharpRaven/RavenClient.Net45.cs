@@ -61,7 +61,7 @@ namespace SharpRaven
 
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
 
-            var eventId = await SendAsync(packet);
+            var eventId = await SendAsync(packet).ConfigureAwait(false);
             RestartTrails();
 
             return eventId;
@@ -97,7 +97,7 @@ namespace SharpRaven
                 Fingerprint = fingerprint
             };
 
-            return await CaptureAsync(@event);
+            return await CaptureAsync(@event).ConfigureAwait(false);
         }
 
 
@@ -127,7 +127,7 @@ namespace SharpRaven
                 Fingerprint = fingerprint
             };
 
-            return await CaptureAsync(@event);
+            return await CaptureAsync(@event).ConfigureAwait(false);
         }
 
 
@@ -145,7 +145,7 @@ namespace SharpRaven
                 if (BeforeSend != null)
                     req = BeforeSend(req) ?? req;
 
-                return await req.RequestAsync(packet);
+                return await req.RequestAsync(packet).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

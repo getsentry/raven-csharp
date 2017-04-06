@@ -205,7 +205,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
             var message = Guid.NewGuid().ToString("n");
             var ravenClient = GetScrubbingRavenClient(message);
 
-            await captureAsync.Invoke(ravenClient, message);
+            await captureAsync.Invoke(ravenClient, message).ConfigureAwait(false);
 
             // Verify that we actually received a Scrub() call:
             ravenClient.LogScrubber.Received().Scrub(Arg.Any<string>());

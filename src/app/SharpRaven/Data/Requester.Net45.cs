@@ -118,10 +118,10 @@ namespace SharpRaven.Data
                 if (Client.Compression)
                     request.Content = new CompressedContent(request.Content, "gzip");
 
-                using (var response = await this.httpClient.SendAsync(request))
+                using (var response = await this.httpClient.SendAsync(request).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
-                    var content = await response.Content.ReadAsStringAsync();
+                    var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     var o = JObject.Parse(content);
                     return o["id"] != null ? o["id"].ToString() : null;
                 }

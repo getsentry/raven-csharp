@@ -62,21 +62,22 @@ namespace SharpRaven.UnitTests.RavenClientTests
         [Test]
         public void ClientLoggerIsIgnored()
         {
-            this.tester.ClientLoggerIsIgnored(async client => await client.CaptureAsync(new SentryEvent("Test")));
+            this.tester.ClientLoggerIsIgnored(async client => await client.CaptureAsync(new SentryEvent("Test")).ConfigureAwait(false));
         }
 
 
         [Test]
         public void ClientReleaseIsIgnored()
         {
-            this.tester.ClientReleaseIsIgnored(async client => await client.CaptureAsync(new SentryEvent("Test")));
+            this.tester.ClientReleaseIsIgnored(async client => await client.CaptureAsync(new SentryEvent("Test")).ConfigureAwait(false));
         }
 
 
         [Test]
         public void ErrorLevelIsDebug()
         {
-            this.tester.ErrorLevelIsDebug(async client => await client.CaptureAsync(new SentryEvent("Test") { Level = ErrorLevel.Debug }));
+            this.tester.ErrorLevelIsDebug(
+                async client => await client.CaptureAsync(new SentryEvent("Test") { Level = ErrorLevel.Debug }).ConfigureAwait(false));
         }
 
 
@@ -85,7 +86,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
         {
             var project = Guid.NewGuid().ToString();
             var client = this.tester.GetTestableRavenClient(project);
-            var result = await client.CaptureAsync(new SentryEvent("Test"));
+            var result = await client.CaptureAsync(new SentryEvent("Test")).ConfigureAwait(false);
 
             Assert.That(result, Is.EqualTo(project));
         }
@@ -94,7 +95,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
         [Test]
         public void OnlyDefaultTags()
         {
-            this.tester.OnlyDefaultTags(async client => await client.CaptureAsync(new SentryEvent("Test")));
+            this.tester.OnlyDefaultTags(async client => await client.CaptureAsync(new SentryEvent("Test")).ConfigureAwait(false));
         }
 
 
@@ -105,35 +106,36 @@ namespace SharpRaven.UnitTests.RavenClientTests
             {
                 Level = ErrorLevel.Info,
                 Tags = tags
-            }));
+            }).ConfigureAwait(false));
         }
 
 
         [Test]
         public async void ScrubberIsInvoked()
         {
-            await this.tester.ScrubberIsInvokedAsync(async (client, message) => await client.CaptureAsync(new SentryEvent(message)));
+            await this.tester.ScrubberIsInvokedAsync(
+                async (client, message) => await client.CaptureAsync(new SentryEvent(message)).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
 
         [Test]
         public void SendsEnvironment()
         {
-            this.tester.SendsEnvironment(async client => await client.CaptureAsync(new SentryEvent("Test")));
+            this.tester.SendsEnvironment(async client => await client.CaptureAsync(new SentryEvent("Test")).ConfigureAwait(false));
         }
 
 
         [Test]
         public void SendsLogger()
         {
-            this.tester.SendsLogger(async client => await client.CaptureAsync(new SentryEvent("Test")));
+            this.tester.SendsLogger(async client => await client.CaptureAsync(new SentryEvent("Test")).ConfigureAwait(false));
         }
 
 
         [Test]
         public void SendsRelease()
         {
-            this.tester.SendsRelease(async client => await client.CaptureAsync(new SentryEvent("Test")));
+            this.tester.SendsRelease(async client => await client.CaptureAsync(new SentryEvent("Test")).ConfigureAwait(false));
         }
 
 
@@ -144,7 +146,7 @@ namespace SharpRaven.UnitTests.RavenClientTests
             {
                 Level = ErrorLevel.Info,
                 Tags = tags
-            }));
+            }).ConfigureAwait(false));
         }
 
 
