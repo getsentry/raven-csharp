@@ -81,6 +81,35 @@ namespace SharpRaven.Data
                 }
             }
         }
+
+        /// <summary>
+        /// Sends the user feedback asynchronously to sentry
+        /// </summary>
+        /// <returns>An empty string if succesful, otherwise the server response</returns>
+        public async Task<string> SendFeedbackAsync()
+        {
+            using (var s = await this.webRequest.GetRequestStreamAsync())
+            {
+                using (var sw = new StreamWriter(s))
+                {
+                    await sw.WriteAsync(feedback.ToString());
+                }
+            }
+            using (var wr = (HttpWebResponse)await this.webRequest.GetResponseAsync())
+            {
+                using (var responseStream = wr.GetResponseStream())
+                {
+                    if (responseStream == null)
+                        return null;
+
+                    using (var sr = new StreamReader(responseStream))
+                    {
+                        var response = await sr.ReadToEndAsync();
+                        return response;
+                    }
+                }
+            }
+        }
     }
 }
 
