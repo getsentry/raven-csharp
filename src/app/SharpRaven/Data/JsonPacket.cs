@@ -123,7 +123,16 @@ namespace SharpRaven.Data
                 }
             }
             else
-                result = JObject.FromObject(extra);
+            {
+                try
+                {
+                    result = JObject.FromObject(extra);
+                }
+                catch (ArgumentException e)
+                {
+                    result = JObject.Parse(string.Format(@"{{""{0}"":""{1}""}}", extra.GetType(), extra));
+                }
+            }
 
             var jExceptionData = JObject.FromObject(exceptionData);
             result.Merge(jExceptionData);
