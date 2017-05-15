@@ -130,7 +130,7 @@ namespace SharpRaven.Data
                 }
                 catch (ArgumentException)
                 {
-                    result = JObject.Parse(string.Format(@"{{""{0}"":""{1}""}}", extra.GetType(), extra));
+                    result = JObject.FromObject(new Dictionary<string, object> { { extra.GetType().ToString(), extra } });
                 }
             }
 
