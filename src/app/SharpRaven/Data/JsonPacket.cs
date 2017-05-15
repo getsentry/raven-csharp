@@ -128,7 +128,7 @@ namespace SharpRaven.Data
                 {
                     result = JObject.FromObject(extra);
                 }
-                catch (ArgumentException e)
+                catch (ArgumentException)
                 {
                     result = JObject.Parse(string.Format(@"{{""{0}"":""{1}""}}", extra.GetType(), extra));
                 }
