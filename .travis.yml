@@ -1,4 +1,7 @@
 language: csharp
+mono:
+ - weekly
+ 
 solution: src/SharpRaven.sln
 
 sudo: false
