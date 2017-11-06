@@ -58,7 +58,7 @@ namespace SharpRaven.UnitTests.Data
             httpContext.Request.ContentType = "application/x-www-form-urlencoded";
             httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
 
-            var converted = HttpRequestBodyConverter.Convert(httpContext);
+            object converted = HttpRequestBodyConverter.Convert(httpContext);
 
             Assert.That(converted, Is.Not.Null);
             Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
@@ -86,14 +86,14 @@ namespace SharpRaven.UnitTests.Data
 
             var converted = HttpRequestBodyConverter.Convert(httpContext);
 
-            Assert.That(converted, Is.Not.Null);
-            Assert.That(converted, Is.TypeOf<Dictionary<string, object>>());
-            Assert.That(converted, Has.Member(new KeyValuePair<string, object>("String", "value")));
-            Assert.That(converted, Has.Member(new KeyValuePair<string, object>("Int", 100)));
-            Assert.That(converted["Array"], Is.Not.Null);
-            Assert.That(converted["Array"].ToObject<string[]>(), Is.EquivalentTo(new[] { "hello", "world", "!" }));
-            Assert.That(converted["ObjectArray"], Is.Not.Null);
-            Assert.That(converted["ObjectArray"].ToObject<Dictionary<string, object>>(),
+            Assert.That((object)converted, Is.Not.Null);
+            Assert.That((object)converted, Is.TypeOf<Dictionary<string, object>>());
+            Assert.That((object)converted, Has.Member(new KeyValuePair<string, object>("String", "value")));
+            Assert.That((object)converted, Has.Member(new KeyValuePair<string, object>("Int", 100)));
+            Assert.That((object)converted["Array"], Is.Not.Null);
+            Assert.That((string[])converted["Array"].ToObject<string[]>(), Is.EquivalentTo(new[] { "hello", "world", "!" }));
+            Assert.That((object)converted["ObjectArray"], Is.Not.Null);
+            Assert.That((Dictionary<string, object>)converted["ObjectArray"].ToObject<Dictionary<string, object>>(),
                         Has.Member(new KeyValuePair<string, object>("b", 2.0)));
         }
 
@@ -106,7 +106,7 @@ namespace SharpRaven.UnitTests.Data
             httpContext.Request.ContentType = "multipart/form-data";
             httpContext.Request.Form = new NameValueCollection { { "Key", "Value" } };
 
-            var converted = HttpRequestBodyConverter.Convert(httpContext);
+            object converted = HttpRequestBodyConverter.Convert(httpContext);
 
             Assert.That(converted, Is.Not.Null);
             Assert.That(converted, Is.TypeOf<Dictionary<string, string>>());
@@ -122,7 +122,7 @@ namespace SharpRaven.UnitTests.Data
             httpContext.Request.ContentType = "unkown/type";
             httpContext.Request.InputStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello world!"));
 
-            var converted = HttpRequestBodyConverter.Convert(httpContext);
+            object converted = HttpRequestBodyConverter.Convert(httpContext);
 
             Assert.That(converted, Is.EqualTo("Hello world!"));
         }

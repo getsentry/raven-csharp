@@ -1,7 +1,12 @@
 language: csharp
+mono:
+ - weekly
+ 
 solution: src/SharpRaven.sln
+
 sudo: false
-install:
-  - make
+dotnet: 2.0.0
+dist: trusty
+
 script:
-  - make test
+  - ./build.sh --verbosity diagnostic --target Travis

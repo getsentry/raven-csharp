@@ -14,3 +14,8 @@ obj/
 /TestResult.xml
 docs/_build
 .vs
+artifacts/
+build/
+tools/
+!tools/packages.config
+!tools/NuGet.config

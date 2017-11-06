@@ -20,6 +20,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\**\SharpRaven.Nancy.*" target="lib" />
+    <file src="**\SharpRaven.Nancy.*" target="lib" />
   </files>
 </package>
