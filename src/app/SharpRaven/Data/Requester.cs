@@ -58,7 +58,7 @@ namespace SharpRaven.Data
         /// </summary>
         /// <param name="packet">The <see cref="JsonPacket"/> to initialize with.</param>
         /// <param name="ravenClient">The <see cref="RavenClient"/> to initialize with.</param>
-        internal Requester(JsonPacket packet, RavenClient ravenClient)
+        public Requester(JsonPacket packet, RavenClient ravenClient)
         {
             if (packet == null)
                 throw new ArgumentNullException("packet");
