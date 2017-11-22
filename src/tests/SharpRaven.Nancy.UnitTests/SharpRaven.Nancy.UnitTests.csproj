@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net45;net40</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Configurations>Debug;Release;Debug-net35;Release-net35;Debug-net40;Release-net40;Debug-net45;Release-net45;Release-netstandard2.0;Debug-netstandard2.0;Release-netstandard2.0</Configurations>
   </PropertyGroup>
 
   <Import Project="..\..\CommonConfigurations.targets" />
