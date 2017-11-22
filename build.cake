@@ -127,7 +127,7 @@ Task("Test")
     {
         EnsureDirectoryExists(artifactsDir);
 
-        foreach(var framework in frameworks) {
+        foreach(var framework in frameworks.Where(x => x != "netstandard2.0")) {
             var assemblies = GetFiles((outputDir + Directory(configuration) + Directory(framework)).ToString() + "/*.UnitTests.dll");
             if (!assemblies.Any()) {
                 throw new FileNotFoundException("Could not find any test assemblies in: '" + configuration + "-" + framework + "'.");
