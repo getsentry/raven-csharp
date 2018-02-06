@@ -101,9 +101,17 @@ namespace SharpRaven.Data
 
                 using (var stream = new MemoryStream())
                 {
-                    httpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
-                    httpContext.Request.InputStream.CopyTo(stream);
-                    body = Encoding.UTF8.GetString(stream.ToArray());
+                    var position = httpContext.Request.InputStream.Position;
+                    try
+                    {
+                        httpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
+                        httpContext.Request.InputStream.CopyTo(stream);
+                        body = Encoding.UTF8.GetString(stream.ToArray());
+                    }
+                    finally
+                    {
+                        httpContext.Request.InputStream.Position = position;
+                    }
                 }
 
                 converted = JsonConvert.DeserializeObject<Dictionary<string, object>>(body);
