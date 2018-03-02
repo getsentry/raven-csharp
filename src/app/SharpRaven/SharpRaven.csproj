@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net45;net40;net35</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45;net40;net35</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Configurations>Debug;Release;Debug-net35;Release-net35;Debug-net40;Release-net40;Debug-net45;Release-net45;Release-netstandard2.0;Debug-netstandard2.0;Release-netstandard2.0</Configurations>
   </PropertyGroup>
 
   <Import Project="..\..\CommonConfigurations.targets" />
@@ -9,6 +10,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net35' or '$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net45'">
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
+    <PackageReference Include="Newtonsoft.Json" Version="6.0.8" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
@@ -23,8 +25,9 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="6.0.8" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>

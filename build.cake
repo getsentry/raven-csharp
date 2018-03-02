@@ -30,9 +30,9 @@ var version = isTravis ? "0.0.1" : gitVersion.NuGetVersion;
 var artifactsDir = Directory("./artifacts");
 var outputDir = Directory("./build");
 
-var dotnetFrameworks = IsRunningOnWindows() ? new [] { "net45", "net40" } : new string[] { };
+var dotnetFrameworks = IsRunningOnWindows() ? new [] { "net45", "net40", "netstandard2.0" } : new string[] { };
 // net35 can't be build by dotnet - https://github.com/Microsoft/msbuild/issues/1333
-var msBuildFrameworks = IsRunningOnWindows() ? new [] { "net35" } : new [] { "net45", "net40", "net35" };
+var msBuildFrameworks = IsRunningOnWindows() ? new [] { "net35" } : new [] { "net45", "net40", "net35", "netstandard2.0" };
 
 var frameworks = dotnetFrameworks.Union(msBuildFrameworks).ToList();
 
@@ -127,7 +127,7 @@ Task("Test")
     {
         EnsureDirectoryExists(artifactsDir);
 
-        foreach(var framework in frameworks) {
+        foreach(var framework in frameworks.Where(x => x != "netstandard2.0")) {
             var assemblies = GetFiles((outputDir + Directory(configuration) + Directory(framework)).ToString() + "/*.UnitTests.dll");
             if (!assemblies.Any()) {
                 throw new FileNotFoundException("Could not find any test assemblies in: '" + configuration + "-" + framework + "'.");
