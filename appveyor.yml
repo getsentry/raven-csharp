@@ -4,5 +4,5 @@ environment:
 version: 1.0.{build}
 image: Visual Studio 2017
 build_script:
-- cmd: PowerShell .\build.ps1 -Target AppVeyor -Verbosity Diagnostic
+- ps: .\build.ps1 -Target AppVeyor -Verbosity Diagnostic
 test: off

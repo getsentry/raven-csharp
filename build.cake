@@ -7,6 +7,7 @@
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Debug");
+var nugetOrgApiKey = EnvironmentVariable("NuGetOrgApiKey");
 
 var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
 var isTravis = BuildSystem.IsRunningOnTravisCI;
@@ -197,10 +198,15 @@ Task("PublishNuGetPackages")
     })
     .Does(() =>
     {
+        if (String.IsNullOrEmpty(nugetOrgApiKey))
+        {
+            throw new ArgumentNullException("nugetOrgApiKey");
+        }
+
         var nugetFiles = GetFiles(artifactsDir.ToString() + "/*.nupkg");
         NuGetPush(nugetFiles, new NuGetPushSettings
         {
-            ApiKey = EnvironmentVariable("NuGetOrgApiKey"),
+            ApiKey = nugetOrgApiKey,
             Source = "https://api.nuget.org/v3/index.json"
         });
     });
