@@ -37,7 +37,8 @@ var msBuildFrameworks = IsRunningOnWindows() ? new [] { "net35" } : new [] { "ne
 var frameworks = dotnetFrameworks.Union(msBuildFrameworks).ToList();
 
 var solution = "src/SharpRaven.sln";
-var packages = new [] {
+var packages = new []
+{
     "src/app/SharpRaven/SharpRaven.csproj",
     "src/app/SharpRaven.Nancy/SharpRaven.Nancy.csproj",
 };
@@ -48,7 +49,8 @@ var packages = new [] {
 
 Setup(context =>
 {
-    if (isAppveyor) {
+    if (isAppveyor)
+    {
         AppVeyor.UpdateBuildVersion(gitVersion.FullBuildMetaData);
     }
 
@@ -78,11 +80,13 @@ Task("UpdateAssemblyInformation")
     .Description("Update assembly information using GitVersion")
     .Does(() =>
     {
-        if(!isAppveyor) {
+        if (!isAppveyor)
+        {
             return;
         }
 
-        GitVersion(new GitVersionSettings {
+        GitVersion(new GitVersionSettings
+        {
             UpdateAssemblyInfo = true,
             UpdateAssemblyInfoFilePath = "src/CommonAssemblyInfo.cs",
         });
@@ -100,7 +104,8 @@ Task("Build")
     {
         EnsureDirectoryExists(outputDir);
 
-        foreach(var framework in msBuildFrameworks) {
+        foreach (var framework in msBuildFrameworks)
+        {
             var settings =  new MSBuildSettings
             {
                 Configuration = configuration + "-" + framework,
@@ -111,7 +116,8 @@ Task("Build")
             MSBuild(solution, settings);
         }
 
-        foreach(var framework in dotnetFrameworks) {
+        foreach (var framework in dotnetFrameworks)
+        {
             DotNetCoreBuild(solution, new DotNetCoreBuildSettings
             {
                 Framework = framework,
@@ -127,30 +133,37 @@ Task("Test")
     {
         EnsureDirectoryExists(artifactsDir);
 
-        foreach(var framework in frameworks.Where(x => x != "netstandard2.0")) {
+        foreach (var framework in frameworks.Where(x => x != "netstandard2.0"))
+        {
             var assemblies = GetFiles((outputDir + Directory(configuration) + Directory(framework)).ToString() + "/*.UnitTests.dll");
-            if (!assemblies.Any()) {
+            if (!assemblies.Any())
+            {
                 throw new FileNotFoundException("Could not find any test assemblies in: '" + configuration + "-" + framework + "'.");
             }
 
             var resultPath = artifactsDir + File(configuration + "-" + framework + "-tests.xml");
-            NUnit(assemblies, new NUnitSettings {
+            NUnit(assemblies, new NUnitSettings
+            {
                 ResultsFile = resultPath,
                 Exclude = IsRunningOnWindows() ? null : "NuGet,NoMono",
             });
 
-            if (isAppveyor) {
+            if (isAppveyor)
+            {
                 AppVeyor.UploadTestResults(resultPath, AppVeyorTestResultsType.NUnit);
             }
         }
     });
 
 Task("Package")
-    .Description("Create nuget packages")
+    .Description("Create NuGet packages")
     .IsDependentOn("Build")
     .Does(() =>
     {
-        foreach(var package in packages) {
+        EnsureDirectoryExists(artifactsDir);
+
+        foreach (var package in packages)
+        {
             MSBuild(package, c => c
                 .SetConfiguration("Release")
                 .SetVerbosity(Verbosity.Minimal)
@@ -163,13 +176,32 @@ Task("Package")
         MoveFiles((outputDir + Directory(configuration)).ToString() + "/*.nupkg", artifactsDir);
     });
 
-Task("UploadArtifacts")
+Task("UploadAppVeyorArtifacts")
     .Description("Uploads artifacts to AppVeyor")
     .IsDependentOn("Package")
     .Does(() =>
     {
-        foreach(var zip in System.IO.Directory.GetFiles(artifactsDir, "*.nupkg"))
+        foreach (var zip in System.IO.Directory.GetFiles(artifactsDir, "*.nupkg"))
+        {
             AppVeyor.UploadArtifact(zip);
+        }
+    });
+
+Task("PublishNuGetPackages")
+    .Description("Publishes .nupkg files to nuget.org")
+    .IsDependentOn("Package")
+    .WithCriteria(() =>
+    {
+        var branchName = gitVersion.BranchName.Trim();
+        return branchName == "master" || branchName == "develop";
+    })
+    .Does(() =>
+    {
+        var nugetFiles = GetFiles(artifactsDir.ToString() + "/*.nupkg");
+        NuGetPush(nugetFiles, new NuGetPushSettings
+        {
+            ApiKey = EnvironmentVariable("NuGetOrgApiKey")
+        });
     });
 
 //////////////////////////////////////////////////////////////////////
@@ -182,17 +214,13 @@ Task("Rebuild")
     .IsDependentOn("Build");
 
 Task("Appveyor")
-    .Description("Builds, tests and packages on AppVeyor")
-    .IsDependentOn("Build")
-    .IsDependentOn("Test")
-    .IsDependentOn("Package")
-    .IsDependentOn("UploadArtifacts");
+    .Description("Builds, tests and publishes packages on AppVeyor")
+    .IsDependentOn("UploadAppVeyorArtifacts")
+    .IsDependentOn("PublishNuGetPackages");
 
 Task("Travis")
     .Description("Builds and tests on Travis")
-    .IsDependentOn("Build")
     .IsDependentOn("Test");
-
 
 Task("Default")
     .Description("Builds all versions")
