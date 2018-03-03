@@ -194,28 +194,35 @@ Task("UploadArtifacts")
 Task("PublishNuGetPackages")
     .Description("Publishes .nupkg files to nuget.org")
     .IsDependentOn("UploadArtifacts")
-    .Does(() =>
+    .WithCriteria(() =>
     {
         var branchName = gitVersion.BranchName.Trim();
         if (branchName == "master" || branchName == "develop")
         {            
-            Information("The branch name was '{0}', so no package publishing will be performed.", branchName);
-            return;
+            Information("The branch name was '{0}', so package publishing will commence.", branchName);
+            return true;
         }
         else
         {
-            Information("The branch name was '{0}', so package publishing will commence.", branchName);
+            Information("The branch name was '{0}', so no package publishing will be performed.", branchName);
+            return false;
         }
-
+    })
+    .Does(() =>
+    {
         var apiKey = EnvironmentVariable("NuGetOrgApiKey");
-        var nuGetSettings = new PublishNuGetsSettings
+        var src = "https://www.nuget.org/api/v2";
+        var glob = artifactsDir.ToString() + "/*.nupkg";
+        var nugetFiles = GetFiles(glob);
+        var nuGet = NuGet.GetInstance(Context);
+        nuGet.Push(nugetFiles);
+
+        /*var nuGetSettings = new PublishNuGetsSettings
         {
             ForcePush = false,
             MaxAttempts = 2
-        };
-        var src = "https://nuget.org/";
-        var glob = artifactsDir.ToString() + "/*.nupkg";
-        PublishNuGets(src, src, apiKey, nuGetSettings, glob);
+        };*/
+        // PublishNuGets(src, src, apiKey, nuGetSettings, glob);
     });
 
 //////////////////////////////////////////////////////////////////////
