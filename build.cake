@@ -220,17 +220,12 @@ Task("Rebuild")
     .IsDependentOn("Build");
 
 Task("Appveyor")
-    .Description("Builds, tests and packages on AppVeyor")
-    .IsDependentOn("Build")
-    .IsDependentOn("Test")
-    .IsDependentOn("Package")
-    .IsDependentOn("UploadArtifacts");
+    .Description("Builds, tests and publishes packages on AppVeyor")
+    .IsDependentOn("PublishNuGetPackages");
 
 Task("Travis")
     .Description("Builds and tests on Travis")
-    .IsDependentOn("Build")
     .IsDependentOn("Test");
-
 
 Task("Default")
     .Description("Builds all versions")
