@@ -156,7 +156,7 @@ Task("Test")
     });
 
 Task("Package")
-    .Description("Create nuget packages")
+    .Description("Create NuGet packages")
     .IsDependentOn("Build")
     .Does(() =>
     {
@@ -176,13 +176,11 @@ Task("Package")
         MoveFiles((outputDir + Directory(configuration)).ToString() + "/*.nupkg", artifactsDir);
     });
 
-Task("UploadArtifacts")
+Task("UploadAppVeyorArtifacts")
     .Description("Uploads artifacts to AppVeyor")
     .IsDependentOn("Package")
     .Does(() =>
     {
-        EnsureDirectoryExists(artifactsDir);
-
         foreach (var zip in System.IO.Directory.GetFiles(artifactsDir, "*.nupkg"))
         {
             AppVeyor.UploadArtifact(zip);
@@ -191,29 +189,18 @@ Task("UploadArtifacts")
 
 Task("PublishNuGetPackages")
     .Description("Publishes .nupkg files to nuget.org")
-    .IsDependentOn("UploadArtifacts")
+    .IsDependentOn("Package")
     .WithCriteria(() =>
     {
         var branchName = gitVersion.BranchName.Trim();
-        if (branchName == "master" || branchName == "develop")
-        {            
-            Information("The branch name was '{0}', so package publishing will commence.", branchName);
-            return true;
-        }
-        else
-        {
-            Information("The branch name was '{0}', so no package publishing will be performed.", branchName);
-            return false;
-        }
+        return branchName == "master" || branchName == "develop";
     })
     .Does(() =>
     {
-        var apiKey = EnvironmentVariable("NuGetOrgApiKey");
-        var glob = artifactsDir.ToString() + "/*.nupkg";
-        var nugetFiles = GetFiles(glob);
+        var nugetFiles = GetFiles(artifactsDir.ToString() + "/*.nupkg");
         NuGetPush(nugetFiles, new NuGetPushSettings
         {
-            ApiKey = apiKey        
+            ApiKey = EnvironmentVariable("NuGetOrgApiKey")
         });
     });
 
@@ -228,6 +215,7 @@ Task("Rebuild")
 
 Task("Appveyor")
     .Description("Builds, tests and publishes packages on AppVeyor")
+    .IsDependentOn("UploadAppVeyorArtifacts")
     .IsDependentOn("PublishNuGetPackages");
 
 Task("Travis")
