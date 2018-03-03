@@ -214,7 +214,7 @@ Task("PublishNuGetPackages")
             MaxAttempts = 2
         };
         var src = "https://nuget.org/";
-        var glob = (artifactsDir + File("/*.nupkg")).ToString();
+        var glob = artifactsDir.ToString() + "/*.nupkg";
         PublishNuGets(src, src, apiKey, nuGetSettings, glob);
     });
 
