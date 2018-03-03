@@ -185,7 +185,30 @@ Task("UploadArtifacts")
         }
     });
 
+Task("PublishNuGetPackages")
+    .Description("Publishes .nupkg files to nuget.org")
+    .IsDependentOn("UploadArtifacts")
+    .Does(() =>
+    {
+        var branchName = gitVersion.BranchName.Trim();
+        if (branchName == "master" || branchName == "develop")
+        {            
+            Information("The branch name was '{0}', so no package publishing will be performed.", branchName);
+            return;
+        }
 
+        var apiKey = EnvironmentVariable("NuGetOrgApiKey");
+        var nuGetSettings = new PublishNuGetsSettings
+        {
+            ForcePush = false,
+            MaxAttempts = 2
+        };
+        PublishNuGets("https://nuget.org/",
+                      "https://nuget.org/",
+                      apiKey,
+                      nuGetSettings,
+                      artifactsDir + "/*.nupkg");
+    });
 
 //////////////////////////////////////////////////////////////////////
 // META TASKS
