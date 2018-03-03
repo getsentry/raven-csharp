@@ -192,6 +192,7 @@ Task("PublishNuGetPackages")
     .IsDependentOn("Package")
     .WithCriteria(() =>
     {
+        return true;
         var branchName = gitVersion.BranchName.Trim();
         return branchName == "master" || branchName == "develop";
     })
