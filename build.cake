@@ -1,7 +1,5 @@
 #tool "nuget:?package=NUnit.Runners&version=2.6.4"
 #tool "nuget:?package=GitVersion.CommandLine"
-#addin "nuget:?package=Cake.ExtendedNuGet"
-#addin "nuget:?package=NuGet.Core&version=2.14.0"
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -211,18 +209,12 @@ Task("PublishNuGetPackages")
     .Does(() =>
     {
         var apiKey = EnvironmentVariable("NuGetOrgApiKey");
-        var src = "https://www.nuget.org/api/v2";
         var glob = artifactsDir.ToString() + "/*.nupkg";
         var nugetFiles = GetFiles(glob);
-        var nuGet = NuGet.GetInstance(Context);
-        nuGet.Push(nugetFiles);
-
-        /*var nuGetSettings = new PublishNuGetsSettings
+        NuGetPush(nugetFiles, new NuGetPushSettings
         {
-            ForcePush = false,
-            MaxAttempts = 2
-        };*/
-        // PublishNuGets(src, src, apiKey, nuGetSettings, glob);
+            ApiKey = apiKey        
+        });
     });
 
 //////////////////////////////////////////////////////////////////////
