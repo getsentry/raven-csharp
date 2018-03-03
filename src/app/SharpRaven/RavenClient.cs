@@ -230,6 +230,7 @@ namespace SharpRaven
         }
 
 
+
         /// <summary>
         /// Captures the event.
         /// </summary>
@@ -365,6 +366,28 @@ namespace SharpRaven
             {
                 return HandleException(exception, requester);
             }
+        }
+
+		/// <summary>Sends the specified user feedback to Sentry</summary>
+		/// <returns>An empty string if succesful, otherwise the server response</returns>
+		/// <param name="feedback">The user feedback to send</param>
+        public string SendUserFeedback(SentryUserFeedback feedback)
+        {
+            Requester requester = null;
+
+            try
+            {
+                requester = new Requester(feedback, this);
+
+                if (BeforeSend != null)
+                    requester = BeforeSend(requester);
+
+                return requester.SendFeedback();
+            }
+            catch (Exception exception)
+            {
+                return HandleException(exception, requester);
+            } 
         }
 
 

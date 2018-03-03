@@ -45,6 +45,7 @@ namespace SharpRaven
         private readonly string projectID;
         private readonly string publicKey;
         private readonly Uri sentryUri;
+        private readonly Uri feedbackUri;
         private readonly Uri uri;
 
 
@@ -71,6 +72,12 @@ namespace SharpRaven
                                                     Path,
                                                     ProjectID);
                 this.sentryUri = new Uri(sentryUriString);
+                var feedbackUriString = String.Format("{0}://{1}:{2}{3}/api/embed/error-page/",
+                                                        this.uri.Scheme,
+                                                        this.uri.DnsSafeHost,
+                                                        Port,
+                                                        Path);
+                this.feedbackUri = new Uri(feedbackUriString);
             }
             catch (Exception exception)
             {
@@ -125,6 +132,14 @@ namespace SharpRaven
         public Uri SentryUri
         {
             get { return this.sentryUri; }
+        }
+
+        /// <summary>
+        /// The Sentry Uri for sending user feedback
+        /// </summary>
+        public Uri FeedbackUri
+        {
+            get { return this.feedbackUri; }
         }
 
         /// <summary>

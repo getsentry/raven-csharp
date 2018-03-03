@@ -49,9 +49,9 @@ namespace SharpRaven.Data
     {
         private readonly RequestData data;
         private readonly JsonPacket packet;
+        private readonly SentryUserFeedback feedback;
         private readonly RavenClient ravenClient;
         private readonly HttpWebRequest webRequest;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Requester"/> class.
@@ -70,13 +70,7 @@ namespace SharpRaven.Data
             this.packet = ravenClient.PreparePacket(packet);
             this.data = new RequestData(this);
 
-            this.webRequest = (HttpWebRequest)System.Net.WebRequest.Create(ravenClient.CurrentDsn.SentryUri);
-            this.webRequest.Timeout = (int)ravenClient.Timeout.TotalMilliseconds;
-            this.webRequest.ReadWriteTimeout = (int)ravenClient.Timeout.TotalMilliseconds;
-            this.webRequest.Method = "POST";
-            this.webRequest.Accept = "application/json";
-            this.webRequest.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(ravenClient.CurrentDsn));
-            this.webRequest.UserAgent = PacketBuilder.UserAgent;
+			this.webRequest = CreateWebRequest(ravenClient.CurrentDsn.SentryUri);
 
             if (ravenClient.Compression)
             {
@@ -84,10 +78,49 @@ namespace SharpRaven.Data
                 this.webRequest.AutomaticDecompression = DecompressionMethods.Deflate;
                 this.webRequest.ContentType = "application/octet-stream";
             }
+
             else
                 this.webRequest.ContentType = "application/json; charset=utf-8";
+
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Requester"/> class.
+        /// </summary>
+        /// <param name="feedback">The <see cref="SentryUserFeedback"/> to initialize with.</param>
+        /// <param name="ravenClient">The <see cref="RavenClient"/> to initialize with.</param>
+        internal Requester(SentryUserFeedback feedback, RavenClient ravenClient)
+        {
+            if (feedback == null)
+                throw new ArgumentNullException("feedback");
+
+            if (ravenClient == null)
+                throw new ArgumentNullException("ravenClient");
+
+            this.ravenClient = ravenClient;
+            this.feedback = feedback;
+
+			var feedbackString = string.Format("{0}?dsn={1}&{2}",
+			                                   ravenClient.CurrentDsn.FeedbackUri, 
+			                                   ravenClient.CurrentDsn.Uri, 
+			                                   feedback.ToString());
+			this.webRequest = CreateWebRequest(new Uri(feedbackString));
+            this.webRequest.Referer = ravenClient.CurrentDsn.Uri.DnsSafeHost;
+
+            this.webRequest.ContentType = "application/x-www-form-urlencoded";
+        }
+
+		internal HttpWebRequest CreateWebRequest(Uri uri)
+		{
+			var request = (HttpWebRequest)System.Net.WebRequest.Create(uri);
+			request.Timeout = (int)this.ravenClient.Timeout.TotalMilliseconds;
+			request.ReadWriteTimeout = (int)this.ravenClient.Timeout.TotalMilliseconds;
+			request.Method = "POST";
+			request.Accept = "application/json";
+			request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(this.ravenClient.CurrentDsn));
+			request.UserAgent = PacketBuilder.UserAgent;
+			return request;
+		}
 
         /// <summary>
         /// Gets the <see cref="IRavenClient"/>.
@@ -120,7 +153,6 @@ namespace SharpRaven.Data
         {
             get { return this.webRequest; }
         }
-
 
         /// <summary>
         /// Executes the HTTP request to Sentry.
@@ -160,6 +192,35 @@ namespace SharpRaven.Data
                         var response = JsonConvert.DeserializeObject<dynamic>(content);
                         return response.id;
                         #endif
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sends the user feedback to sentry
+        /// </summary>
+        /// <returns>An empty string if succesful, otherwise the server response</returns>
+        public string SendFeedback()
+        {
+            using (var s = this.webRequest.GetRequestStream())
+            {
+                using (var sw = new StreamWriter(s))
+                {
+                    sw.Write(feedback.ToString());
+                }
+            }
+            using (var wr = (HttpWebResponse)this.webRequest.GetResponse())
+            {
+                using (var responseStream = wr.GetResponseStream())
+                {
+                    if (responseStream == null)
+                        return null;
+
+                    using (var sr = new StreamReader(responseStream))
+                    {
+                        var response = sr.ReadToEnd();
+                        return response;
                     }
                 }
             }
