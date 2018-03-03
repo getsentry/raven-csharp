@@ -204,7 +204,9 @@ Task("PublishNuGetPackages")
             ForcePush = false,
             MaxAttempts = 2
         };
-        ExtendedNuGetAliases.PublishNuGets("https://nuget.org/", apiKey, nuGetSettings, artifactsDir + File("/*.nupkg"));
+        var src = "https://nuget.org/";
+        var glob = (artifactsDir + File("/*.nupkg")).ToString();
+        ExtendedNuGetAliases.PublishNuGets(src, src, apiKey, nuGetSettings, glob);
     });
 
 //////////////////////////////////////////////////////////////////////
