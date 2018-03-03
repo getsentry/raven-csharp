@@ -181,6 +181,8 @@ Task("UploadArtifacts")
     .IsDependentOn("Package")
     .Does(() =>
     {
+        EnsureDirectoryExists(artifactsDir);
+
         foreach (var zip in System.IO.Directory.GetFiles(artifactsDir, "*.nupkg"))
         {
             AppVeyor.UploadArtifact(zip);
