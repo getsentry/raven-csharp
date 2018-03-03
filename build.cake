@@ -150,6 +150,8 @@ Task("Package")
     .IsDependentOn("Build")
     .Does(() =>
     {
+        EnsureDirectoryExists(artifactsDir);
+
         foreach(var package in packages) {
             MSBuild(package, c => c
                 .SetConfiguration("Release")

@@ -2,6 +2,20 @@
   <PropertyGroup>
     <TargetFrameworks>net45;net40</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <PackageId>SharpRaven.Nancy</PackageId>
+    <PackageIconUrl>https://raw.githubusercontent.com/getsentry/raven-csharp/master/sentry-icon.png</PackageIconUrl>
+    <PackageTags>raven sentry logging nancy</PackageTags>
+    <Title>.NET client for Sentry (getsentry.com) running on Nancy</Title>
+    <Description>Raven is a C# client for Sentry (getsentry.com and github.com/getsentry/sentry)</Description>
+    <Copyright>Copyright 2014 The Sentry Team and individual contributors</Copyright>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>$(ReleaseNotes)</PackageReleaseNotes>
+    <Authors>Sentry Team</Authors>
+    <Owners>asbjornu, xpicio</Owners>
+    <PackageProjectUrl>https://github.com/getsentry/raven-csharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/getsentry/raven-csharp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <Import Project="..\..\CommonConfigurations.targets" />
