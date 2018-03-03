@@ -1,6 +1,7 @@
 #tool "nuget:?package=NUnit.Runners&version=2.6.4"
 #tool "nuget:?package=GitVersion.CommandLine"
-#addin "Cake.ExtendedNuGet"
+#addin "nuget:?package=Cake.ExtendedNuGet"
+#addin "nuget:?package=NuGet.Core&version=2.14.0"
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -197,6 +198,10 @@ Task("PublishNuGetPackages")
             Information("The branch name was '{0}', so no package publishing will be performed.", branchName);
             return;
         }
+        else
+        {
+            Information("The branch name was '{0}', so package publishing will commence.", branchName);
+        }
 
         var apiKey = EnvironmentVariable("NuGetOrgApiKey");
         var nuGetSettings = new PublishNuGetsSettings
@@ -206,7 +211,7 @@ Task("PublishNuGetPackages")
         };
         var src = "https://nuget.org/";
         var glob = (artifactsDir + File("/*.nupkg")).ToString();
-        ExtendedNuGetAliases.PublishNuGets(src, src, apiKey, nuGetSettings, glob);
+        PublishNuGets(src, src, apiKey, nuGetSettings, glob);
     });
 
 //////////////////////////////////////////////////////////////////////
