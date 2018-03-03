@@ -204,11 +204,7 @@ Task("PublishNuGetPackages")
             ForcePush = false,
             MaxAttempts = 2
         };
-        PublishNuGets("https://nuget.org/",
-                      "https://nuget.org/",
-                      apiKey,
-                      nuGetSettings,
-                      artifactsDir + "/*.nupkg");
+        PublishNuGets("https://nuget.org/", apiKey, nuGetSettings, artifactsDir + File("/*.nupkg"));
     });
 
 //////////////////////////////////////////////////////////////////////
