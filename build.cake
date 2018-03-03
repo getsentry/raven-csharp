@@ -1,5 +1,6 @@
 #tool "nuget:?package=NUnit.Runners&version=2.6.4"
 #tool "nuget:?package=GitVersion.CommandLine"
+#addin "Cake.ExtendedNuGet"
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
