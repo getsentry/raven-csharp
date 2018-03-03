@@ -200,7 +200,8 @@ Task("PublishNuGetPackages")
         var nugetFiles = GetFiles(artifactsDir.ToString() + "/*.nupkg");
         NuGetPush(nugetFiles, new NuGetPushSettings
         {
-            ApiKey = EnvironmentVariable("NuGetOrgApiKey")
+            ApiKey = EnvironmentVariable("NuGetOrgApiKey"),
+            Source = "https://api.nuget.org/v3/index.json"
         });
     });
 
