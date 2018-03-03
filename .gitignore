@@ -19,3 +19,5 @@ build/
 tools/
 !tools/packages.config
 !tools/NuGet.config
+.vscode
+.idea
