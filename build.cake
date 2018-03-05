@@ -163,7 +163,7 @@ Task("Package")
     {
         EnsureDirectoryExists(artifactsDir);
 
-        foreach(var package in packages)
+        foreach (var package in packages)
         {
             MSBuild(package, c => c
                 .SetConfiguration("Release")
