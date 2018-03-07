@@ -1,6 +1,6 @@
 environment:
   NuGetOrgApiKey:
-    secure: USdyWkX8PbrUHN8Ra6cqAxo5ZCX8HakW8+JBTAisxOZTViHjxbAWUvnTMwOj6SOw
+    secure: pAgSjPrAcwxzQMP32ya83+Hy+g3uS2J5ubnjv49d9urupYC5xJLVqcPOpnJ4ChYn
 version: 1.0.{build}
 image: Visual Studio 2017
 build_script:
