@@ -97,6 +97,26 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(jExtra.Property("key2").Value.ToString(), Is.EqualTo("value2"));
         }
 
+        [Test]
+        public void Create_ExtraIsNotSerializable()
+        {
+            var project = Guid.NewGuid().ToString();
+            var exception = new Exception("Error");
+            var extra = "Hello";
+            var type = extra.GetType().ToString();
+            var json = this.jsonPacketFactory.Create(project, exception, extra: extra);
+            var jsonString = JsonConvert.SerializeObject(json.Extra, Formatting.Indented);
+            Console.WriteLine(jsonString);
+
+            Assert.That(jsonString, Is.Not.StringContaining("Count"));
+            Assert.That(jsonString, Is.Not.StringContaining("Keys"));
+            Assert.That(jsonString, Is.Not.StringContaining("Values"));
+            Assert.That(jsonString, Is.Not.StringContaining("Comparer"));
+
+            var jExtra = (JObject)json.Extra;
+            Assert.That(jExtra.Property(type), Is.Not.Null, type);
+            Assert.That(jExtra.Property(type).Value.ToString(), Is.EqualTo("Hello"));
+        }
 
         [Test]
         public void Create_InvokesOnCreate()

@@ -28,8 +28,6 @@
 
 #endregion
 
-using System.Net.Http;
-
 using Nancy;
 
 namespace SharpRaven.Nancy.UnitTests
@@ -44,14 +42,12 @@ namespace SharpRaven.Nancy.UnitTests
                 return View["log.html", new { MessageId = messageId }];
             };
 
+            #if (!net40) && (!net35)
             Get["/log-async", runAsync : true] = async (_, token) =>
+            #else
+            Get["/log-async"] = (_) =>
+            #endif
             {
-                var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync("http://www.google.com");
-
-                response.EnsureSuccessStatusCode();
-
-                var result = await response.Content.ReadAsStringAsync();
                 #if (!net40) && (!net35)
                 var messageId = await ravenClient.CaptureMessageAsync("Hello world!!!");
                 #else

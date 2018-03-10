@@ -88,11 +88,19 @@ namespace SharpRaven.Data
             {
                 using (var stream = new MemoryStream())
                 {
-                    httpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
-                    httpContext.Request.InputStream.CopyTo(stream);
-                    converted = Encoding.UTF8.GetString(stream.ToArray());
+                    var position = httpContext.Request.InputStream.Position;
+                    try
+                    {
+                        httpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
+                        httpContext.Request.InputStream.CopyTo(stream);
+                        converted = Encoding.UTF8.GetString(stream.ToArray());
 
-                    return true;
+                        return true;
+                    }
+                    finally
+                    {
+                        httpContext.Request.InputStream.Position = position;
+                    }
                 }
             }
             catch (Exception exception)

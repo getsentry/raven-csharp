@@ -121,7 +121,7 @@ namespace SharpRaven.Data
         /// The function.
         /// </value>
         [JsonProperty(PropertyName = "function")]
-        public string Function { get; private set; }
+        public string Function { get; set; }
 
         /// <summary>
         /// Signifies whether this frame is related to the execution of the relevant code in this
@@ -151,7 +151,7 @@ namespace SharpRaven.Data
         /// The module.
         /// </value>
         [JsonProperty(PropertyName = "module")]
-        public string Module { get; private set; }
+        public string Module { get; set; }
 
         /// <summary>
         /// Gets or sets the post context.
