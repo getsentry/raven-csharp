@@ -202,7 +202,7 @@ Task("PublishNuGetPackages")
         
         var branchName = gitVersion.BranchName.Trim();
         var taggedBuild = Convert.ToBoolean(EnvironmentVariable("APPVEYOR_REPO_TAG"));
-        var tag = EnvironmentVariable("APPVEYOR_REPO_TAG_NAME");
+        var tag = EnvironmentVariable("APPVEYOR_REPO_TAG_NAME") ?? "<no tag>";
         Information("{0}@{1}", branchName, tag);
         return taggedBuild || branchName == "develop";
     })
