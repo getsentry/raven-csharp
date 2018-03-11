@@ -112,7 +112,9 @@ Task("Build")
                 Configuration = configuration + "-" + framework,
                 ToolVersion = MSBuildToolVersion.VS2017,
             };
-            settings.WithProperty("TargetFramework", new string[] { framework });
+            
+            settings.WithProperty("TargetFramework", new string[] { framework })
+                    .WithProperty("Optimize", new string[] { "true" });
 
             MSBuild(solution, settings);
         }
