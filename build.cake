@@ -110,7 +110,7 @@ Task("Build")
             var settings =  new MSBuildSettings
             {
                 Configuration = configuration + "-" + framework,
-                ToolVersion = MSBuildToolVersion.VS2017,
+                ToolVersion = MSBuildToolVersion.VS2017
             };
             
             settings.WithProperty("TargetFramework", new string[] { framework })
@@ -121,11 +121,15 @@ Task("Build")
 
         foreach (var framework in dotnetFrameworks)
         {
-            DotNetCoreBuild(solution, new DotNetCoreBuildSettings
+            var settings = new DotNetCoreBuildSettings
             {
                 Framework = framework,
                 Configuration = configuration + "-" + framework,
-            });
+                MSBuildSettings = new DotNetCoreMSBuildSettings()
+                    .WithProperty("Optimize", new string[] { "true" })
+            };
+
+            DotNetCoreBuild(solution, settings);
         }
     });
 
