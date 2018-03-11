@@ -201,7 +201,7 @@ Task("PublishNuGetPackages")
         }
         
         var branchName = gitVersion.BranchName.Trim();
-        var taggedBuild = AppVeyor.Environment.GetEnvironmentBoolean("APPVEYOR_REPO_TAG");
+        var taggedBuild = Convert.ToBoolean(EnvironmentVariable("APPVEYOR_REPO_TAG"));
         var tag = EnvironmentVariable("APPVEYOR_REPO_TAG_NAME");
         Information("{0}@{1}", branchName, tag);
         return taggedBuild || branchName == "develop";
