@@ -196,8 +196,8 @@ Task("PublishNuGetPackages")
     .WithCriteria(() =>
     {
         var branchName = gitVersion.BranchName.Trim();
-        var taggedBuild = Convert.ToBoolean(EnvironmentVariable("APPVEYOR_REPO_TAG"));
-        return taggedBuild || branchName == "develop";
+        var taggedBuild = AppVeyor.GetEnvironmentBoolean("APPVEYOR_REPO_TAG");        
+        return isAppVeyor && (taggedBuild || branchName == "develop");
     })
     .Does(() =>
     {
