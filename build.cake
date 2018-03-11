@@ -79,13 +79,9 @@ Task("RestorePackages")
 
 Task("UpdateAssemblyInformation")
     .Description("Update assembly information using GitVersion")
+    .WithCriteria(isAppveyor)
     .Does(() =>
     {
-        if (!isAppveyor)
-        {
-            return;
-        }
-
         GitVersion(new GitVersionSettings
         {
             UpdateAssemblyInfo = true,
