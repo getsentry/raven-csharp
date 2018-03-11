@@ -2,12 +2,14 @@
 #tool "nuget:?package=GitVersion.CommandLine"
 
 //////////////////////////////////////////////////////////////////////
-// ARGUMENTS
+// ARGUMENTS AND ENVIRONMENT VARIABLES
 //////////////////////////////////////////////////////////////////////
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Debug");
 var nugetOrgApiKey = EnvironmentVariable("NuGetOrgApiKey");
+var isTaggedBuild = Convert.ToBoolean(EnvironmentVariable("APPVEYOR_REPO_TAG"));
+var tag = EnvironmentVariable("APPVEYOR_REPO_TAG_NAME") ?? "<no tag>";
 
 var isAppVeyor = BuildSystem.IsRunningOnAppVeyor;
 var isTravis = BuildSystem.IsRunningOnTravisCI;
@@ -43,6 +45,7 @@ var packages = new []
     "src/app/SharpRaven/SharpRaven.csproj",
     "src/app/SharpRaven.Nancy/SharpRaven.Nancy.csproj",
 };
+var branchName = gitVersion.BranchName.Trim();
 
 //////////////////////////////////////////////////////////////////////
 // SETUP
@@ -50,12 +53,21 @@ var packages = new []
 
 Setup(context =>
 {
+    Information("Building version {0} ({1}@{2}) of SharpRaven.",
+                version, branchName, tag);
+
     if (isAppVeyor)
     {
+        // If AppVeyor is building master with no tag, it should
+        // not update the build version, since it will be duplicate
+        // with the one for the tagged build
+        if (branchName == "master" && !isTaggedBuild)
+        {
+            return;
+        }
+
         AppVeyor.UpdateBuildVersion(gitVersion.FullBuildMetaData);
     }
-
-    Information("Building version {0} of RavenSharp.", version);
 });
 
 //////////////////////////////////////////////////////////////////////
@@ -193,19 +205,7 @@ Task("UploadAppVeyorArtifacts")
 Task("PublishNuGetPackages")
     .Description("Publishes .nupkg files to nuget.org")
     .IsDependentOn("Package")
-    .WithCriteria(() =>
-    {
-        if (!isAppVeyor)
-        {
-            return false;
-        }
-        
-        var branchName = gitVersion.BranchName.Trim();
-        var taggedBuild = Convert.ToBoolean(EnvironmentVariable("APPVEYOR_REPO_TAG"));
-        var tag = EnvironmentVariable("APPVEYOR_REPO_TAG_NAME") ?? "<no tag>";
-        Information("{0}@{1}", branchName, tag);
-        return taggedBuild || branchName == "develop";
-    })
+    .WithCriteria(isAppVeyor && (isTaggedBuild || branchName == "develop"))
     .Does(() =>
     {
         if (String.IsNullOrEmpty(nugetOrgApiKey))
