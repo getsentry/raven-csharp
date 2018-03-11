@@ -7,9 +7,8 @@ SharpRaven is the .NET client for [Sentry](https://getsentry.com/welcome/).
 |           **GitHub** |    [![GitHub release][1]][2]   |           -          |
 |       **SharpRaven** |       [![NuGet][3]][4]         |   [![NuGet][5]][4]   |
 | **SharpRaven.Nancy** |       [![NuGet][6]][7]         |   [![NuGet][8]][7]   |
-|     **Travis Build** |   [![Master][12]][14]          | [![Develop][13]][14] |
-|   **TeamCity Build** |    [![Build Status][9]][10]    |           -          |
-| **Code Coverage**    | [![TeamCity Coverage][11]][10] |           -          |
+|     **Travis Build** |      [![Master][12]][14]       | [![Develop][13]][14] |
+|   **AppVeyor Build** |      [![Master][9]][10]        | [![Develop][15]][10] |
 
 ## Usage
 Instantiate the client with your DSN:
@@ -41,9 +40,8 @@ ravenClient.Capture(new SentryEvent("Hello World!"));
 ```
 
 ### Additional Data
-You can add additional data to the
-[`Exception.Data`](https://msdn.microsoft.com/en-us/library/system.exception.data.aspx)
-property on exceptions thrown about in your solution:
+You can add additional data to the [`Exception.Data`][ex] property on
+exceptions thrown about in your solution:
 
 ```csharp
 try
@@ -74,10 +72,9 @@ async Task<string> CaptureAsync(SentryEvent @event);
 
 ### Nancy Support
 You can install the
-[SharpRaven.Nancy](https://www.nuget.org/packages/SharpRaven.Nancy) package to
-capture the HTTP context in [Nancy](http://nancyfx.org/) applications. It will
-auto-register on the `IPipelines.OnError` event, so all unhandled exceptions
-will be sent to Sentry.
+[SharpRaven.Nancy][nuget-nancy] package to capture the HTTP context in
+[Nancy][nancy] applications. It will auto-register on the `IPipelines.OnError`
+event, so all unhandled exceptions will be sent to Sentry.
 
 The only thing you have to do is provide a DSN, either by registering an
 instance of the `Dsn` class in your container:
@@ -145,14 +142,14 @@ ravenClient.BeforeSend = requester =>
 ## Get it!
 You can clone and build SharpRaven yourself, but for those of us who are happy
 with prebuilt binaries, there's NuGet packages of both
-[SharpRaven](https://www.nuget.org/packages/SharpRaven) and
-[SharpRaven.Nancy](https://www.nuget.org/packages/SharpRaven.Nancy).
+[SharpRaven][nuget] and
+[SharpRaven.Nancy][nuget-nancy].
 
 ## Resources
-* [![Join the chat at https://gitter.im/getsentry/raven-csharp](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/getsentry/raven-csharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-* [Code](http://github.com/getsentry/raven-csharp)
-* [Mailing List](https://groups.google.com/group/getsentry)
-* [IRC](irc://irc.freenode.net/sentry) (irc.freenode.net, #sentry)
+* [![Join the chat at https://gitter.im/getsentry/raven-csharp][gitter-badge]][gitter-link]
+* [Code][github]
+* [Mailing List][mail]
+* [IRC][irc] (`#sentry` on `irc.freenode.net`)
 
  [1]: https://img.shields.io/github/release/getsentry/raven-csharp.svg
  [2]: https://github.com/getsentry/raven-csharp/releases/latest
@@ -162,9 +159,18 @@ with prebuilt binaries, there's NuGet packages of both
  [6]: https://img.shields.io/nuget/v/SharpRaven.Nancy.svg
  [7]: https://www.nuget.org/packages/SharpRaven.Nancy
  [8]: https://img.shields.io/nuget/vpre/SharpRaven.Nancy.svg
- [9]: 	https://img.shields.io/teamcity/codebetter/bt1000.svg
-[10]: http://teamcity.codebetter.com/viewType.html?buildTypeId=bt1000&guest=1
-[11]: https://img.shields.io/teamcity/coverage/bt1000.svg?maxAge=2592000
+ [9]: https://img.shields.io/appveyor/ci/sentry/raven-csharp/master.svg
+[10]: https://ci.appveyor.com/project/sentry/raven-csharp
 [12]: https://travis-ci.org/getsentry/raven-csharp.svg?branch=master
 [13]: https://travis-ci.org/getsentry/raven-csharp.svg?branch=develop
 [14]: https://travis-ci.org/getsentry/raven-csharp
+[15]: https://img.shields.io/appveyor/ci/sentry/raven-csharp/develop.svg
+[ex]: https://msdn.microsoft.com/en-us/library/system.exception.data.aspx
+[gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
+[gitter-link]: https://gitter.im/getsentry/raven-csharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[github]: http://github.com/getsentry/raven-csharp
+[mail]: https://groups.google.com/group/getsentry
+[irc]: irc://irc.freenode.net/sentry
+[nuget]: https://www.nuget.org/packages/SharpRaven
+[nuget-nancy]: https://www.nuget.org/packages/SharpRaven.Nancy
+[nancy]: http://nancyfx.org/

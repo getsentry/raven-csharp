@@ -9,7 +9,7 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Debug");
 var nugetOrgApiKey = EnvironmentVariable("NuGetOrgApiKey");
 
-var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
+var isAppVeyor = BuildSystem.IsRunningOnAppVeyor;
 var isTravis = BuildSystem.IsRunningOnTravisCI;
 
 //////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ var packages = new []
 
 Setup(context =>
 {
-    if (isAppveyor)
+    if (isAppVeyor)
     {
         AppVeyor.UpdateBuildVersion(gitVersion.FullBuildMetaData);
     }
@@ -79,13 +79,9 @@ Task("RestorePackages")
 
 Task("UpdateAssemblyInformation")
     .Description("Update assembly information using GitVersion")
+    .WithCriteria(isAppVeyor)
     .Does(() =>
     {
-        if (!isAppveyor)
-        {
-            return;
-        }
-
         GitVersion(new GitVersionSettings
         {
             UpdateAssemblyInfo = true,
@@ -110,20 +106,26 @@ Task("Build")
             var settings =  new MSBuildSettings
             {
                 Configuration = configuration + "-" + framework,
-                ToolVersion = MSBuildToolVersion.VS2017,
+                ToolVersion = MSBuildToolVersion.VS2017
             };
-            settings.WithProperty("TargetFramework", new string[] { framework });
+            
+            settings.WithProperty("TargetFramework", new string[] { framework })
+                    .WithProperty("Optimize", new string[] { "true" });
 
             MSBuild(solution, settings);
         }
 
         foreach (var framework in dotnetFrameworks)
         {
-            DotNetCoreBuild(solution, new DotNetCoreBuildSettings
+            var settings = new DotNetCoreBuildSettings
             {
                 Framework = framework,
                 Configuration = configuration + "-" + framework,
-            });
+                MSBuildSettings = new DotNetCoreMSBuildSettings()
+                    .WithProperty("Optimize", new string[] { "true" })
+            };
+
+            DotNetCoreBuild(solution, settings);
         }
     });
 
@@ -149,7 +151,7 @@ Task("Test")
                 Exclude = IsRunningOnWindows() ? null : "NuGet,NoMono",
             });
 
-            if (isAppveyor)
+            if (isAppVeyor)
             {
                 AppVeyor.UploadTestResults(resultPath, AppVeyorTestResultsType.NUnit);
             }
@@ -193,8 +195,16 @@ Task("PublishNuGetPackages")
     .IsDependentOn("Package")
     .WithCriteria(() =>
     {
+        if (!isAppVeyor)
+        {
+            return false;
+        }
+        
         var branchName = gitVersion.BranchName.Trim();
-        return branchName == "master" || branchName == "develop";
+        var taggedBuild = Convert.ToBoolean(EnvironmentVariable("APPVEYOR_REPO_TAG"));
+        var tag = EnvironmentVariable("APPVEYOR_REPO_TAG_NAME") ?? "<no tag>";
+        Information("{0}@{1}", branchName, tag);
+        return taggedBuild || branchName == "develop";
     })
     .Does(() =>
     {
