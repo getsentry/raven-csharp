@@ -9,7 +9,7 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Debug");
 var nugetOrgApiKey = EnvironmentVariable("NuGetOrgApiKey");
 
-var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
+var isAppVeyor = BuildSystem.IsRunningOnAppVeyor;
 var isTravis = BuildSystem.IsRunningOnTravisCI;
 
 //////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ var packages = new []
 
 Setup(context =>
 {
-    if (isAppveyor)
+    if (isAppVeyor)
     {
         AppVeyor.UpdateBuildVersion(gitVersion.FullBuildMetaData);
     }
@@ -79,7 +79,7 @@ Task("RestorePackages")
 
 Task("UpdateAssemblyInformation")
     .Description("Update assembly information using GitVersion")
-    .WithCriteria(isAppveyor)
+    .WithCriteria(isAppVeyor)
     .Does(() =>
     {
         GitVersion(new GitVersionSettings
@@ -151,7 +151,7 @@ Task("Test")
                 Exclude = IsRunningOnWindows() ? null : "NuGet,NoMono",
             });
 
-            if (isAppveyor)
+            if (isAppVeyor)
             {
                 AppVeyor.UploadTestResults(resultPath, AppVeyorTestResultsType.NUnit);
             }
