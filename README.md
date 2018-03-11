@@ -8,8 +8,7 @@ SharpRaven is the .NET client for [Sentry](https://getsentry.com/welcome/).
 |       **SharpRaven** |       [![NuGet][3]][4]         |   [![NuGet][5]][4]   |
 | **SharpRaven.Nancy** |       [![NuGet][6]][7]         |   [![NuGet][8]][7]   |
 |     **Travis Build** |   [![Master][12]][14]          | [![Develop][13]][14] |
-|   **TeamCity Build** |    [![Build Status][9]][10]    |           -          |
-| **Code Coverage**    | [![TeamCity Coverage][11]][10] |           -          |
+|   **AppVeyor Build** |    [![Build Status][9]][10]    | [![Develop][15]][10] |
 
 ## Usage
 Instantiate the client with your DSN:
@@ -162,9 +161,9 @@ with prebuilt binaries, there's NuGet packages of both
  [6]: https://img.shields.io/nuget/v/SharpRaven.Nancy.svg
  [7]: https://www.nuget.org/packages/SharpRaven.Nancy
  [8]: https://img.shields.io/nuget/vpre/SharpRaven.Nancy.svg
- [9]: 	https://img.shields.io/teamcity/codebetter/bt1000.svg
-[10]: http://teamcity.codebetter.com/viewType.html?buildTypeId=bt1000&guest=1
-[11]: https://img.shields.io/teamcity/coverage/bt1000.svg?maxAge=2592000
+ [9]: https://img.shields.io/appveyor/ci/sentry/raven-csharp/master.svg
+[10]: https://ci.appveyor.com/project/sentry/raven-csharp
 [12]: https://travis-ci.org/getsentry/raven-csharp.svg?branch=master
 [13]: https://travis-ci.org/getsentry/raven-csharp.svg?branch=develop
 [14]: https://travis-ci.org/getsentry/raven-csharp
+[15]: https://img.shields.io/appveyor/ci/sentry/raven-csharp/develop.svg
