@@ -30,7 +30,7 @@ Instantiate the client with your DSN:
 
 .. sourcecode:: csharp
 
-    var ravenClient = new RavenClient("___DSN___");
+    var ravenClient = new RavenClient("___PUBLIC_DSN___");
 
 Capturing Exceptions
 --------------------
@@ -106,7 +106,7 @@ The only thing you have to do is provide a DSN, either by registering an instanc
 
     protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
     {
-        container.Register(new Dsn("http://public@example.com/project-id"));
+        container.Register(new Dsn("___PUBLIC_DSN___"));
     }
 
 or through configuration:
@@ -118,7 +118,7 @@ or through configuration:
         <section name="sharpRaven" type="SharpRaven.Nancy.NancyConfiguration, SharpRaven.Nancy" />
       </configSections>
       <sharpRaven>
-        <dsn value="http://public@example.com/project-id" />
+        <dsn value="___PUBLIC_DSN___" />
       </sharpRaven>
     </configuration>
 
