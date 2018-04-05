@@ -78,12 +78,12 @@ namespace SharpRaven.Utilities
                                  + ", sentry_client={1}"
                                  + ", sentry_timestamp={2}"
                                  + ", sentry_key={3}"
-                                 + ", sentry_secret={4}",
+                                 + "{4}",
                                  SentryVersion,
                                  UserAgent,
                                  (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds,
                                  dsn.PublicKey,
-                                 dsn.PrivateKey);
+                                 dsn.PrivateKey != null ? ", sentry_secret=" + dsn.PrivateKey : null);
         }
     }
 }
