@@ -106,7 +106,7 @@ The only thing you have to do is provide a DSN, either by registering an instanc
 
     protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
     {
-        container.Register(new Dsn("http://public:secret@example.com/project-id"));
+        container.Register(new Dsn("http://public@example.com/project-id"));
     }
 
 or through configuration:
@@ -118,7 +118,7 @@ or through configuration:
         <section name="sharpRaven" type="SharpRaven.Nancy.NancyConfiguration, SharpRaven.Nancy" />
       </configSections>
       <sharpRaven>
-        <dsn value="http://public:secret@example.com/project-id" />
+        <dsn value="http://public@example.com/project-id" />
       </sharpRaven>
     </configuration>
 
