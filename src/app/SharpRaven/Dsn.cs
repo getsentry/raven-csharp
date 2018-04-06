@@ -61,7 +61,7 @@ namespace SharpRaven
             {
                 this.uri = new Uri(dsn);
                 this.privateKey = GetPrivateKey(this.uri);
-                this.publicKey = GetPublicKey(this.uri);
+                this.publicKey = GetPublicKey(this.uri) ?? throw new ArgumentException("A publicKey is required.", nameof(dsn));
                 this.port = this.uri.Port;
                 this.projectID = GetProjectID(this.uri);
                 this.path = GetPath(this.uri);
@@ -176,13 +176,14 @@ namespace SharpRaven
 
 
         /// <summary>
-        /// Get a private key from a Dsn uri.
+        /// Get a private key or null if no private key defined.
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
         private static string GetPrivateKey(Uri uri)
         {
-            return uri.UserInfo.Split(':')[1];
+            var parts = uri.UserInfo.Split(':');
+            return parts.Length == 2 ? parts[1] : null;
         }
 
 
@@ -205,7 +206,8 @@ namespace SharpRaven
         /// <returns></returns>
         private static string GetPublicKey(Uri uri)
         {
-            return uri.UserInfo.Split(':')[0];
+            var publicKey = uri.UserInfo.Split(':')[0];
+            return publicKey != string.Empty ? publicKey : null;
         }
     }
 }

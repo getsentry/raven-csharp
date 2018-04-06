@@ -74,12 +74,40 @@ namespace SharpRaven.UnitTests
 
 
         [Test]
+        public void Constructor_ValidDsnWithoutPrivateKey_PrivateKeyGetterReturnsNull()
+        {
+            var dsn = new Dsn(TestHelper.DsnUriWithoutPrivateKey);
+
+            Assert.That(dsn.PrivateKey, Is.Null);
+        }
+
+
+        [Test]
+        public void Constructor_ValidDsnWithoutPrivateKey_PublicKeyIsParsed()
+        {
+            var dsn = new Dsn(TestHelper.DsnUriWithoutPrivateKey);
+
+            Assert.AreEqual("7d6466e66155431495bdb4036ba9a04b", dsn.PublicKey);
+        }
+
+
+        [Test]
         public void Constructor_ValidHttpsUri_UriIsEqualToDsn()
         {
             var dsn = new Dsn(TestHelper.DsnUri);
 
             Assert.That(dsn.Uri, Is.Not.Null);
             Assert.That(dsn.Uri.ToString(), Is.EqualTo(TestHelper.DsnUri));
+        }
+
+
+        [Test]
+        public void Constructor_ValidDsnWithoutPrivateKey_UriIsEqualToDsn()
+        {
+            var dsn = new Dsn(TestHelper.DsnUriWithoutPrivateKey);
+
+            Assert.That(dsn.Uri, Is.Not.Null);
+            Assert.That(dsn.Uri.ToString(), Is.EqualTo(TestHelper.DsnUriWithoutPrivateKey));
         }
 
 
