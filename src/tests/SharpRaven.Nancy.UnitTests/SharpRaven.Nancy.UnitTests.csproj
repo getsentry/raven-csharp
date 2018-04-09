@@ -18,6 +18,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' != 'net35' and '$(TargetFramework)' != 'net40'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+  </ItemGroup>
+
     <ItemGroup>
     <PackageReference Include="CsQuery" Version="1.3.4" />
     <PackageReference Include="Nancy" Version="1.4.3" />

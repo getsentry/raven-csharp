@@ -17,12 +17,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.gitmodules = ..\.gitmodules
 		..\.travis.yml = ..\.travis.yml
 		..\build.cake = ..\build.cake
-		Build.cmd = Build.cmd
+		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
+		CommonConfigurations.targets = CommonConfigurations.targets
 		..\GitVersionConfig.yaml = ..\GitVersionConfig.yaml
 		..\LICENSE = ..\LICENSE
-		..\Makefile = ..\Makefile
 		..\README.md = ..\README.md
-		SharpRaven.build = SharpRaven.build
 		SharpRaven.sln.DotSettings = SharpRaven.sln.DotSettings
 	EndProjectSection
 EndProject

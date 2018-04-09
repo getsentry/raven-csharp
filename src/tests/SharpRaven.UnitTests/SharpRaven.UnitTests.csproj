@@ -19,6 +19,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' != 'net35' and '$(TargetFramework)' != 'net40'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="6.0.8" />
     <PackageReference Include="NSubstitute" Version="1.8.0.0" />
