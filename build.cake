@@ -172,7 +172,7 @@ Task("Test")
 
 Task("Package")
     .Description("Create NuGet packages")
-    .IsDependentOn("Build")
+    .IsDependentOn("Test")
     .Does(() =>
     {
         EnsureDirectoryExists(artifactsDir);
