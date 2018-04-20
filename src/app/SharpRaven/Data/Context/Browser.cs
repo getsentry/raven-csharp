@@ -28,45 +28,27 @@
 
 #endregion
 
-#if NET35
-using System.Web;
-#endif
-namespace SharpRaven.Data
+using Newtonsoft.Json;
+
+namespace SharpRaven.Data.Context
 {
     /// <summary>
-    /// HTTP media type interface for converting the HTTP body of a request to a structured type.
+    /// Carries information about the browser or user agent for web-related errors.
+    /// This can either be the browser this event ocurred in, or the user agent of a
+    /// web request that triggered the event.
     /// </summary>
-    public interface IHttpRequestBodyConverter
+    /// <seealso href="https://docs.sentry.io/clientdev/interfaces/contexts/"/>
+    public class Browser
     {
         /// <summary>
-        /// Checks whether the specified <paramref name="contentType"/> can be converted by this
-        /// <see cref="IHttpRequestBodyConverter"/> implementation or not.
+        /// Display name of the browser application.
         /// </summary>
-        /// <param name="contentType">The media type to match.</param>
-        /// <returns>
-        /// Returns <c>true</c> if the <see cref="IHttpRequestBodyConverter"/> implementation can convert
-        /// the specified <paramref name="contentType"/> cref="contentType"/>; otherwise <c>false</c>.
-        /// </returns>
-        bool Matches(string contentType);
-
-
+        [JsonProperty(PropertyName = "name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
         /// <summary>
-        /// Tries to convert the HTTP request body of the specified <paramref name="httpContext"/> to
-        /// a structured type.
+        /// Version string of the browser.
         /// </summary>
-        /// <param name="httpContext">The HTTP context containing the request body to convert.</param>
-        /// <param name="converted">
-        /// The converted, structured type for the specified <paramref name="httpContext"/>'s request
-        /// body or <c>null</c> if the <paramref name="httpContext"/> is null, or the somehow conversion
-        /// fails.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the conversion succeeds; otherwise <c>false</c>.
-        /// </returns>
-        #if NET35
-        bool TryConvert(HttpContext httpContext, out object converted);
-        #else
-        bool TryConvert(dynamic httpContext, out object converted);
-        #endif
+        [JsonProperty(PropertyName = "version", NullValueHandling = NullValueHandling.Ignore)]
+        public string Version { get; set; }
     }
 }

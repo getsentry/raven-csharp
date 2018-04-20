@@ -29,7 +29,7 @@
 #endregion
 
 using System.Collections.Generic;
-#if net35
+#if NET35
 using System.Web;
 #endif
 namespace SharpRaven.Data
@@ -49,7 +49,7 @@ namespace SharpRaven.Data
         /// A structured type for the specified <paramref name="httpContext"/>'s request body
         /// or <c>null</c> if the <paramref name="httpContext"/> is null, or the somehow conversion fails.
         /// </returns>
-        #if net35
+        #if NET35
         public static object Convert(HttpContext httpContext)
         #else
         public static object Convert(dynamic httpContext)

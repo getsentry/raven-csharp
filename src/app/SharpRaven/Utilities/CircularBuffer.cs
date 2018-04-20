@@ -1,5 +1,5 @@
 ﻿using System;
-#if !(net35)
+#if !NET35
 using System.Collections.Concurrent;
 #endif
 using System.Collections;
@@ -9,7 +9,7 @@ using System.Linq;
 namespace SharpRaven.Utilities {
     public class CircularBuffer<T>
     {
-        #if net35
+        #if NET35
         private class ConcurrentQueue<T> : ICollection, IEnumerable<T>
         {
             private readonly Queue<T> _queue;

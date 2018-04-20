@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net45;net40</TargetFrameworks>
+    <TargetFrameworks>net471;net45;net40</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
     <PackageId>SharpRaven.Nancy</PackageId>
@@ -24,7 +24,7 @@
     <ProjectReference Include="..\SharpRaven\SharpRaven.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net45' or '$(TargetFramework)' == 'net471'">
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -33,7 +33,6 @@
 
   <ItemGroup>
     <PackageReference Include="Nancy" Version="1.4.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="6.0.8" />
   </ItemGroup>
 
   <ItemGroup>

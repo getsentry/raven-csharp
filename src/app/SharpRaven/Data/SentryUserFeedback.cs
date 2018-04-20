@@ -32,7 +32,7 @@ using System.Text;
 using System;
 using System.Collections.Generic;
 using System.Net;
-#if net35
+#if NET35
 using System.Web;
 #endif
 
@@ -70,12 +70,12 @@ namespace SharpRaven.Data
         public override string ToString()
         {
 			return string.Format("eventId={0}&name={1}&email={2}&comments={3}",
-#if net35
+#if NET35
                                  HttpUtility.UrlEncode(EventID),
                                  HttpUtility.UrlEncode(Name),
                                  HttpUtility.UrlEncode(Email),
                                  HttpUtility.UrlEncode(Comments));
-#elif net40
+#elif NET40
                                  WebUtility.HtmlEncode(EventID),
                                  WebUtility.HtmlEncode(Name),
                                  WebUtility.HtmlEncode(Email),

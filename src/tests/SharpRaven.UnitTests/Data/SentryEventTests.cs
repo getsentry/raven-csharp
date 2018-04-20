@@ -73,5 +73,29 @@ namespace SharpRaven.UnitTests.Data
             Assert.That(beforeDictionary, Is.Not.SameAs(sentryEvent.Tags));
         }
 
+        [Test]
+        public void ShouldHaveNonEmptyContextsFromException()
+        {
+            var sentryEvent = new SentryEvent(new Exception("foo"));
+
+            NonEmptyContext(sentryEvent);
+        }
+
+        [Test]
+        public void ShouldHaveNonEmptyContextsFromMessage()
+        {
+            var sentryEvent = new SentryEvent(new SentryMessage("foo"));
+
+            NonEmptyContext(sentryEvent);
+        }
+
+        private static void NonEmptyContext(SentryEvent sentryEvent)
+        {
+            Assert.That(sentryEvent.Contexts, Is.Not.Null);
+            Assert.That(sentryEvent.Contexts.App, Is.Not.Null);
+            Assert.That(sentryEvent.Contexts.OperatingSystem, Is.Not.Null);
+            Assert.That(sentryEvent.Contexts.Device, Is.Not.Null);
+            Assert.That(sentryEvent.Contexts.Runtime, Is.Not.Null);
+        }
     }
 }

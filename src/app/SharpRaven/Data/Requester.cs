@@ -36,7 +36,7 @@ using Newtonsoft.Json;
 
 using SharpRaven.Utilities;
 
-#if net35
+#if NET35
 using JObject = Newtonsoft.Json.Linq.JObject;
 #endif
 
@@ -185,7 +185,7 @@ namespace SharpRaven.Data
                     using (var sr = new StreamReader(responseStream))
                     {
                         var content = sr.ReadToEnd();
-                        #if (net35)
+                        #if (NET35)
                         var response = JObject.Parse(content);
                         return response["id"] != null ? response["id"].ToString() : null;
                         #else

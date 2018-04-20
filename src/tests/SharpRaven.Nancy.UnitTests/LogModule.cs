@@ -42,13 +42,13 @@ namespace SharpRaven.Nancy.UnitTests
                 return View["log.html", new { MessageId = messageId }];
             };
 
-            #if (!net40) && (!net35)
+            #if (!NET40) && (!NET35)
             Get["/log-async", runAsync : true] = async (_, token) =>
             #else
             Get["/log-async"] = (_) =>
             #endif
             {
-                #if (!net40) && (!net35)
+                #if (!NET40) && (!NET35)
                 var messageId = await ravenClient.CaptureMessageAsync("Hello world!!!");
                 #else
                 var messageId = ravenClient.CaptureMessage("Hello world!!!");

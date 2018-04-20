@@ -33,9 +33,9 @@ var version = isTravis ? "0.0.1" : gitVersion.NuGetVersion;
 var artifactsDir = Directory("./artifacts");
 var outputDir = Directory("./build");
 
-var dotnetFrameworks = IsRunningOnWindows() ? new [] { "net45", "net40", "netstandard2.0" } : new string[] { };
+var dotnetFrameworks = IsRunningOnWindows() ? new [] { "net471", "net45", "net40", "netstandard2.0" } : new string[] { };
 // net35 can't be build by dotnet - https://github.com/Microsoft/msbuild/issues/1333
-var msBuildFrameworks = IsRunningOnWindows() ? new [] { "net35" } : new [] { "net45", "net40", "net35", "netstandard2.0" };
+var msBuildFrameworks = IsRunningOnWindows() ? new [] { "net35" } : new [] { "net471", "net45", "net40", "net35", "netstandard2.0" };
 
 var frameworks = dotnetFrameworks.Union(msBuildFrameworks).ToList();
 

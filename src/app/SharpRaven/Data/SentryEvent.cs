@@ -31,6 +31,8 @@
 using System;
 using System.Collections.Generic;
 
+using SharpRaven.Data.Context;
+
 namespace SharpRaven.Data
 {
     /// <summary>
@@ -42,7 +44,6 @@ namespace SharpRaven.Data
         private IList<string> fingerprint;
         private SentryMessage message;
         private IDictionary<string, string> tags;
-
 
         /// <summary>Initializes a new instance of the <see cref="SentryEvent" /> class.</summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
@@ -68,8 +69,12 @@ namespace SharpRaven.Data
         {
             Tags = new Dictionary<string, string>();
             Fingerprint = new List<string>();
+            Contexts = Contexts.Create();
         }
 
+        /// <summary>Represents Sentry's structured Context</summary>
+        /// <seealso href="https://docs.sentry.io/clientdev/interfaces/contexts/"/>
+        public Contexts Contexts { get; internal set; }
 
         /// <summary>Gets the <see cref="Exception" /> to capture.</summary>
         /// <value>The <see cref="Exception" /> to capture.</value>
