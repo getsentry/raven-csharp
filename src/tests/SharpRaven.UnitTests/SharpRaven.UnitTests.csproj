@@ -37,7 +37,7 @@
     <PackageReference Include="NUnit" Version="2.6.4" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net471'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net471' OR '$(TargetFramework)' == 'net45'">
     <DefineConstants>HAS_RUNTIME_INFORMATION;$(AdditionalConstants)</DefineConstants>
   </PropertyGroup>
 

@@ -16,6 +16,7 @@
     <PackageProjectUrl>https://github.com/getsentry/raven-csharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/getsentry/raven-csharp.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <Import Project="..\..\CommonConfigurations.targets" />
@@ -36,7 +37,11 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <Reference Include="System.Net.Http" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants>HAS_RUNTIME_INFORMATION;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
     <Reference Include="System" />

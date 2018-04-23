@@ -58,14 +58,14 @@ namespace SharpRaven.UnitTests.Data.Context
                 ModelId = "0921309128012",
                 Orientation = DeviceOrientation.Portrait,
                 Simulator = false,
-                Timezone = TimeZoneInfo.FindSystemTimeZoneById("Central Brazilian Standard Time"),
+                Timezone = TimeZoneInfo.Local,
                 UsableMemory = 100
             };
 
             var actual = JsonConvert.SerializeObject(device);
 
             Assert.That(actual, Is.EqualTo(
-                         "{\"timezone\":\"Central Brazilian Standard Time\"," +
+                         $"{{\"timezone\":\"{TimeZoneInfo.Local.Id}\"," +
                          "\"name\":\"testing.sentry.io\"," +
                          "\"family\":\"Windows\"," +
                          "\"model\":\"Windows Server 2012 R2\"," +

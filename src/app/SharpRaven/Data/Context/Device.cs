@@ -30,6 +30,9 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text;
+
 using Newtonsoft.Json;
 using SharpRaven.Serialization;
 using SharpRaven.Utilities;
@@ -208,13 +211,18 @@ namespace SharpRaven.Data.Context
         internal static string GetArchitecture() =>
 #if HAS_RUNTIME_INFORMATION
                    // x-plat: Known results: X86, X64, Arm, Arm64,
-                   System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString();
+                   RuntimeInformation.ProcessArchitecture.ToString();
 #else
                    // Windows: Known results: AMD64, IA64, x86
                    Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE", EnvironmentVariableTarget.Machine)
                    // Unix: Known results: i686, i386, x86_64, aarch64 (Target Machine is unsupported on Mono outside Windows)
-                   ?? Environment.GetEnvironmentVariable("HOSTTYPE", EnvironmentVariableTarget.Process);
+                   ?? Environment.GetEnvironmentVariable("HOSTTYPE", EnvironmentVariableTarget.Process)
+    #if !NET35
+                   // https://github.com/mono/mono/blob/cdea795c0e4706abee0841174c35799690f63ccb/mcs/class/corlib/System.Runtime.InteropServices.RuntimeInformation/RuntimeInformation.cs
+                   ?? (Environment.Is64BitProcess ? "X64" : "X86");
+    #else
+                   ?? (IntPtr.Size == 4 ? "X86" : "X64");
+    #endif
 #endif
-
     }
 }

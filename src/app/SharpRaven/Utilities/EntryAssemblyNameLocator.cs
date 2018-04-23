@@ -23,9 +23,9 @@ namespace SharpRaven.Utilities
 
             try
             {
-                entryAssemblyName = 
+                entryAssemblyName =
                     // Fastest/Simpler API but returns null when entry is unmanaged code
-                    Assembly.GetEntryAssembly()?.GetName() 
+                    Assembly.GetEntryAssembly()?.GetName()
                     ?? GetAssemblyNameFromEntryMethod();
             }
             catch (Exception e)
@@ -68,8 +68,8 @@ namespace SharpRaven.Utilities
                     break;
                 }
 
-                if (method.Name == "InvokeMethod"
-                    && method.DeclaringType == typeof(RuntimeMethodHandle))
+                if (method.Name == "InvokeMethod" && method.DeclaringType == typeof(RuntimeMethodHandle)
+                    || method.Name == "InternalInvoke" && method.DeclaringType?.Name == "MonoMethod")
                 {
                     entryMethod = i == 0
                         ? method
