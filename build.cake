@@ -18,13 +18,21 @@ var isTravis = BuildSystem.IsRunningOnTravisCI;
 // VERSION
 //////////////////////////////////////////////////////////////////////
 
-var gitVersion = isTravis ? null : GitVersion(new GitVersionSettings
+// GitVersion doesn't work on Linux: https://github.com/cake-build/cake/issues/2126
+var gitVersion = !IsRunningOnWindows() ? null : GitVersion(new GitVersionSettings
 {
 	OutputType          = GitVersionOutput.Json,
 	UpdateAssemblyInfo  = false
 });
 
-var version = isTravis ? "0.0.1" : gitVersion.NuGetVersion;
+var version = "0.0.1";
+var branchName = "unknown";
+
+if (gitVersion != null)
+{
+    version = gitVersion.NuGetVersion;
+    branchName = gitVersion.BranchName.Trim();
+}
 
 //////////////////////////////////////////////////////////////////////
 // CONSTS
@@ -45,7 +53,6 @@ var packages = new []
     "src/app/SharpRaven/SharpRaven.csproj",
     "src/app/SharpRaven.Nancy/SharpRaven.Nancy.csproj",
 };
-var branchName = gitVersion.BranchName.Trim();
 
 //////////////////////////////////////////////////////////////////////
 // SETUP
@@ -66,6 +73,7 @@ Setup(context =>
             return;
         }
 
+        Information("Updating AppVeyor build version:" + gitVersion.FullBuildMetaData);
         AppVeyor.UpdateBuildVersion(gitVersion.FullBuildMetaData);
     }
 });
