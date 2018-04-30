@@ -57,6 +57,15 @@ namespace SharpRaven.Data.Context
         [JsonProperty(PropertyName = "version", NullValueHandling = NullValueHandling.Ignore)]
         public string Version { get; set; }
         /// <summary>
+        ///  An optional raw description that Sentry can use in an attempt to normalize OS info.
+        /// </summary>
+        /// <remarks>
+        /// When the system doesn't expose a clear API for <see cref="Name"/> and <see cref="Version"/>
+        /// this field can be used to provide a raw system info (e.g: uname)
+        /// </remarks>
+        [JsonProperty(PropertyName = "raw_description", NullValueHandling = NullValueHandling.Ignore)]
+        public string RawDescription { get; set; }
+        /// <summary>
         /// The internal build revision of the operating system.
         /// </summary>
         [JsonProperty(PropertyName = "build", NullValueHandling = NullValueHandling.Ignore)]
@@ -83,6 +92,7 @@ namespace SharpRaven.Data.Context
             {
                 Version = this.Version,
                 Name = this.Name,
+                RawDescription = this.RawDescription,
                 Build = this.Build,
                 KernelVersion = this.KernelVersion,
                 Rooted = this.Rooted
@@ -97,21 +107,19 @@ namespace SharpRaven.Data.Context
         {
             try
             {
-                var os = Environment.OSVersion;
 #if HAS_RUNTIME_INFORMATION
                 // https://github.com/dotnet/corefx/blob/dbb7a3f2d3938b9b888b876ba4b2fd45fdc10985/src/System.Runtime.InteropServices.RuntimeInformation/src/System/Runtime/InteropServices/RuntimeInformation/RuntimeInformation.Unix.cs#L25
                 // https://github.com/dotnet/corefx/blob/c46e2e98b77d8c5eb2bc147df13b1505cf9c041e/src/System.Runtime.InteropServices.RuntimeInformation/src/System/Runtime/InteropServices/RuntimeInformation/RuntimeInformation.Windows.cs#L22
-                var name = RuntimeInformation.OSDescription;
+                var description = RuntimeInformation.OSDescription;
 #else
                 // https://github.com/dotnet/corefx/blob/fbe2ff101137abed0bc7fa67f40491d277088a79/src/System.Runtime.Extensions/src/System/OperatingSystem.cs#L53
                 // Same as RuntimeInformation.OSDescription on Mono: https://github.com/mono/mono/blob/90b49aa3aebb594e0409341f9dca63b74f9df52e/mcs/class/corlib/System.Runtime.InteropServices.RuntimeInformation/RuntimeInformation.cs#L69
-                var name = os.VersionString;
+                var description = Environment.OSVersion.VersionString;
 #endif
 
                 return new OperatingSystem
                 {
-                    Name = name,
-                    Version = os.Version.ToString()
+                    RawDescription = description,
                 };
             }
             catch (Exception e)

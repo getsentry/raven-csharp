@@ -10,30 +10,19 @@ namespace SharpRaven.UnitTests.Data.Context
     public class OperatingSystemTests
     {
         [Test]
-        public void Create_Name_SameAsEnvironment()
+        public void Create_RawDescription_SameAsEnvironment()
         {
             var operatingSystem = OperatingSystem.Create();
 
-
-            var actual =
 #if HAS_RUNTIME_INFORMATION
             // Microsoft Windows 10.0.16299
-            System.Runtime.InteropServices.RuntimeInformation.OSDescription;
+            var expected = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
 #else
-            Environment.OSVersion.VersionString;
+            var expected = Environment.OSVersion.VersionString;
 #endif
 
-            Assert.NotNull(operatingSystem.Name);
-            Assert.AreEqual(actual, operatingSystem.Name);
-        }
-
-        [Test]
-        public void Create_Version_SameAsEnvironment()
-        {
-            var operatingSystem = OperatingSystem.Create();
-
-            Assert.NotNull(operatingSystem.Version);
-            Assert.AreEqual(Environment.OSVersion.Version.ToString(), operatingSystem.Version);
+            Assert.NotNull(operatingSystem.RawDescription);
+            Assert.AreEqual(expected, operatingSystem.RawDescription);
         }
 
         [Test]
@@ -54,6 +43,7 @@ namespace SharpRaven.UnitTests.Data.Context
                 Name = "Windows",
                 KernelVersion = "who knows",
                 Version = "2016",
+                RawDescription = "Windows 2016",
                 Build = "14393",
                 Rooted = true
             };
@@ -63,6 +53,7 @@ namespace SharpRaven.UnitTests.Data.Context
             Assert.That(actual, Is.EqualTo(
                          "{\"name\":\"Windows\","
                         + "\"version\":\"2016\","
+                        + "\"raw_description\":\"Windows 2016\","
                         + "\"build\":\"14393\","
                         + "\"kernel_version\":\"who knows\","
                         + "\"rooted\":true}"));
@@ -89,6 +80,12 @@ namespace SharpRaven.UnitTests.Data.Context
                     Object = new OperatingSystem { Name = "some name" },
                     ExpectedSerializationOutput = "{\"name\":\"some name\"}"
                 }};
+
+            yield return new object[] { new TestCase
+            {
+                Object = new OperatingSystem { RawDescription = "some Name, some version" },
+                ExpectedSerializationOutput = "{\"raw_description\":\"some Name, some version\"}"
+            }};
 
             yield return new object[] { new TestCase
             {

@@ -10,13 +10,13 @@ namespace SharpRaven.UnitTests.Data.Context
     public class RuntimeTests
     {
         [Test]
-        public void Create_Name_NotNullAndAsHelper()
+        public void Create_RawDescription_NotNullAndAsHelper()
         {
             var runtime = Runtime.Create();
 
             var expected = RuntimeInfoHelper.GetRuntimeVersion();
-            Assert.NotNull(runtime.Name);
-            Assert.AreEqual(expected, runtime.Name);
+            Assert.NotNull(runtime.RawDescription);
+            Assert.AreEqual(expected, runtime.RawDescription);
         }
 
         [Test]
@@ -36,11 +36,12 @@ namespace SharpRaven.UnitTests.Data.Context
             {
                 Version = "2.0.1",
                 Name = "NETCore",
+                RawDescription = "NETCore 2.0.1"
             };
 
             var actual = JsonConvert.SerializeObject(runtime);
 
-            Assert.That(actual, Is.EqualTo("{\"name\":\"NETCore\",\"version\":\"2.0.1\"}"));
+            Assert.That(actual, Is.EqualTo("{\"name\":\"NETCore\",\"version\":\"2.0.1\",\"raw_description\":\"NETCore 2.0.1\"}"));
         }
 
         [Test, TestCaseSource(typeof(RuntimeTests), nameof(TestCases))]
@@ -69,6 +70,12 @@ namespace SharpRaven.UnitTests.Data.Context
             {
                 Object = new Runtime { Version = "some version" },
                 ExpectedSerializationOutput = "{\"version\":\"some version\"}"
+            }};
+
+            yield return new object[] { new TestCase
+            {
+                Object = new Runtime { RawDescription = "some Name, some version" },
+                ExpectedSerializationOutput = "{\"raw_description\":\"some Name, some version\"}"
             }};
         }
     }

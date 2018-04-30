@@ -53,6 +53,15 @@ namespace SharpRaven.Data.Context
         /// </summary>
         [JsonProperty(PropertyName = "version", NullValueHandling = NullValueHandling.Ignore)]
         public string Version { get; set; }
+        /// <summary>
+        ///  An optional raw description that Sentry can use in an attempt to normalize Runtime info.
+        /// </summary>
+        /// <remarks>
+        /// When the system doesn't expose a clear API for <see cref="Name"/> and <see cref="Version"/>
+        /// this field can be used to provide a raw system info (e.g: .NET Framework 4.7.1)
+        /// </remarks>
+        [JsonProperty(PropertyName = "raw_description", NullValueHandling = NullValueHandling.Ignore)]
+        public string RawDescription { get; set; }
 
         /// <summary>
         /// Clones this instance
@@ -63,7 +72,8 @@ namespace SharpRaven.Data.Context
             return new Runtime
             {
                 Name = this.Name,
-                Version = this.Version
+                Version = this.Version,
+                RawDescription = this.RawDescription
             };
         }
 
@@ -77,7 +87,7 @@ namespace SharpRaven.Data.Context
             {
                 var runtime = new Runtime
                 {
-                    Name = RuntimeInfoHelper.GetRuntimeVersion()
+                    RawDescription = RuntimeInfoHelper.GetRuntimeVersion()
                 };
 
                 return runtime;
