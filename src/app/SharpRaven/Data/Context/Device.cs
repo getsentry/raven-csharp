@@ -204,6 +204,7 @@ namespace SharpRaven.Data.Context
             }
         }
 
+
         /// <summary>
         /// Retrieves the architecture of this device.
         /// </summary>
@@ -212,17 +213,46 @@ namespace SharpRaven.Data.Context
 #if HAS_RUNTIME_INFORMATION
                    // x-plat: Known results: X86, X64, Arm, Arm64,
                    RuntimeInformation.ProcessArchitecture.ToString();
-#else
+#elif NET35
                    // Windows: Known results: AMD64, IA64, x86
                    Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE", EnvironmentVariableTarget.Machine)
-                   // Unix: Known results: i686, i386, x86_64, aarch64 (Target Machine is unsupported on Mono outside Windows)
-                   ?? Environment.GetEnvironmentVariable("HOSTTYPE", EnvironmentVariableTarget.Process)
-    #if !NET35
-                   // https://github.com/mono/mono/blob/cdea795c0e4706abee0841174c35799690f63ccb/mcs/class/corlib/System.Runtime.InteropServices.RuntimeInformation/RuntimeInformation.cs
-                   ?? (Environment.Is64BitProcess ? "X64" : "X86");
-    #else
-                   ?? (IntPtr.Size == 4 ? "X86" : "X64");
-    #endif
+                       ?? ProcessorArchitectureNet35();
+#else
+                   // https://github.com/mono/mono/blob/cdea795c0e4706abee0841174c35799690f63ccb/mcs/class/corlib/System.Runtime.InteropServices.RuntimeInformation/RuntimeInformation.cs#L79
+                   Environment.Is64BitOperatingSystem ? "X64" : "X86";
+#endif
+
+#if NET35
+
+        // Will attempt to detect the architecture of the OS. Returns null if it cannot.
+        private static string ProcessorArchitectureNet35()
+        {
+            bool? is64Bit = null;
+            if (IntPtr.Size == 8)
+            {
+                is64Bit = true;
+            }
+            // Only XP SP2+ support this API
+            else if (Environment.OSVersion.Version.Major == 5
+                       && Environment.OSVersion.Version.Minor >= 1
+                       || Environment.OSVersion.Version.Major >= 6)
+            {
+                // 32 bit process on Windows could be WoW64, make P/Invoke call to verify
+                using (var p = Process.GetCurrentProcess())
+                {
+                    if (IsWow64Process(p.Handle, out var retVal))
+                    {
+                        is64Bit = retVal;
+                    }
+                }
+            }
+
+            return !is64Bit.HasValue ? null : is64Bit.Value ? "X64" : "X86";
+        }
+
+        [DllImport("kernel32.dll", CallingConvention = CallingConvention.Winapi)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsWow64Process([In] IntPtr hProcess, [Out] out bool wow64Process);
 #endif
     }
 }
