@@ -10,13 +10,16 @@ namespace SharpRaven.UnitTests.Data.Context
     public class RuntimeTests
     {
         [Test]
-        public void Create_RawDescription_NotNullAndAsHelper()
+        public void Create_Runtime_NotNullAndAsHelper()
         {
-            var runtime = Runtime.Create();
+            var actual = Runtime.Create();
 
-            var expected = RuntimeInfoHelper.GetRuntimeVersion();
-            Assert.NotNull(runtime.RawDescription);
-            Assert.AreEqual(expected, runtime.RawDescription);
+            var expected = RuntimeInfoHelper.GetRuntime();
+            Assert.NotNull(actual);
+            Assert.AreEqual(expected.Build, actual.Build);
+            Assert.AreEqual(expected.Version, actual.Version);
+            Assert.AreEqual(expected.Name, actual.Name);
+            Assert.AreEqual(expected.RawDescription, actual.RawDescription);
         }
 
         [Test]

@@ -62,6 +62,12 @@ namespace SharpRaven.Data.Context
         /// </remarks>
         [JsonProperty(PropertyName = "raw_description", NullValueHandling = NullValueHandling.Ignore)]
         public string RawDescription { get; set; }
+        /// <summary>
+        ///  An optional build number
+        /// </summary>
+        /// <see href="https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed"/>
+        [JsonProperty(PropertyName = "build", NullValueHandling = NullValueHandling.Ignore)]
+        public string Build { get; set; }
 
         /// <summary>
         /// Clones this instance
@@ -73,6 +79,7 @@ namespace SharpRaven.Data.Context
             {
                 Name = this.Name,
                 Version = this.Version,
+                Build = this.Build,
                 RawDescription = this.RawDescription
             };
         }
@@ -85,12 +92,7 @@ namespace SharpRaven.Data.Context
         {
             try
             {
-                var runtime = new Runtime
-                {
-                    RawDescription = RuntimeInfoHelper.GetRuntimeVersion()
-                };
-
-                return runtime;
+                return RuntimeInfoHelper.GetRuntime();
             }
             catch (Exception e)
             {
