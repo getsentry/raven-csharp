@@ -1,6 +1,12 @@
-# SharpRaven
+<p align="center">
+  <a href="https://sentry.io" target="_blank" align="center">
+    <img src="https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" width="280">
+  </a>
+  <br />
+</p>
 
-SharpRaven is the .NET client for [Sentry](https://getsentry.com/welcome/).
+Official [Sentry](https://sentry.io/for/csharp/) SDK for .NET.
+===========
 
 |                      |             Stable             |      Pre-release     |
 | -------------------: | :----------------------------: | :------------------: |
@@ -11,10 +17,10 @@ SharpRaven is the .NET client for [Sentry](https://getsentry.com/welcome/).
 |   **AppVeyor Build** |      [![Master][9]][10]        | [![Develop][15]][10] |
 
 ## Usage
-Instantiate the client with your DSN:
+Instantiate the client with your 'Data Source Name' (DSN):
 
 ```csharp
-var ravenClient = new RavenClient("http://public:secret@example.com/project-id");
+var ravenClient = new RavenClient("https://public@sentry.io/project-id");
 ```
 
 ### Capturing Exceptions
@@ -63,7 +69,7 @@ sent with your request, such as `ErrorLevel`, `Fingerprint`, a custom `Message`
 and `Tags`.
 
 ### Async Support
-In the .NET 4.5 build of SharpRaven, there's an `async` version of the `Capture`
+In the .NET 4.5 or later build of SharpRaven, there's an `async` version of the `Capture`
 method as well:
 
 ```csharp
@@ -82,7 +88,7 @@ instance of the `Dsn` class in your container:
 ```csharp
 protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
 {
-    container.Register(new Dsn("http://public:secret@example.com/project-id"));
+    container.Register(new Dsn("https://public@sentry.io/project-id"));
 }
 ```
 
@@ -94,7 +100,7 @@ or through configuration:
     <section name="sharpRaven" type="SharpRaven.Nancy.NancyConfiguration, SharpRaven.Nancy" />
   </configSections>
   <sharpRaven>
-    <dsn value="http://public:secret@example.com/project-id" />
+    <dsn value="https://public@sentry.io/project-id" />
   </sharpRaven>
 </configuration>
 ```
@@ -148,8 +154,11 @@ with prebuilt binaries, there's NuGet packages of both
 ## Resources
 * [![Join the chat at https://gitter.im/getsentry/raven-csharp][gitter-badge]][gitter-link]
 * [Code][github]
+* [Bug Tracker](https://github.com/getsentry/raven-csharp/issues)
+* [Forum][forum]
 * [Mailing List][mail]
 * [IRC][irc] (`#sentry` on `irc.freenode.net`)
+* Follow [@getsentry](https://twitter.com/getsentry) on Twitter for updates
 
  [1]: https://img.shields.io/github/release/getsentry/raven-csharp.svg
  [2]: https://github.com/getsentry/raven-csharp/releases/latest
@@ -168,8 +177,9 @@ with prebuilt binaries, there's NuGet packages of both
 [ex]: https://msdn.microsoft.com/en-us/library/system.exception.data.aspx
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-link]: https://gitter.im/getsentry/raven-csharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-[github]: http://github.com/getsentry/raven-csharp
+[github]: http://github.com/getsentry/raven-csharp/develop/src
 [mail]: https://groups.google.com/group/getsentry
+[forum]: https://forum.sentry.io/c/sdks
 [irc]: irc://irc.freenode.net/sentry
 [nuget]: https://www.nuget.org/packages/SharpRaven
 [nuget-nancy]: https://www.nuget.org/packages/SharpRaven.Nancy
