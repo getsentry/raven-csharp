@@ -45,34 +45,31 @@ namespace SharpRaven.Data
     /// <summary>
     /// The class responsible for performing the HTTP request to Sentry.
     /// </summary>
-    public partial class Requester
+    public partial class HttpRequester : IRequester
     {
+        private readonly bool useCompression;
+        private readonly TimeSpan timeout;
         private readonly RequestData data;
-        private readonly JsonPacket packet;
         private readonly SentryUserFeedback feedback;
-        private readonly RavenClient ravenClient;
         private readonly HttpWebRequest webRequest;
 
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="Requester"/> class.
+        /// Initializes a new instance of the <see cref="HttpRequester"/> class.
         /// </summary>
-        /// <param name="packet">The <see cref="JsonPacket"/> to initialize with.</param>
-        /// <param name="ravenClient">The <see cref="RavenClient"/> to initialize with.</param>
-        public Requester(JsonPacket packet, RavenClient ravenClient)
+        /// <param name="data">The request data.</param>
+        /// <param name="dsn">The DSN used in this request</param>
+        /// <param name="timeout">The request timeout.</param>
+        /// <param name="useCompression">Whether to use compression or not.</param>
+        public HttpRequester(RequestData data, Dsn dsn, TimeSpan timeout, bool useCompression)
         {
-            if (packet == null)
-                throw new ArgumentNullException("packet");
+            this.data = data ?? throw new ArgumentNullException(nameof(data));
+            this.timeout = timeout == default ? TimeSpan.FromSeconds(5) : timeout;
+            this.useCompression = useCompression;
 
-            if (ravenClient == null)
-                throw new ArgumentNullException("ravenClient");
+			this.webRequest = CreateWebRequest(dsn.SentryUri, dsn);
 
-            this.ravenClient = ravenClient;
-            this.packet = ravenClient.PreparePacket(packet);
-            this.data = new RequestData(this);
-
-			this.webRequest = CreateWebRequest(ravenClient.CurrentDsn.SentryUri);
-
-            if (ravenClient.Compression)
+            if (useCompression)
             {
                 this.webRequest.Headers.Add(HttpRequestHeader.ContentEncoding, "gzip");
                 this.webRequest.AutomaticDecompression = DecompressionMethods.Deflate;
@@ -85,50 +82,34 @@ namespace SharpRaven.Data
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Requester"/> class.
+        /// Initializes a new instance of the <see cref="HttpRequester"/> class.
         /// </summary>
         /// <param name="feedback">The <see cref="SentryUserFeedback"/> to initialize with.</param>
-        /// <param name="ravenClient">The <see cref="RavenClient"/> to initialize with.</param>
-        internal Requester(SentryUserFeedback feedback, RavenClient ravenClient)
+        /// <param name="dsn">The DSN used in this request</param>
+        internal HttpRequester(SentryUserFeedback feedback, Dsn dsn)
         {
-            if (feedback == null)
-                throw new ArgumentNullException("feedback");
+            if (dsn == null) throw new ArgumentNullException(nameof(dsn));
+            this.feedback = feedback ?? throw new ArgumentNullException(nameof(feedback));
 
-            if (ravenClient == null)
-                throw new ArgumentNullException("ravenClient");
+            var feedbackUri = new Uri($"{dsn.FeedbackUri}?dsn={dsn.Uri}&{feedback}");
 
-            this.ravenClient = ravenClient;
-            this.feedback = feedback;
-
-			var feedbackString = string.Format("{0}?dsn={1}&{2}",
-			                                   ravenClient.CurrentDsn.FeedbackUri, 
-			                                   ravenClient.CurrentDsn.Uri, 
-			                                   feedback.ToString());
-			this.webRequest = CreateWebRequest(new Uri(feedbackString));
-            this.webRequest.Referer = ravenClient.CurrentDsn.Uri.DnsSafeHost;
+            this.webRequest = CreateWebRequest(feedbackUri, dsn);
+            this.webRequest.Referer = dsn.Uri.DnsSafeHost;
 
             this.webRequest.ContentType = "application/x-www-form-urlencoded";
         }
 
-		internal HttpWebRequest CreateWebRequest(Uri uri)
+		internal HttpWebRequest CreateWebRequest(Uri uri, Dsn dsn)
 		{
 			var request = (HttpWebRequest)System.Net.WebRequest.Create(uri);
-			request.Timeout = (int)this.ravenClient.Timeout.TotalMilliseconds;
-			request.ReadWriteTimeout = (int)this.ravenClient.Timeout.TotalMilliseconds;
+			request.Timeout = (int)this.timeout.TotalMilliseconds;
+			request.ReadWriteTimeout = (int)this.timeout.TotalMilliseconds;
 			request.Method = "POST";
 			request.Accept = "application/json";
-			request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(this.ravenClient.CurrentDsn));
+			request.Headers.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
 			request.UserAgent = PacketBuilder.UserAgent;
 			return request;
 		}
-
-        /// <summary>
-        /// Gets the <see cref="IRavenClient"/>.
-        /// </summary> 
-        public IRavenClient Client
-        {
-            get { return this.ravenClient; }
-        }
 
         /// <summary>
         /// 
@@ -136,14 +117,6 @@ namespace SharpRaven.Data
         public RequestData Data
         {
             get { return this.data; }
-        }
-
-        /// <summary>
-        /// Gets the <see cref="JsonPacket"/> being sent to Sentry.
-        /// </summary>
-        public JsonPacket Packet
-        {
-            get { return this.packet; }
         }
 
         /// <summary>
@@ -155,6 +128,19 @@ namespace SharpRaven.Data
         }
 
         /// <summary>
+        /// Uses the event identifier on the JsonPacket if there is one.
+        /// </summary>
+        /// <param name="eventId">The event identifier.</param>
+        public void UseEventId(string eventId)
+        {
+            if (Data?.JsonPacket != null)
+            {
+                Data.JsonPacket.EventID = eventId;
+            }
+        }
+
+
+        /// <summary>
         /// Executes the HTTP request to Sentry.
         /// </summary>
         /// <returns>
@@ -164,7 +150,7 @@ namespace SharpRaven.Data
         {
             using (var s = this.webRequest.GetRequestStream())
             {
-                if (this.ravenClient.Compression)
+                if (this.useCompression)
                     GzipUtil.Write(this.data.Scrubbed, s);
                 else
                 {

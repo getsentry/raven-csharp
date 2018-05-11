@@ -51,6 +51,7 @@ namespace SharpRaven
         private readonly IJsonPacketFactory jsonPacketFactory;
         private readonly ISentryRequestFactory sentryRequestFactory;
         private readonly ISentryUserFactory sentryUserFactory;
+        private readonly IRequesterFactory requesterFactory;
 
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace SharpRaven
                            IJsonPacketFactory jsonPacketFactory = null,
                            ISentryRequestFactory sentryRequestFactory = null,
                            ISentryUserFactory sentryUserFactory = null)
-            : this(new Dsn(dsn), jsonPacketFactory, sentryRequestFactory, sentryUserFactory)
+            : this(new Dsn(dsn), jsonPacketFactory, sentryRequestFactory, sentryUserFactory, null)
         {
         }
 
@@ -88,11 +89,13 @@ namespace SharpRaven
         /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="JsonPacket" /> that will be sent to Sentry.</param>
         /// <param name="sentryRequestFactory">The optional factory that will be used to create the <see cref="SentryRequest"/> that will be sent to Sentry.</param>
         /// <param name="sentryUserFactory">The optional factory that will be used to create the <see cref="SentryUser"/> that will be sent to Sentry.</param>
+        /// <param name="requesterFactory">The optional factory that will be used to create the <see cref="IRequester"/> that will make the request to Sentry.</param>
         /// <exception cref="System.ArgumentNullException">dsn</exception>
         public RavenClient(Dsn dsn,
                            IJsonPacketFactory jsonPacketFactory = null,
                            ISentryRequestFactory sentryRequestFactory = null,
-                           ISentryUserFactory sentryUserFactory = null)
+                           ISentryUserFactory sentryUserFactory = null,
+                           IRequesterFactory requesterFactory = null)
         {
             if (dsn == null)
                 throw new ArgumentNullException("dsn");
@@ -101,6 +104,7 @@ namespace SharpRaven
             this.jsonPacketFactory = jsonPacketFactory ?? new JsonPacketFactory();
             this.sentryRequestFactory = sentryRequestFactory ?? new SentryRequestFactory();
             this.sentryUserFactory = sentryUserFactory ?? new SentryUserFactory();
+            this.requesterFactory = requesterFactory ?? new HttpRequesterFactory();
 
             Logger = "root";
             Timeout = TimeSpan.FromSeconds(5);
@@ -111,13 +115,13 @@ namespace SharpRaven
 
         /// <summary>
         /// Gets or sets the <see cref="Action"/> to execute to manipulate or extract data from
-        /// the <see cref="Requester"/> object before it is used in the <see cref="Send"/> method.
+        /// the <see cref="IRequester"/> object before it is used in the <see cref="Send"/> method.
         /// </summary>
         /// <value>
         /// The <see cref="Action"/> to execute to manipulate or extract data from the
-        /// <see cref="Requester"/> object before it is used in the <see cref="Send"/> method.
+        /// <see cref="IRequester"/> object before it is used in the <see cref="Send"/> method.
         /// </value>
-        public Func<Requester, Requester> BeforeSend { get; set; }
+        public Func<IRequester, IRequester> BeforeSend { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing
@@ -252,7 +256,7 @@ namespace SharpRaven
         [Obsolete("Use CaptureException() instead.", true)]
         public string CaptureEvent(Exception e, Dictionary<string, string> tags)
         {
-            return CaptureException(e, tags : tags);
+            return CaptureException(e, tags: tags);
         }
 
 
@@ -331,10 +335,12 @@ namespace SharpRaven
                 ? Logger
                 : packet.Logger;
             packet.User = packet.User ?? this.sentryUserFactory.Create();
-            try {
+            try
+            {
                 packet.Request = packet.Request ?? this.sentryRequestFactory.Create();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 HandleException(ex, null);
                 packet.Request = null;
             }
@@ -351,11 +357,11 @@ namespace SharpRaven
         /// </returns>
         protected virtual string Send(JsonPacket packet)
         {
-            Requester requester = null;
+            IRequester requester = null;
 
             try
             {
-                requester = new Requester(packet, this);
+                requester = CreateRequester(packet);
 
                 if (BeforeSend != null)
                     requester = BeforeSend(requester);
@@ -368,16 +374,17 @@ namespace SharpRaven
             }
         }
 
-		/// <summary>Sends the specified user feedback to Sentry</summary>
-		/// <returns>An empty string if succesful, otherwise the server response</returns>
-		/// <param name="feedback">The user feedback to send</param>
+
+        /// <summary>Sends the specified user feedback to Sentry</summary>
+        /// <returns>An empty string if succesful, otherwise the server response</returns>
+        /// <param name="feedback">The user feedback to send</param>
         public string SendUserFeedback(SentryUserFeedback feedback)
         {
-            Requester requester = null;
+            IRequester requester = null;
 
             try
             {
-                requester = new Requester(feedback, this);
+                requester = CreateRequester(feedback);
 
                 if (BeforeSend != null)
                     requester = BeforeSend(requester);
@@ -387,11 +394,30 @@ namespace SharpRaven
             catch (Exception exception)
             {
                 return HandleException(exception, requester);
-            } 
+            }
         }
 
 
-        private string HandleException(Exception exception, Requester requester)
+        protected virtual IRequester CreateRequester(JsonPacket packet)
+        {
+            packet = PreparePacket(packet);
+            var data = new RequestData(packet, LogScrubber);
+
+            return this.requesterFactory.Create(
+                data,
+                CurrentDsn,
+                Timeout,
+                Compression);
+        }
+
+
+        protected virtual IRequester CreateRequester(SentryUserFeedback feedback)
+        {
+            return this.requesterFactory.Create(feedback, CurrentDsn);
+        }
+
+
+        private string HandleException(Exception exception, IRequester requester)
         {
             string id = null;
 
@@ -406,16 +432,16 @@ namespace SharpRaven
                 if (exception != null)
                     SystemUtil.WriteError(exception);
 
-                if (requester != null)
+                if (requester != null && requester is HttpRequester httpRequester)
                 {
-                    if (requester.Data != null)
+                    if (httpRequester.Data != null)
                     {
-                        SystemUtil.WriteError("Request body (raw):", requester.Data.Raw);
-                        SystemUtil.WriteError("Request body (scrubbed):", requester.Data.Scrubbed);
+                        SystemUtil.WriteError("Request body (raw):", httpRequester.Data.Raw);
+                        SystemUtil.WriteError("Request body (scrubbed):", httpRequester.Data.Scrubbed);
                     }
 
-                    if (requester.WebRequest != null && requester.WebRequest.Headers != null && requester.WebRequest.Headers.Count > 0)
-                        SystemUtil.WriteError("Request headers:", requester.WebRequest.Headers.ToString());
+                    if (httpRequester.WebRequest?.Headers?.Count > 0)
+                        SystemUtil.WriteError("Request headers:", httpRequester.WebRequest.Headers.ToString());
                 }
 
                 var webException = exception as WebException;

@@ -55,13 +55,13 @@ namespace SharpRaven
 
         /// <summary>
         /// Gets or sets the <see cref="Action"/> to execute to manipulate or extract data from
-        /// the <see cref="Requester"/> object before it is used in the <see cref="Send"/> method.
+        /// the <see cref="IRequester"/> object before it is used in the <see cref="Send"/> method.
         /// </summary>
         /// <value>
         /// The <see cref="Action"/> to execute to manipulate or extract data from the
-        /// <see cref="Requester"/> object before it is used in the <see cref="Send"/> method.
+        /// <see cref="IRequester"/> object before it is used in the <see cref="Send"/> method.
         /// </value>
-        public Func<Requester, Requester> BeforeSend { get; set; }
+        public Func<IRequester, IRequester> BeforeSend { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="Action"/> to execute if an error occurs when executing

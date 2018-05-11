@@ -46,8 +46,38 @@ namespace SharpRaven
     /// <summary>
     /// The Raven Client, responsible for capturing exceptions and sending them to Sentry.
     /// </summary>
-    public partial class RavenClient
+    public partial class RavenClient : IDisposable
     {
+        private readonly bool disposeRequesterFactory;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:SharpRaven.RavenClient" /> class.
+        /// </summary>
+        /// <param name="dsn">The Data Source Name in Sentry.</param>
+        /// <param name="backgroundSending">Whether to send events in the background or not.</param>
+        /// <param name="jsonPacketFactory">The optional factory that will be used to create the <see cref="T:SharpRaven.Data.JsonPacket" /> that will be sent to Sentry.</param>
+        /// <param name="sentryRequestFactory">The optional factory that will be used to create the <see cref="T:SharpRaven.Data.SentryRequest" /> that will be sent to Sentry.</param>
+        /// <param name="sentryUserFactory">The optional factory that will be used to create the <see cref="T:SharpRaven.Data.SentryUser" /> that will be sent to Sentry.</param>
+        /// <inheritdoc />
+        public RavenClient(Dsn dsn,
+                           bool backgroundSending,
+                           IJsonPacketFactory jsonPacketFactory = null,
+                           ISentryRequestFactory sentryRequestFactory = null,
+                           ISentryUserFactory sentryUserFactory = null)
+            : this(
+                dsn,
+                jsonPacketFactory,
+                sentryRequestFactory,
+                sentryUserFactory,
+                backgroundSending
+                    ? new BackgroundRequesterFactory(new HttpRequesterFactory())
+                    : new HttpRequesterFactory() as IRequesterFactory)
+        {
+            // Lifetime of RequesterFactory owned by this instance, make sure to dispose it.
+            this.disposeRequesterFactory = backgroundSending;
+        }
+
+
         /// <summary>Captures the event.</summary>
         /// <param name="event">The event.</param>
         /// <returns>
@@ -58,7 +88,7 @@ namespace SharpRaven
             @event.Tags = MergeTags(@event.Tags);
             if (!this.breadcrumbs.IsEmpty())
                 @event.Breadcrumbs = this.breadcrumbs.ToList();
-            
+
             var packet = this.jsonPacketFactory.Create(CurrentDsn.ProjectID, @event);
 
             var eventId = await SendAsync(packet);
@@ -138,11 +168,11 @@ namespace SharpRaven
         /// </returns>
         protected virtual async Task<string> SendAsync(JsonPacket packet)
         {
-            Requester requester = null;
+            IRequester requester = null;
 
             try
             {
-                requester = new Requester(packet, this);
+                requester = CreateRequester(packet);
 
                 if (BeforeSend != null)
                     requester = BeforeSend(requester);
@@ -155,16 +185,16 @@ namespace SharpRaven
             }
         }
 
-		/// <summary>Sends the specified user feedback to Sentry</summary>
-		/// <returns>An empty string if succesful, otherwise the server response</returns>
-		/// <param name="feedback">The user feedback to send</param>
+        /// <summary>Sends the specified user feedback to Sentry</summary>
+        /// <returns>An empty string if succesful, otherwise the server response</returns>
+        /// <param name="feedback">The user feedback to send</param>
         public async Task<string> SendUserFeedbackAsync(SentryUserFeedback feedback)
         {
-            Requester requester = null;
+            IRequester requester = null;
 
             try
             {
-                requester = new Requester(feedback, this);
+                requester = CreateRequester(feedback);
 
                 if (BeforeSend != null)
                     requester = BeforeSend(requester);
@@ -174,7 +204,26 @@ namespace SharpRaven
             catch (Exception exception)
             {
                 return HandleException(exception, requester);
-            } 
+            }
+        }
+
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.disposeRequesterFactory)
+                {
+                    (this.requesterFactory as IDisposable)?.Dispose();
+                }
+            }
+        }
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

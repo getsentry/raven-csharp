@@ -32,6 +32,8 @@ using System;
 
 using Newtonsoft.Json;
 
+using SharpRaven.Logging;
+
 namespace SharpRaven.Data
 {
     /// <summary>
@@ -39,7 +41,6 @@ namespace SharpRaven.Data
     /// </summary>
     public class RequestData
     {
-        private readonly Requester requester;
         private string formatted;
         private string raw;
         private string scrubbed;
@@ -48,18 +49,25 @@ namespace SharpRaven.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestData"/> class.
         /// </summary>
-        /// <param name="requester">The <see cref="Requester"/> in which the request data will be used.</param>
-        internal RequestData(Requester requester)
+        /// <param name="packet">The JsonPacket to send with the request</param>
+        /// <param name="logScrubber">The log scrubber to use, if any.</param>
+        internal RequestData(JsonPacket packet, IScrubber logScrubber)
         {
-            if (requester == null)
-                throw new ArgumentNullException("requester");
-
-            if (requester.Packet == null)
-                throw new ArgumentException("Requester.Packet was null", "requester");
-
-            this.requester = requester;
+            JsonPacket = packet ?? throw new ArgumentNullException(nameof(packet));
+            LogScrubber = logScrubber;
         }
 
+        /// <summary>
+        /// Gets the JsonPacket to send with the request
+        /// </summary>
+        /// <value>The json packet.</value>
+        public JsonPacket JsonPacket { get; }
+
+        /// <summary>
+        /// Gets the log scrubber, if one was provided.
+        /// </summary>
+        /// <value>The log scrubber.</value>
+        public IScrubber LogScrubber { get; }
 
         /// <summary>
         /// Gets the <see cref="JsonPacket"/> converted to a <see cref="System.String"/> before
@@ -67,7 +75,7 @@ namespace SharpRaven.Data
         /// </summary>
         public string Raw
         {
-            get { return this.raw = this.raw ?? this.requester.Packet.ToString(Formatting.None); }
+            get { return this.raw = this.raw ?? JsonPacket.ToString(Formatting.None); }
         }
 
         /// <summary>
@@ -76,15 +84,7 @@ namespace SharpRaven.Data
         /// is null, <see cref="Raw"/> will be returned.
         /// </summary>
         public string Scrubbed
-        {
-            get
-            {
-                if (this.requester.Client == null || this.requester.Client.LogScrubber == null)
-                    return Raw;
-
-                return this.scrubbed = this.scrubbed ?? this.requester.Client.LogScrubber.Scrub(Raw);
-            }
-        }
+            => this.scrubbed ?? (this.scrubbed = LogScrubber?.Scrub(Raw) ?? Raw);
 
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace SharpRaven.Data
         /// </returns>
         public override string ToString()
         {
-            return this.formatted = this.formatted ?? this.requester.Packet.ToString(Formatting.Indented);
+            return this.formatted = this.formatted ?? JsonPacket.ToString(Formatting.Indented);
         }
     }
 }

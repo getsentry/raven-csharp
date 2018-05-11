@@ -233,11 +233,8 @@ namespace SharpRaven.UnitTests.Integration
             var id = this.ravenClient.CaptureMessage("Test");
             this.ravenClient.BeforeSend = requester =>
             {
-                Console.WriteLine("Event ID: " + requester.Packet.EventID);
                 return requester;
             };
-
-            //Console.WriteLine("Sent packet: " + id);
 
             Assert.That(id, Is.Not.Null);
             Assert.That(TestHelper.Parse(id), Is.Not.Null);
@@ -276,8 +273,6 @@ namespace SharpRaven.UnitTests.Integration
                 LogScrubber = new LogScrubber(),
                 BeforeSend = requester =>
                 {
-                    Console.WriteLine("EventID: " + requester.Packet.EventID);
-                    requester.Packet.EventID = "55518231234e2400d82f11c490683c2d2";
                     onCreateHttpWebRequestInvoked = true;
                     return requester;
                 }
