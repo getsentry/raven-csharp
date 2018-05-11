@@ -5,17 +5,4 @@
     <OutputPath>..\..\..\build\$(Configuration.Split("-")[0])</OutputPath>
     <IntermediateOutputPath>..\..\..\build\obj\$(Configuration.Split("-")[0])\</IntermediateOutputPath>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
-    <DefineConstants>$(DefineConstants);net35</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-    <DefineConstants>$(DefineConstants);net40</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>$(DefineConstants);net45</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>$(DefineConstants);netstandard2.0</DefineConstants>
-  </PropertyGroup>
 </Project>

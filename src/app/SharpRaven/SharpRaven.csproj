@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45;net40;net35</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net471;net45;net40;net35</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Debug;Release;Debug-net35;Release-net35;Debug-net40;Release-net40;Debug-net45;Release-net45;Release-netstandard2.0;Debug-netstandard2.0;Release-netstandard2.0</Configurations>
-
+    <Configurations>Debug;Release;Debug-net35;Release-net35;Debug-net40;Release-net40;Debug-net45;Release-net45;Debug-net471;Release-net471;Release-netstandard2.0;Debug-netstandard2.0;Release-netstandard2.0</Configurations>
     <PackageId>SharpRaven</PackageId>
     <PackageIconUrl>https://raw.githubusercontent.com/getsentry/raven-csharp/master/sentry-icon.png</PackageIconUrl>
     <PackageTags>raven sentry logging</PackageTags>
@@ -17,32 +16,62 @@
     <PackageProjectUrl>https://github.com/getsentry/raven-csharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/getsentry/raven-csharp.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <Import Project="..\..\CommonConfigurations.targets" />
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net35' or '$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
     <Reference Include="System" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Configuration" />
     <PackageReference Include="Newtonsoft.Json" Version="6.0.8" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
-    <Reference Include="System.Web" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net45'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
+    <DefineConstants>NETFX;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Newtonsoft.Json" Version="6.0.8" />
   </ItemGroup>
-
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+    <DefineConstants>NETFX;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+      
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Newtonsoft.Json" Version="6.0.8" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants>NETFX;HAS_RUNTIME_INFORMATION;NET45PLUS_REGISTRY_VERSION;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net471'">
+    <DefineConstants>NETFX;HAS_RUNTIME_INFORMATION;NET45PLUS_REGISTRY_VERSION;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>HAS_RUNTIME_INFORMATION;$(AdditionalConstants)</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />

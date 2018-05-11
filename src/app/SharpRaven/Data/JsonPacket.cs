@@ -36,6 +36,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using SharpRaven.Data.Context;
 using SharpRaven.Serialization;
 using SharpRaven.Utilities;
 
@@ -58,6 +59,7 @@ namespace SharpRaven.Data
                 throw new ArgumentNullException("exception");
 
             Initialize(exception);
+            Contexts = Contexts.Create();
         }
 
 
@@ -79,6 +81,7 @@ namespace SharpRaven.Data
             Tags = @event.Tags;
             Fingerprint = @event.Fingerprint.ToArray();
             MessageObject = @event.Message;
+            Contexts = @event.Contexts;
         }
 
 
@@ -191,6 +194,12 @@ namespace SharpRaven.Data
             Environment = "";
         }
 
+        /// <summary>
+        /// Represents Sentry's structured Context
+        /// </summary>
+        /// <seealso href="https://docs.sentry.io/clientdev/interfaces/contexts/"/>
+        [JsonProperty(PropertyName = "contexts", NullValueHandling = NullValueHandling.Ignore)]
+        public Contexts Contexts { get; set; }
 
         /// <summary>
         /// Function call which was the primary perpetrator of this event.

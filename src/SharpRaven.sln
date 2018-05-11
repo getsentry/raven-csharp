@@ -17,12 +17,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.gitmodules = ..\.gitmodules
 		..\.travis.yml = ..\.travis.yml
 		..\build.cake = ..\build.cake
-		Build.cmd = Build.cmd
+		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
+		CommonConfigurations.targets = CommonConfigurations.targets
 		..\GitVersionConfig.yaml = ..\GitVersionConfig.yaml
 		..\LICENSE = ..\LICENSE
-		..\Makefile = ..\Makefile
 		..\README.md = ..\README.md
-		SharpRaven.build = SharpRaven.build
 		SharpRaven.sln.DotSettings = SharpRaven.sln.DotSettings
 	EndProjectSection
 EndProject
@@ -50,11 +49,13 @@ Global
 		Debug-net35|Any CPU = Debug-net35|Any CPU
 		Debug-net40|Any CPU = Debug-net40|Any CPU
 		Debug-net45|Any CPU = Debug-net45|Any CPU
+		Debug-net471|Any CPU = Debug-net471|Any CPU
 		Debug-netstandard2.0|Any CPU = Debug-netstandard2.0|Any CPU
 		Release|Any CPU = Release|Any CPU
 		Release-net35|Any CPU = Release-net35|Any CPU
 		Release-net40|Any CPU = Release-net40|Any CPU
 		Release-net45|Any CPU = Release-net45|Any CPU
+		Release-net471|Any CPU = Release-net471|Any CPU
 		Release-netstandard2.0|Any CPU = Release-netstandard2.0|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -66,6 +67,8 @@ Global
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Debug-net40|Any CPU.Build.0 = Debug-net40|Any CPU
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Debug-net45|Any CPU.ActiveCfg = Debug-net45|Any CPU
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Debug-net45|Any CPU.Build.0 = Debug-net45|Any CPU
+		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Debug-net471|Any CPU.ActiveCfg = Debug-net45|Any CPU
+		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Debug-net471|Any CPU.Build.0 = Debug-net45|Any CPU
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Debug-netstandard2.0|Any CPU.ActiveCfg = Debug-netstandard2.0|Any CPU
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Debug-netstandard2.0|Any CPU.Build.0 = Debug-netstandard2.0|Any CPU
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -76,6 +79,8 @@ Global
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Release-net40|Any CPU.Build.0 = Release-net40|Any CPU
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Release-net45|Any CPU.ActiveCfg = Release-net45|Any CPU
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Release-net45|Any CPU.Build.0 = Release-net45|Any CPU
+		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Release-net471|Any CPU.ActiveCfg = Release-net45|Any CPU
+		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Release-net471|Any CPU.Build.0 = Release-net45|Any CPU
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Release-netstandard2.0|Any CPU.ActiveCfg = Release-netstandard2.0|Any CPU
 		{CC80A2E1-AE39-44DE-8DA3-4EEF42F90FB1}.Release-netstandard2.0|Any CPU.Build.0 = Release-netstandard2.0|Any CPU
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -86,6 +91,8 @@ Global
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Debug-net40|Any CPU.Build.0 = Debug-net40|Any CPU
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Debug-net45|Any CPU.ActiveCfg = Debug-net45|Any CPU
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Debug-net45|Any CPU.Build.0 = Debug-net45|Any CPU
+		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Debug-net471|Any CPU.ActiveCfg = Debug-net45|Any CPU
+		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Debug-net471|Any CPU.Build.0 = Debug-net45|Any CPU
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Debug-netstandard2.0|Any CPU.ActiveCfg = Debug-netstandard2.0|Any CPU
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -95,6 +102,8 @@ Global
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Release-net40|Any CPU.Build.0 = Release-net40|Any CPU
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Release-net45|Any CPU.ActiveCfg = Release-net45|Any CPU
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Release-net45|Any CPU.Build.0 = Release-net45|Any CPU
+		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Release-net471|Any CPU.ActiveCfg = Release-net45|Any CPU
+		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Release-net471|Any CPU.Build.0 = Release-net45|Any CPU
 		{E1DBEBBF-9448-4D99-B378-2B8CF1629F31}.Release-netstandard2.0|Any CPU.ActiveCfg = Release-netstandard2.0|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -103,6 +112,8 @@ Global
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Debug-net40|Any CPU.Build.0 = Debug-net40|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Debug-net45|Any CPU.ActiveCfg = Debug-net45|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Debug-net45|Any CPU.Build.0 = Debug-net45|Any CPU
+		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Debug-net471|Any CPU.ActiveCfg = Debug-net45|Any CPU
+		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Debug-net471|Any CPU.Build.0 = Debug-net45|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Debug-netstandard2.0|Any CPU.ActiveCfg = Debug-netstandard2.0|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -111,6 +122,8 @@ Global
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Release-net40|Any CPU.Build.0 = Release-net40|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Release-net45|Any CPU.ActiveCfg = Release-net45|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Release-net45|Any CPU.Build.0 = Release-net45|Any CPU
+		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Release-net471|Any CPU.ActiveCfg = Release-net45|Any CPU
+		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Release-net471|Any CPU.Build.0 = Release-net45|Any CPU
 		{ABE22746-6EEB-4970-A608-C02BC3B8BDA3}.Release-netstandard2.0|Any CPU.ActiveCfg = Release-netstandard2.0|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -119,6 +132,8 @@ Global
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Debug-net40|Any CPU.Build.0 = Debug-net40|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Debug-net45|Any CPU.ActiveCfg = Debug-net45|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Debug-net45|Any CPU.Build.0 = Debug-net45|Any CPU
+		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Debug-net471|Any CPU.ActiveCfg = Debug-net45|Any CPU
+		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Debug-net471|Any CPU.Build.0 = Debug-net45|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Debug-netstandard2.0|Any CPU.ActiveCfg = Debug-netstandard2.0|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -127,6 +142,8 @@ Global
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Release-net40|Any CPU.Build.0 = Release-net40|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Release-net45|Any CPU.ActiveCfg = Release-net45|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Release-net45|Any CPU.Build.0 = Release-net45|Any CPU
+		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Release-net471|Any CPU.ActiveCfg = Release-net45|Any CPU
+		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Release-net471|Any CPU.Build.0 = Release-net45|Any CPU
 		{7FE52A2B-430C-4C6F-BEA9-0855AF973D0C}.Release-netstandard2.0|Any CPU.ActiveCfg = Release-netstandard2.0|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

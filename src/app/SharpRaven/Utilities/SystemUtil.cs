@@ -60,7 +60,7 @@ namespace SharpRaven.Utilities
         {
             var assemblies = AppDomain.CurrentDomain
                 .GetAssemblies()
-                #if (!net35)
+                #if (!NET35)
                 .Where(q => !q.IsDynamic)
                 #endif
                 .Select(a => a.GetName())

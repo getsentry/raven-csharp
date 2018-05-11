@@ -30,7 +30,7 @@
 
 using System;
 using System.Collections.Generic;
-#if (!net35)
+#if (!NET35)
 using System.Threading.Tasks;
 #endif
 
@@ -167,7 +167,7 @@ namespace SharpRaven
         void RestartTrails();
 
 
-        #if (!net40) && !(net35)
+        #if (!NET40) && !NET35
         /// <summary>Captures the event.</summary>
         /// <param name="event">The event to capture.</param>
         /// <returns>

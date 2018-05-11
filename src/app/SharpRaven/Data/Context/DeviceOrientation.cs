@@ -28,45 +28,18 @@
 
 #endregion
 
-#if NET35
-using System.Web;
-#endif
-namespace SharpRaven.Data
+using Newtonsoft.Json;
+
+namespace SharpRaven.Data.Context
 {
     /// <summary>
-    /// HTTP media type interface for converting the HTTP body of a request to a structured type.
+    /// Defines the orientation of a device.
     /// </summary>
-    public interface IHttpRequestBodyConverter
+    public enum DeviceOrientation
     {
-        /// <summary>
-        /// Checks whether the specified <paramref name="contentType"/> can be converted by this
-        /// <see cref="IHttpRequestBodyConverter"/> implementation or not.
-        /// </summary>
-        /// <param name="contentType">The media type to match.</param>
-        /// <returns>
-        /// Returns <c>true</c> if the <see cref="IHttpRequestBodyConverter"/> implementation can convert
-        /// the specified <paramref name="contentType"/> cref="contentType"/>; otherwise <c>false</c>.
-        /// </returns>
-        bool Matches(string contentType);
-
-
-        /// <summary>
-        /// Tries to convert the HTTP request body of the specified <paramref name="httpContext"/> to
-        /// a structured type.
-        /// </summary>
-        /// <param name="httpContext">The HTTP context containing the request body to convert.</param>
-        /// <param name="converted">
-        /// The converted, structured type for the specified <paramref name="httpContext"/>'s request
-        /// body or <c>null</c> if the <paramref name="httpContext"/> is null, or the somehow conversion
-        /// fails.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the conversion succeeds; otherwise <c>false</c>.
-        /// </returns>
-        #if NET35
-        bool TryConvert(HttpContext httpContext, out object converted);
-        #else
-        bool TryConvert(dynamic httpContext, out object converted);
-        #endif
+        [JsonProperty(PropertyName = "portrait", NullValueHandling = NullValueHandling.Ignore)]
+        Portrait,
+        [JsonProperty(PropertyName = "landscape", NullValueHandling = NullValueHandling.Ignore)]
+        Landscape
     }
 }

@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net45;net40</TargetFrameworks>
+    <TargetFrameworks>net471;net45;net40</TargetFrameworks>
+    <NoWarn>$(NoWarn);CS0618</NoWarn>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Debug;Release;Debug-net35;Release-net35;Debug-net40;Release-net40;Debug-net45;Release-net45;Release-netstandard2.0;Debug-netstandard2.0;Release-netstandard2.0</Configurations>
+    <Configurations>Debug;Release;Debug-net35;Release-net35;Debug-net40;Release-net40;Debug-net45;Release-net45;Debug-net471;Release-net471;Release-netstandard2.0;Debug-netstandard2.0;Release-netstandard2.0</Configurations>
   </PropertyGroup>
 
   <Import Project="..\..\CommonConfigurations.targets" />
@@ -12,10 +13,14 @@
     <ProjectReference Include="..\..\app\SharpRaven.Nancy\SharpRaven.Nancy.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net45' or '$(TargetFramework)' == 'net471'">
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net35' and '$(TargetFramework)' != 'net40'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
   </ItemGroup>
 
     <ItemGroup>

@@ -31,7 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if net35
+#if NET35
 using System.Web;
 #endif
 namespace SharpRaven.Data
@@ -76,7 +76,7 @@ namespace SharpRaven.Data
         /// <returns>
         /// <c>true</c> if the conversion succeeds; otherwise <c>false</c>.
         /// </returns>
-        #if net35
+        #if NET35
         public bool TryConvert(HttpContext httpContext, out object converted)
         #else
         public bool TryConvert(dynamic httpContext, out object converted)

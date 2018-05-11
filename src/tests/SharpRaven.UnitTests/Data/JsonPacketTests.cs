@@ -31,7 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-#if !net35
+#if !NET35
 using System.Threading.Tasks;
 #endif
 using System.Web;
@@ -243,7 +243,7 @@ namespace SharpRaven.UnitTests.Data
             });
         }
 
-        #if !net35
+        #if !NET35
         [Test]
         [Category("NoMono")]
         public void Constructor_WithHttpContext_UserIsNotNull_Threaded()

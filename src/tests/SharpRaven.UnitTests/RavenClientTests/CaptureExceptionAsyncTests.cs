@@ -28,7 +28,7 @@
 
 #endregion
 
-#if (!net40) && (!net35)
+#if (!NET40) && (!NET35)
 
 using System;
 using System.Threading.Tasks;

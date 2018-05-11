@@ -31,7 +31,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-#if !net35
+#if !NET35
 using System.Dynamic;
 #endif
 using System.IO;
@@ -45,7 +45,7 @@ using SharpRaven.Data;
 
 namespace SharpRaven.UnitTests.Data
 {
-    #if (!net35)
+    #if (!NET35)
     [TestFixture]
     public class HttpRequestBodyConverterTests
     {
