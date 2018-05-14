@@ -10,12 +10,6 @@
     C#
     ==
 
-.. sentry:support-warning::
-
-    The C# SDK is maintained and supported by the Sentry
-    community.  Learn more about the project on `GitHub
-    <https://github.com/getsentry/raven-csharp>`__.
-
 Raven is the C# client for Sentry. Raven relies on the most popular
 logging libraries to capture and convert logs before sending details to a
 Sentry instance.
@@ -153,7 +147,8 @@ Sentry supports a concept called `Breadcrumbs <https://docs.sentry.io/learn/brea
             this.ravenClient = ravenClient;
         }
         
-        public IHttpActionResult GetProduct(int id) {
+        public IHttpActionResult GetProduct(int id)
+        {
             ravenClient.AddTrail(new Breadcrumb("example") { Message = "some message...", Level = BreadcrumbLevel.Info } );
             
             var product = products.FirstOrDefault((p) => p.Id == id);
