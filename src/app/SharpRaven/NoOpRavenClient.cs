@@ -49,7 +49,7 @@ namespace SharpRaven
         /// </summary>
         public NoOpRavenClient()
         {
-            currentDsn = new Dsn("http://sentry-dsn.invalid");
+            currentDsn = new Dsn("http://ig:nore@sentry-dsn.invalid");
             defaultTags = new Dictionary<string, string>();
         }
 
