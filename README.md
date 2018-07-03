@@ -5,6 +5,13 @@
   <br />
 </p>
 
+## Looking for `ASP.NET Core` integration?
+
+> We've released a preview of our integration with ASP.NET Core and `Microsoft.Extensions.Logging`.
+> If you are interested in checking it out, please go to this [GitHub repository](https://github.com/getsentry/sentry-dotnet) for details.
+>
+> These integrations are based on a new SDK, built as part of the `unified API` initiative from [Sentry](sentry.io). If you'd like to try the new API, we'd love to get some feedback.
+
 Official [Sentry](https://sentry.io/for/csharp/) SDK for .NET.
 ===========
 
