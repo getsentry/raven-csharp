@@ -73,7 +73,7 @@ namespace SharpRaven.Data
                 throw new ArgumentNullException("event");
 
             if (@event.Exception != null)
-                Initialize(@event.Exception);
+                Initialize(@event.Exception, @event.ForceCaptureStackTrace);
 
             Message = @event.Message != null ? @event.Message.ToString() : null;
             Level = @event.Level;
@@ -371,7 +371,7 @@ namespace SharpRaven.Data
         }
 
 
-        private void Initialize(Exception exception)
+        private void Initialize(Exception exception, bool forceCaptureStackTrace = false)
         {
             Message = exception.Message;
 
@@ -392,7 +392,7 @@ namespace SharpRaven.Data
                 currentException != null;
                 currentException = currentException.InnerException)
             {
-                SentryException sentryException = new SentryException(currentException)
+                SentryException sentryException = new SentryException(currentException, forceCaptureStackTrace)
                 {
                     Module = currentException.Source,
                     Type = currentException.GetType().Name,

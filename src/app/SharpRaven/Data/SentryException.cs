@@ -47,7 +47,8 @@ namespace SharpRaven.Data
         /// Initializes a new instance of the <see cref="SentryException"/> class.
         /// </summary>
         /// <param name="exception">The <see cref="Exception"/>.</param>
-        public SentryException(Exception exception)
+        /// <param name="forceCaptureStackTrace">Force to capture a full StackTrace if no stack frame can be extract from exception</param>
+        public SentryException(Exception exception, bool forceCaptureStackTrace = false)
         {
             if (exception == null)
                 return;
@@ -57,7 +58,7 @@ namespace SharpRaven.Data
             Type = exception.GetType().FullName;
             Value = exception.Message;
 
-            Stacktrace = new SentryStacktrace(exception);
+            Stacktrace = new SentryStacktrace(exception, forceCaptureStackTrace);
             if (Stacktrace.Frames == null || Stacktrace.Frames.Length == 0)
                 Stacktrace = null;
         }

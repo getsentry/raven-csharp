@@ -31,6 +31,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 using Newtonsoft.Json;
@@ -46,18 +47,27 @@ namespace SharpRaven.Data
         /// Initializes a new instance of the <see cref="SentryStacktrace"/> class.
         /// </summary>
         /// <param name="exception">The <see cref="Exception"/>.</param>
-        public SentryStacktrace(Exception exception)
+        /// <param name="forceCaptureStackTrace">Force to capture a full StackTrace if no stack frame can be extract from exception</param>
+        public SentryStacktrace(Exception exception, bool forceCaptureStackTrace = false)
         {
             if (exception == null)
                 return;
 
             var trace = new StackTrace(exception, true);
+            
             var frames = trace.GetFrames();
 
-            if (frames == null)
+            if ((frames == null || frames.Length == 0) && forceCaptureStackTrace)
+            {
+                var currentAssembly = Assembly.GetAssembly(typeof(SentryStacktrace));
+                // Skip first frame if called from this assembly (in case of force capture stacktrace)
+                frames = new StackTrace(true).GetFrames().SkipWhile(f => f.GetMethod().DeclaringType != null && f.GetMethod().DeclaringType.Assembly == currentAssembly).ToArray();
+            }
+
+            if(frames == null || frames.Length == 0)
                 return;
 
-            // Sentry expects the frames to be sent in reversed order
+            // Sentry expects the frames to be sent in reversed order 
             Frames = frames.Reverse().Select(f => new ExceptionFrame(f)).ToArray();
         }
 

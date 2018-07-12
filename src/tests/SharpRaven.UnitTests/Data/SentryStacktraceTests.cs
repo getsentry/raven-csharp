@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.Linq;
 
 using NUnit.Framework;
 
@@ -66,6 +67,31 @@ namespace SharpRaven.UnitTests.Data
             }
         }
 
+
+        [Test]
+        public void Constructor_ExceptionWithoutFrames_CaptureFrames()
+        {
+            var exception = new Exception("Exception without stacktrace");
+            SentryStacktrace stacktrace = new SentryStacktrace(exception, true);
+
+            Console.WriteLine(exception);
+
+            Assert.That(stacktrace.Frames, Is.Not.Null);
+            Assert.That(stacktrace.Frames, Has.Length.GreaterThan(1));
+            Assert.That(stacktrace.Frames.Last().Module, Is.Not.StartsWith("SharpRaven.Data"));
+            Assert.That(stacktrace.Frames.Last().Function, Is.EqualTo(nameof(Constructor_ExceptionWithoutFrames_CaptureFrames)));
+        }
+
+        [Test]
+        public void Constructor_ExceptionWithoutFrames_NoCaptureFrames()
+        {
+            var exception = new Exception("Exception without stacktrace");
+            SentryStacktrace stacktrace = new SentryStacktrace(exception, false);
+
+            Console.WriteLine(exception);
+
+            Assert.That(stacktrace.Frames, Is.Null);
+        }
 
         [Test]
         public void Constructor_NullException_DoesNotThrow()

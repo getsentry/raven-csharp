@@ -41,17 +41,21 @@ namespace SharpRaven.Data
     public class SentryEvent
     {
         private readonly Exception exception;
+        private readonly bool forceCaptureStackTrace;
         private IList<string> fingerprint;
         private SentryMessage message;
         private IDictionary<string, string> tags;
 
+
         /// <summary>Initializes a new instance of the <see cref="SentryEvent" /> class.</summary>
         /// <param name="exception">The <see cref="Exception" /> to capture.</param>
-        public SentryEvent(Exception exception)
+        /// <param name="forceCaptureStackTrace">Force to capture a full StackTrace if no stack frame can be extract from exception</param>
+        public SentryEvent(Exception exception, bool forceCaptureStackTrace = false)
             : this()
         {
             this.exception = exception;
             Level = ErrorLevel.Error;
+            this.forceCaptureStackTrace = forceCaptureStackTrace;
         }
 
 
@@ -81,6 +85,11 @@ namespace SharpRaven.Data
         public Exception Exception
         {
             get { return this.exception; }
+        }
+
+        public bool ForceCaptureStackTrace
+        {
+            get { return this.forceCaptureStackTrace; }
         }
 
         /// <summary>Gets extra metadata to send with the captured <see name="Exception" /> or <see cref="Message" />.</summary>
