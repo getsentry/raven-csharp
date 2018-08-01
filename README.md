@@ -184,7 +184,7 @@ with prebuilt binaries, there's NuGet packages of both
 [ex]: https://msdn.microsoft.com/en-us/library/system.exception.data.aspx
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-link]: https://gitter.im/getsentry/raven-csharp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-[github]: http://github.com/getsentry/raven-csharp/develop/src
+[github]: https://github.com/getsentry/raven-csharp/tree/develop/src
 [mail]: https://groups.google.com/group/getsentry
 [forum]: https://forum.sentry.io/c/sdks
 [irc]: irc://irc.freenode.net/sentry
