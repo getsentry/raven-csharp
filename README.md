@@ -5,14 +5,15 @@
   <br />
 </p>
 
-## Looking for `ASP.NET Core` integration?
+## Raven is the official legacy .NET client for Sentry
 
-> We've released a preview of our integration with ASP.NET Core and `Microsoft.Extensions.Logging`.
-> If you are interested in checking it out, please go to this [GitHub repository](https://github.com/getsentry/sentry-dotnet) for details.
->
-> These integrations are based on a new SDK, built as part of the `unified API` initiative from [Sentry](sentry.io). If you'd like to try the new API, we'd love to get some feedback.
+[Sentry is unifying the API](https://blog.sentry.io/2018/09/19/new-sdks-unified-python-javascript-dotnet-rust) across all SDKs. With that, a [new .NET SDK](https://github.com/getsentry/sentry-dotnet) was created.
 
-Official [Sentry](https://sentry.io/for/csharp/) SDK for .NET.
+This SDK is still recommended for .NET Framework 3.5 to 4.6.0.
+
+For .NET Framework 4.6.1, .NET Core 2.0, Mono 5.4 or higher **please use the new SDK**.
+
+
 ===========
 
 |                      |             Stable             |      Pre-release     |
