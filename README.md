@@ -14,8 +14,6 @@ This SDK is still recommended for .NET Framework 3.5 to 4.6.0.
 For .NET Framework 4.6.1, .NET Core 2.0, Mono 5.4 or higher **please use the new SDK**.
 
 
-===========
-
 |                      |             Stable             |      Pre-release     |
 | -------------------: | :----------------------------: | :------------------: |
 |           **GitHub** |    [![GitHub release][1]][2]   |           -          |
