@@ -5,14 +5,16 @@
   <br />
 </p>
 
+## Note
+
+> [Sentry is unifying the API](https://blog.sentry.io/2018/09/19/new-sdks-unified-python-javascript-dotnet-rust) across all SDKs. With that, a [new .NET SDK](https://github.com/getsentry/sentry-dotnet) was created.
+>
+> This SDK is still recommended for .NET Framework 3.5 to 4.6.0.
+>
+> For .NET Framework 4.6.1, .NET Core 2.0, Mono 5.4 or higher **please use the new SDK**.
+
+
 ## Raven is the official legacy .NET client for Sentry
-
-[Sentry is unifying the API](https://blog.sentry.io/2018/09/19/new-sdks-unified-python-javascript-dotnet-rust) across all SDKs. With that, a [new .NET SDK](https://github.com/getsentry/sentry-dotnet) was created.
-
-This SDK is still recommended for .NET Framework 3.5 to 4.6.0.
-
-For .NET Framework 4.6.1, .NET Core 2.0, Mono 5.4 or higher **please use the new SDK**.
-
 
 |                      |             Stable             |      Pre-release     |
 | -------------------: | :----------------------------: | :------------------: |
